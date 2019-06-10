@@ -17,7 +17,7 @@ For three months they learn, hone, and apply their data science, analytical, and
 
 ### Partners
 
-Hospital Universitario de Salamanca - Cardiology Dept.
+Hospital Universitario de Salamanca
 
 
 ## Installation and setup
