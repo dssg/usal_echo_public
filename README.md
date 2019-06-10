@@ -6,6 +6,7 @@ Write project summary
 
 1. [Introduction](https://github.com/dssg/repo_name#introduction)
 2. [Installation and setup](https://github.com/dssg/repo_name#setup)
+3. [Code Examples]
 
 ## Introduction
 
