@@ -1,6 +1,7 @@
-# Project title
+# Echocardiographic Image Classification with CIBERCV data
 
-Write project summary
+This project classifies echocardiographic DICOM images obtained from the CIBERCV (Biomedical Research Networking Centres - Cardiovascular).
+
 
 ## Table of Contents
 
