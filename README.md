@@ -1,4 +1,4 @@
-# Echocardiographic Image Classification with CIBERCV data
+# Echocardiographic Image Classification with CIBERCV data checking
 
 This project classifies echocardiographic DICOM images obtained from the CIBERCV (Biomedical Research Networking Centres - Cardiovascular).
 
