@@ -35,7 +35,12 @@ Describe and show how to run the tests with code examples.
 
 ## Contributors
 
-Specify who has worked on  the project
+* Sara Guerreiro de Sousa (Project Manager)
+* Courtney Irwin
+* Liliana Millán (Technical Mentor)
+* Yoni Nachmany
+* Wiebke Toussaint
+* Dave Van Veen
 
 ## License
 
