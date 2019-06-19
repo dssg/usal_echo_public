@@ -19,7 +19,7 @@ For three months they learn, hone, and apply their data science, analytical, and
 
 ### Partners
 
-Introduce the partners of your project
+Hospital Universitario de Salamanca
 
 
 ## Installation and setup
