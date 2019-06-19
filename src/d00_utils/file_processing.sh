@@ -7,10 +7,11 @@
 # date: 	18 June 2019
 # usage:	./file_processing.sh
 # notes:	chmod +x file_processing.sh (make executable to run)
+#		saves data to ~/data_usal/Xcelera_tablas_clean	
 #=====================================================================
 
 read -p "Specify path to raw data files: " RAW_DATA_DIR
-CLEAN_DATA_DIR=$HOME/data/Xcelera_tablas_clean
+CLEAN_DATA_DIR=$HOME/data_usal/Xcelera_tablas_clean
 mkdir -p $CLEAN_DATA_DIR
 
 FILES=$RAW_DATA_DIR/*
