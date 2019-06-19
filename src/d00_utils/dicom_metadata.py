@@ -2,7 +2,7 @@ import pandas as pd
 import glob
 import os
 
-def getDicomMetadata(dirpath):
+def get_dicom_metadata(dirpath):
     """Get all dicom tags for files in dirpath.
     
     This function uses gdcmdump to retrieve the metadata tags of all files in dirpath.
