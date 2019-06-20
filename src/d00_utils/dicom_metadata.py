@@ -12,7 +12,7 @@ def get_dicom_metadata(dirpath):
         dirpath (str): directory path
         
     Output:
-        file (csv): saves to ~/data_usal/dicom_metadata.csv
+        file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv
     """
     
     # Dump metadata of all files in study directory to temp.txt
@@ -53,7 +53,7 @@ def get_dicom_metadata(dirpath):
     df = pd.DataFrame.from_records(meta, columns=['dirname','filename','tag1','tag2','value'])
 
     # Save metadata as csv file
-    data_path = '~/data_usal'
+    data_path = '~/data_usal/02_intermediate'
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
     dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
     if not os.path.isfile(dicom_meta_path): # create new file if it does not exist
