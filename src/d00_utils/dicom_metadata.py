@@ -23,7 +23,8 @@ def get_dicom_metadata(dirpath):
     all_files = os.listdir(dir_name)
     dicom_files = [dcm for dcm in all_files if dcm.endswith('.dcm')]
     dicom_files.sort()
-    
+
+    # Parse temp.txt file to extract tags
     temp_file='temp.txt'
     meta = []
     file_iterator = -1 # needed to associate filename with metadata
@@ -51,10 +52,14 @@ def get_dicom_metadata(dirpath):
                     
     df = pd.DataFrame.from_records(meta, columns=['dirname','filename','tag1','tag2','value'])
 
-    os.makedirs(os.path.expanduser('~/data_usal'), exist_ok=True)
-    if not os.path.isfile(file_name): # create new file if it does not exist
-        df.to_csv('~/data_usal/dicom_metadata.csv', index=False)
+    # Save metadata as csv file
+    data_path = '~/data_usal'
+    os.makedirs(os.path.expanduser(data_path), exist_ok=True)
+    dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
+    if not os.path.isfile(dicom_meta_path): # create new file if it does not exist
+        df.to_csv(dicom_meta_path, index=False)
     else: # if file exists append
-        df.to_csv('~/data_usal/dicom_metadata.csv', mode='a', index=False, header=False)
+        df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
         
     return('dicom metadata saved for {}'.format(dir_name))
+
