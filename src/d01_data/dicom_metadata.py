@@ -33,8 +33,8 @@ def get_dicom_metadata(dirpath):
     file_iterator = -1 # needed to associate filename with metadata
     with open(temp_file, 'r') as f:
         line_meta = []
-        try:
-            for one_line in f:
+        for one_line in f:            
+            try:
                 file_name = dicom_files[file_iterator]
                 clean_line = one_line.replace(']','').strip()
                 if "# Dicom-File-Format" in clean_line: # check for new header
@@ -50,8 +50,8 @@ def get_dicom_metadata(dirpath):
                     value = clean_line[16:clean_line.find('#')].strip()
                     line_meta=[dir_name, file_name, tag1, tag2, value]
                     meta.append(line_meta)
-        except Exception as e:
-            print(e, dir_name, file_name, one_line)
+            except IndexError:
+                break
                     
     df = pd.DataFrame.from_records(meta, columns=['dirname','filename','tag1','tag2','value'])
 
@@ -67,5 +67,22 @@ def get_dicom_metadata(dirpath):
         
     os.remove('temp.txt')
         
-    return('dicom metadata saved for {}'.format(dir_name))
+    print('dicom metadata saved for {}'.format(dir_name))
 
+def iterate_through_studies(parentdir):
+    """
+    This function iterates through all study directories in parentdir and processes
+    the dicom metadata of all files contained in the study.
+
+    Parameters:
+        parentdir (str): directory path (contains study directories)
+        
+    Output:
+        file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv    
+    
+    """
+    for obj in os.listdir(parentdir):
+        if obj.startswith('.'):
+            pass
+        else:
+            get_dicom_metadata(os.path.join(parentdir,obj))
