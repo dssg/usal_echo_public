@@ -1,5 +1,4 @@
 import pandas as pd
-import glob
 import os
 
 def get_dicom_metadata(dirpath):
@@ -8,6 +7,10 @@ def get_dicom_metadata(dirpath):
     This function uses gdcmdump to retrieve the metadata tags of all files in dirpath.
     The tags are written to a csv file with header=['dirname','filename','tag1','tag2','value']
     
+    ** Requires libgdcm: 
+        Unix install with `sudo apt-get install libgdcm-tools`
+        Mac install with `brew install gdcm`
+    
     Parameters:
         dirpath (str): directory path
         
@@ -15,14 +18,14 @@ def get_dicom_metadata(dirpath):
         file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv
     """
     
+    # Get list of all files in directory
+    all_files = os.listdir(dirpath)
+    dicom_files = [dcm for dcm in all_files if dcm.endswith('.dcm')]
+    dicom_files.sort()    
+    
     # Dump metadata of all files in study directory to temp.txt
     os.system('gdcmdump '+ dirpath +' > temp.txt')
     dir_name = os.path.basename(dirpath)
-    
-    # Get list of all files in directory
-    all_files = os.listdir(dir_name)
-    dicom_files = [dcm for dcm in all_files if dcm.endswith('.dcm')]
-    dicom_files.sort()
 
     # Parse temp.txt file to extract tags
     temp_file='temp.txt'
@@ -53,13 +56,16 @@ def get_dicom_metadata(dirpath):
     df = pd.DataFrame.from_records(meta, columns=['dirname','filename','tag1','tag2','value'])
 
     # Save metadata as csv file
-    data_path = '~/data_usal/02_intermediate'
+    data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
     dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
     if not os.path.isfile(dicom_meta_path): # create new file if it does not exist
+        print('Creating new metadata file')
         df.to_csv(dicom_meta_path, index=False)
     else: # if file exists append
         df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
+        
+    os.remove('temp.txt')
         
     return('dicom metadata saved for {}'.format(dir_name))
 
