@@ -38,7 +38,7 @@ def get_dicom_metadata(dirpath):
                 file_name = dicom_files[file_iterator]
                 clean_line = one_line.replace(']','').strip()
                 if "# Dicom-File-Format" in clean_line: # check for new header
-                    file_iterator += 1 # increase if header is encountered
+                    file_iterator += 1
                     continue
                 if clean_line.startswith('#'): # ignore comment lines
                     continue
@@ -54,6 +54,10 @@ def get_dicom_metadata(dirpath):
                 break
                     
     df = pd.DataFrame.from_records(meta, columns=['dirname','filename','tag1','tag2','value'])
+    df_dedup = df.drop_duplicates(keep='first')
+    df_dedup_goodvals = df_dedup[~df_dedup.value.str.contains('no value')]
+    df_dedup_goodvals_short = df_dedup_goodvals[df_dedup_goodvals['value'].str.len()<50]
+    
 
     # Save metadata as csv file
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
@@ -61,9 +65,9 @@ def get_dicom_metadata(dirpath):
     dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
     if not os.path.isfile(dicom_meta_path): # create new file if it does not exist
         print('Creating new metadata file')
-        df.to_csv(dicom_meta_path, index=False)
+        df_dedup_goodvals_short.to_csv(dicom_meta_path, index=False)
     else: # if file exists append
-        df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
+        df_dedup_goodvals_short.to_csv(dicom_meta_path, mode='a', index=False, header=False)
         
     os.remove('temp.txt')
         
