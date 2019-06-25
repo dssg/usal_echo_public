@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-def get_dicom_metadata(dirpath):
+def get_dicom_metadata(dirpath, metadata_file_name=None ):
     """Get all dicom tags for files in dirpath.
     
     This function uses gdcmdump to retrieve the metadata tags of all files in dirpath.
@@ -13,6 +13,7 @@ def get_dicom_metadata(dirpath):
     
     Parameters:
         dirpath (str): directory path
+        metadata_file_name (str): string to append to metadata file name 'dicom_metadata.csv', default=None
         
     Output:
         file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv
@@ -62,7 +63,10 @@ def get_dicom_metadata(dirpath):
     # Save metadata as csv file
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
-    dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
+    if metadata_file_name is None:
+        dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
+    else:
+        dicom_meta_path = os.path.join(data_path,'dicom_metadata_'+str(metadata_file_name)+'.csv')
     if not os.path.isfile(dicom_meta_path): # create new file if it does not exist
         print('Creating new metadata file')
         df_dedup_goodvals_short.to_csv(dicom_meta_path, index=False)
@@ -88,5 +92,5 @@ def iterate_through_studies(parentdir):
     for obj in os.listdir(parentdir):
         if obj.startswith('.'):
             pass
-        else:
+        elif os.path.isdir(os.path.join(parentdir,obj)):
             get_dicom_metadata(os.path.join(parentdir,obj))
