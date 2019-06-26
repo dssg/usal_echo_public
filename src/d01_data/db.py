@@ -1,11 +1,11 @@
 import pandas as pd
 import sqlalchemy
+import yaml
 
 
 def get_sqlalchemy_engine():
-    # TODO: figure out convention for configurations in this project structure
-    with open("../conf/local/db.json") as f:
-        conf = eval(f.read())
+    with open("../conf/local/db.yaml") as f:
+        conf = yaml.safe_load(f)
 
     connection_string = "postgresql://{}:{}@{}/{}".format(
         conf["user"], conf["pw"], conf["host"], conf["DB"]
