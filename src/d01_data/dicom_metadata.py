@@ -24,31 +24,31 @@ def get_dicom_metadata(dirpath):
     dicom_files.sort()    
     
     # Dump metadata of all files in study directory to temp.txt
-    os.system("gdcmdump " + dirpath + " > temp.txt")
+    os.system('gdcmdump '+ dirpath +' > temp.txt')
     dir_name = os.path.basename(dirpath)
 
     # Parse temp.txt file to extract tags
-    temp_file = "temp.txt"
+    temp_file='temp.txt'
     meta = []
-    file_iterator = -1  # needed to associate filename with metadata
-    with open(temp_file, "r") as f:
+    file_iterator = -1 # needed to associate filename with metadata
+    with open(temp_file, 'r') as f:
         line_meta = []
         for one_line in f:            
             try:
                 file_name = dicom_files[file_iterator]
-                clean_line = one_line.replace("]", "").strip()
-                if "# Dicom-File-Format" in clean_line:  # check for new header
-                    file_iterator += 1  # increase if header is encountered
+                clean_line = one_line.replace(']','').strip()
+                if "# Dicom-File-Format" in clean_line: # check for new header
+                    file_iterator += 1 # increase if header is encountered
                     continue
-                if clean_line.startswith("#"):  # ignore comment lines
+                if clean_line.startswith('#'): # ignore comment lines
                     continue
-                if not clean_line:  # ignore empty lines
+                if not clean_line: # ignore empty lines
                     continue
                 else:
                     tag1 = clean_line[1:5]
                     tag2 = clean_line[6:10]
-                    value = clean_line[16 : clean_line.find("#")].strip()
-                    line_meta = [dir_name, file_name, tag1, tag2, value]
+                    value = clean_line[16:clean_line.find('#')].strip()
+                    line_meta=[dir_name, file_name, tag1, tag2, value]
                     meta.append(line_meta)
             except IndexError:
                 break
