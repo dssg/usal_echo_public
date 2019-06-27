@@ -152,9 +152,7 @@ def get_matching_s3_keys(bucket, prefix='', suffix=''):
         
         
 if __name__ == '__main__':
-    check = input("Do you want to fetch all dicom metadata? \
-                      This will take ~48 hours. \
-                      Type YES to continue. Any other input will stop the process.")
+    check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Any other input will stop the process.")
     
     if check.lower() == 'yes':
         for key in get_matching_s3_keys('cibercv','','.dcm'): 
@@ -163,5 +161,4 @@ if __name__ == '__main__':
         os.remove('temp.txt')
         
     else:
-        print('Exciting the dicom metadata retrieval process. \
-              Rerun the script and type YES when prompted if this was a mistake.')
+        print('Exciting the dicom metadata retrieval process. Rerun the script and type YES when prompted if this was a mistake.')
