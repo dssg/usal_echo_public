@@ -40,12 +40,9 @@ def get_dicom_metadata(dirpath, metadata_file_name=None ):
                 clean_line = one_line.replace(']','').strip()
                 if "# Dicom-File-Format" in clean_line: # check for new header
                     file_iterator += 1
-                    continue
-                if clean_line.startswith('#'): # ignore comment lines
-                    continue
                 if not clean_line: # ignore empty lines
                     continue
-                else:
+                elif not clean_line.startswith('#'): # ignore comment lines:
                     tag1 = clean_line[1:5]
                     tag2 = clean_line[6:10]
                     value = clean_line[16:clean_line.find('#')].strip()
@@ -58,7 +55,6 @@ def get_dicom_metadata(dirpath, metadata_file_name=None ):
     df_dedup = df.drop_duplicates(keep='first')
     df_dedup_goodvals = df_dedup[~df_dedup.value.str.contains('no value')]
     df_dedup_goodvals_short = df_dedup_goodvals[df_dedup_goodvals['value'].str.len()<50]
-    
 
     # Save metadata as csv file
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
@@ -90,7 +86,5 @@ def iterate_through_studies(parentdir):
     
     """
     for obj in os.listdir(parentdir):
-        if obj.startswith('.'):
-            pass
-        elif os.path.isdir(os.path.join(parentdir,obj)):
+        if not obj.startswith('.') and os.path.isdir(os.path.join(parentdir,obj)):
             get_dicom_metadata(os.path.join(parentdir,obj))
