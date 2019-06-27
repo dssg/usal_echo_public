@@ -152,7 +152,16 @@ def get_matching_s3_keys(bucket, prefix='', suffix=''):
         
         
 if __name__ == '__main__':
-    for key in get_matching_s3_keys('cibercv','','.dcm'): 
-        df = get_dicom_metadata('cibercv', key)
-        write_dicom_metadata(df)
-    os.remove('temp.txt')
+    check = input("Do you want to fetch all dicom metadata? \
+                      This will take ~48 hours. \
+                      Type YES to continue. Any other input will stop the process.")
+    
+    if check.lower() == 'yes':
+        for key in get_matching_s3_keys('cibercv','','.dcm'): 
+            df = get_dicom_metadata('cibercv', key)
+            write_dicom_metadata(df)
+        os.remove('temp.txt')
+        
+    else:
+        print('Exciting the dicom metadata retrieval process. \
+              Rerun the script and type YES when prompted if this was a mistake.')
