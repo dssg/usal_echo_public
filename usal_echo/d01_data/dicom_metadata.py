@@ -3,7 +3,7 @@ import os
 import boto3
 import tempfile
 
-def get_dicom_metadata(bucket, object_path):
+def get_dicom_metadata(bucket, object_path, description=False):
     
     """Get all dicom tags for file in object_path.
     
@@ -18,7 +18,8 @@ def get_dicom_metadata(bucket, object_path):
     
     Parameters:
         bucket (str): s3 bucket
-        object_path (str): string to append to metadata file name 'dicom_metadata.csv', default=None
+        object_path (str): path to dicom file
+        description (bool): include dicom tag descriptions instead of values, default=False
         
     Output:
         pandas DataFrame object with columns=['dirname','filename','tag1','tag2','value']
@@ -47,7 +48,10 @@ def get_dicom_metadata(bucket, object_path):
                 elif not clean_line.startswith('#'): # ignore comment lines:
                     tag1 = clean_line[1:5]
                     tag2 = clean_line[6:10]
-                    value = clean_line[16:clean_line.find('#')].strip()
+                    if description == False:
+                        value = clean_line[16:clean_line.find('#')].strip()
+                    elif description == True:
+                        value = clean_line[clean_line.find('#')+2:].strip()
                     line_meta=[dir_name, file_name, tag1, tag2, value]
                     meta.append(line_meta)
             except IndexError:
