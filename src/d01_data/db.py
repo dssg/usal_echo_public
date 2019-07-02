@@ -50,4 +50,6 @@ def read_table(conn, name):
     :return: dataframe of table
     """
     query = f"select * from {name}"
-    return pd.read_sql(query, conn)
+    df = pd.read_sql(query, conn)
+    print(f"Table {name} has {df.shape[0]} rows and {df.shape[1]} columns")
+    return df
