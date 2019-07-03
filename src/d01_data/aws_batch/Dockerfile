@@ -12,4 +12,4 @@ ADD metadata_images.py /
 ADD credentials /root/.aws/
 ADD credentials_db.json /
 
-CMD ["python", "./metadata_images.py"]
+CMD ["python", "./dicom_batch.py"]
