@@ -16,10 +16,9 @@ def get_dicom_metadata(bucket, object_path, description=False):
         Mac install with `brew install gdcm`
     .aws/credentials file with s3 access details saved as default profile
     
-    Parameters:
-        bucket (str): s3 bucket
-        object_path (str): path to dicom file
-        description (bool): include dicom tag descriptions instead of values, default=False
+    :param bucket (str): s3 bucket
+    :param object_path (str): path to dicom file
+    :param description (bool): include dicom tag descriptions instead of values, default=False
         
     Output:
         pandas DataFrame object with columns=['dirname','filename','tag1','tag2','value']
@@ -71,13 +70,12 @@ def write_dicom_metadata(df, metadata_file_name=None):
     
     Writes the output of 'get_dicom_metadata()' to a csv file.
     
-    Parameters:
-        df (pandas.DataFrame): output of 'get_dicom_metadata()'
-        metadata_file_name (str): string to append to metadata file name 'dicom_metadata.csv', default=None
+    :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
+    :param metadata_file_name (str): string to append to metadata file name 'dicom_metadata.csv', default=None
         
     Output:
         file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv
-        """
+    """
 
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
