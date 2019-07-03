@@ -91,3 +91,13 @@ def count_rows_with_empty_string_in_column(df, column):
     df = df[df[column] != ""]
     end_rows = df.shape[0]
     print(f"Counted {start_rows-end_rows} rows with empty strings in column {column}")
+    
+
+def get_value_counts(df, column):
+    return df[column].value_counts()
+
+def get_number_of_values_with_count_no_greater_than_threshold(counts, threshold):
+    print(f'Number of values with count <= {threshold}: {len(counts[counts<=threshold])}')
+
+def get_value_count_values(df, column):
+    return df[column].value_counts().values
