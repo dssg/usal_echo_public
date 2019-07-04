@@ -1,0 +1,688 @@
+# Dicom-File-Format
+
+# Dicom-Meta-Information-Header
+# Used TransferSyntax: 
+(0002,0000) UL 240                                                # 4,1 File Meta Information Group Length
+(0002,0001) OB 00\01                                              # 2,1 File Meta Information Version
+(0002,0002) UI [1.2.840.10008.5.1.4.1.1.3.1]                      # 28,1 Media Storage SOP Class UID
+(0002,0003) UI [1.2.826.0.1.3680043.2.1143.7083526357594359402952981207252204209]         # 64,1 Media Storage SOP Instance UID
+(0002,0010) UI [1.2.840.10008.1.2.5]                              # 20,1 Transfer Syntax UID
+(0002,0012) UI [1.2.826.0.1.3680043.2.1143.107.104.103.115.3.0.0]         # 48,1 Implementation Class UID
+(0002,0013) SH [GDCM 3.0.0]                                       # 10,1 Implementation Version Name
+(0002,0016) AE [gdcmanon]                                         # 8,1 Source Application Entity Title
+
+# Dicom-Data-Set
+# Used TransferSyntax: 1.2.840.10008.1.2.5
+(0008,0005) CS [ISO_IR 100]                                       # 10,1-n Specific Character Set
+(0008,0008) CS [ORIGINAL\PRIMARY\CARDIOLOGY ]                     # 28,2-n Image Type
+(0008,0012) DA [20170519]                                         # 8,1 Instance Creation Date
+(0008,0013) TM [092647]                                           # 6,1 Instance Creation Time
+(0008,0016) UI [1.2.840.10008.5.1.4.1.1.3.1]                      # 28,1 SOP Class UID
+(0008,0018) UI [1.2.826.0.1.3680043.2.1143.7083526357594359402952981207252204209]         # 64,1 SOP Instance UID
+(0008,0020) DA [20170519]                                         # 8,1 Study Date
+(0008,0021) DA [20170519]                                         # 8,1 Series Date
+(0008,0023) DA [20170519]                                         # 8,1 Content Date
+(0008,002a) DT [20170519092646]                                   # 14,1 Acquisition Date Time
+(0008,0030) TM [085402]                                           # 6,1 Study Time
+(0008,0031) TM [085402]                                           # 6,1 Series Time
+(0008,0033) TM [092647]                                           # 6,1 Content Time
+(0008,0050) SH (no value)                                         # 0,1 Accession Number
+(0008,0060) CS [US]                                               # 2,1 Modality
+(0008,0068) CS [FOR PRESENTATION]                                 # 16,1 Presentation Intent Type
+(0008,0070) LO [Philips Medical Systems ]                         # 24,1 Manufacturer
+(0008,0080) LO (no value)                                         # 0,1 Institution Name
+(0008,0090) PN (no value)                                         # 0,1 Referring Physician's Name
+(0008,1010) SH (no value)                                         # 0,1 Station Name
+(0008,1030) LO (no value)                                         # 0,1 Study Description
+(0008,1048) PN (no value)                                         # 0,1-n Physician(s) of Record
+(0008,1070) PN (no value)                                         # 0,1-n Operators' Name
+(0008,1090) LO [EPIQ 7C ]                                         # 8,1 Manufacturer's Model Name
+(0008,1111) SQ (Sequence with undefined length)                   # u/l,1 Referenced Performed Procedure Step Sequence
+  (fffe,e000) na (Item with defined length)
+    (0008,1150) UI [1.2.840.10008.3.1.2.3.3]                      # 24,1 Referenced SOP Class UID
+    (0008,1155) UI [1.2.826.0.1.3680043.2.1143.9573724621086178048834259676788790198]         # 64,1 Referenced SOP Instance UID
+(fffe,e0dd)
+(0008,2111) ST (no value)                                         # 0,1 Derivation Description
+(0008,2144) IS [93]                                               # 2,1 Recommended Display Frame Rate
+(0010,0010) PN (no value)                                         # 0,1 Patient's Name
+(0010,0020) LO (no value)                                         # 0,1 Patient ID
+(0010,0030) DA (no value)                                         # 0,1 Patient's Birth Date
+(0010,0040) CS (no value)                                         # 0,1 Patient's Sex
+(0010,1020) DS (no value)                                         # 0,1 Patient's Size
+(0010,1030) DS (no value)                                         # 0,1 Patient's Weight
+(0010,4000) LT (no value)                                         # 0,1 Patient Comments
+(0018,0040) IS [93]                                               # 2,1 Cine Rate
+(0018,1000) LO (no value)                                         # 0,1 Device Serial Number
+(0018,1020) LO [EPIQ 7C_1.7.1.24]                                 # 16,1-n Software Version(s)
+(0018,1030) LO (no value)                                         # 0,1 Protocol Name
+(0018,1063) DS [10.723]                                           # 6,1 Frame Time
+(0018,1088) IS [168 ]                                             # 4,1 Heart Rate
+(0018,5010) LO [X7_2t\56812\]                                     # 12,1-n Transducer Data
+(0018,5020) LO [CARD_ADULT_GEN_CV ]                               # 18,1 Processing Function
+(0018,6011) SQ (Sequence with undefined length)                   # u/l,1 Sequence of Ultrasound Regions
+  (fffe,e000) na (Item with defined length)
+    (0018,6012) US 1                                              # 2,1 Region Spatial Format
+    (0018,6014) US 1                                              # 2,1 Region Data Type
+    (0018,6016) UL 2                                              # 4,1 Region Flags
+    (0018,6018) UL 67                                             # 4,1 Region Location Min X0
+    (0018,601a) UL 185                                            # 4,1 Region Location Min Y0
+    (0018,601c) UL 424                                            # 4,1 Region Location Max X1
+    (0018,601e) UL 588                                            # 4,1 Region Location Max Y1
+    (0018,6024) US 3                                              # 2,1 Physical Units X Direction
+    (0018,6026) US 3                                              # 2,1 Physical Units Y Direction
+    (0018,602c) FD 0.0189486                                      # 8,1 Physical Delta X
+    (0018,602e) FD 0.0189486                                      # 8,1 Physical Delta Y
+  (fffe,e000) na (Item with defined length)
+    (0018,6012) US 1                                              # 2,1 Region Spatial Format
+    (0018,6014) US 1                                              # 2,1 Region Data Type
+    (0018,6016) UL 2                                              # 4,1 Region Flags
+    (0018,6018) UL 432                                            # 4,1 Region Location Min X0
+    (0018,601a) UL 185                                            # 4,1 Region Location Min Y0
+    (0018,601c) UL 789                                            # 4,1 Region Location Max X1
+    (0018,601e) UL 588                                            # 4,1 Region Location Max Y1
+    (0018,6024) US 3                                              # 2,1 Physical Units X Direction
+    (0018,6026) US 3                                              # 2,1 Physical Units Y Direction
+    (0018,602c) FD 0.0189486                                      # 8,1 Physical Delta X
+    (0018,602e) FD 0.0189486                                      # 8,1 Physical Delta Y
+(fffe,e0dd)
+(0020,000d) UI [1.2.826.0.1.3680043.2.1143.3375767582093084961170978154593601124]         # 64,1 Study Instance UID
+(0020,000e) UI [1.2.826.0.1.3680043.2.1143.3128920337332270955263448592722076314]         # 64,1 Series Instance UID
+(0020,0010) SH (no value)                                         # 0,1 Study ID
+(0020,0011) IS [1 ]                                               # 2,1 Series Number
+(0020,0013) IS [51]                                               # 2,1 Instance Number
+(0028,0002) US 3                                                  # 2,1 Samples per Pixel
+(0028,0004) CS [RGB ]                                             # 4,1 Photometric Interpretation
+(0028,0006) US 0                                                  # 2,1 Planar Configuration
+(0028,0008) IS [66]                                               # 2,1 Number of Frames
+(0028,0009) AT (0018,1063)                                        # 4,1-n Frame Increment Pointer
+(0028,0010) US 600                                                # 2,1 Rows
+(0028,0011) US 800                                                # 2,1 Columns
+(0028,0014) US 0                                                  # 2,1 Ultrasound Color Data Present
+(0028,0100) US 8                                                  # 2,1 Bits Allocated
+(0028,0101) US 8                                                  # 2,1 Bits Stored
+(0028,0102) US 7                                                  # 2,1 High Bit
+(0028,0103) US 0                                                  # 2,1 Pixel Representation
+(0028,0301) CS [NO]                                               # 2,1 Burned In Annotation
+(0028,2110) CS [00]                                               # 2,1 Lossy Image Compression
+(0040,0244) DA [20170519]                                         # 8,1 Performed Procedure Step Start Date
+(0040,0245) TM [085402]                                           # 6,1 Performed Procedure Step Start Time
+(0040,0253) SH [20170519.085402 ]                                 # 16,1 Performed Procedure Step ID
+(0040,0254) LO (no value)                                         # 0,1 Performed Procedure Step Description
+(0040,0280) ST [Ninguno ]                                         # 8,1 Comments on the Performed Procedure Step
+(2001,0010) LO [Philips Imaging DD 001]                           # 22,1 Private Creator
+(2001,1063) CS [ELSEWHERE ]                                       # 10,1 Examination Source
+(200d,0020) LO [Philips US Imaging DD 017 ]                       # 26,1 Private Creator
+(200d,0024) LO [Philips US Imaging DD 021 ]                       # 26,1 Private Creator
+(200d,0026) LO [Philips US Imaging DD 023 ]                       # 26,1 Private Creator
+(200d,0030) LO [Philips US Imaging DD 033 ]                       # 26,1 Private Creator
+(200d,0039) LO [Philips US Imaging DD 042 ]                       # 26,1 Private Creator
+(200d,003a) LO [Philips US Imaging DD 043 ]                       # 26,1 Private Creator
+(200d,003c) LO [Philips US Imaging DD 045 ]                       # 26,1 Private Creator
+(200d,0051) LO [Philips US Imaging DD 066 ]                       # 26,1 Private Creator
+(200d,2005) LO [native_biplane]                                   # 14,1 ?
+(200d,2407) LO [CUSTOM_SELECTION_13 ]                             # 20,? (1)  GDCM:UNKNOWN
+(200d,2637) DA [20170519]                                         # 8,1 ?
+(200d,2638) TM [085402]                                           # 6,1 ?
+(200d,2645) IS [0 ]                                               # 2,1 ?
+(200d,3000) OB 50\68\69\6c\69\70\73\20\43\6f\6e\66\69\64\65\6e\74\69\61\6c\20\76\2e\31\30\00\80\7c\dc\ea\2c\80\eb\1e\fc\3a\ba\30\b6\0b\ba\5e\2f\92\fa\cb\3e\32\e5\06\5c\06\00\d7\50\79\27\85\1e\60\b2\9f\03\c5         # 1052186,1 Philips Confidential v.1
+(200d,300f) OB ff\fe\3c\00\3f\00\78\00\6d\00\6c\00\20\00\76\00\65\00\72\00\73\00\69\00\6f\00\6e\00\3d\00\22\00\31\00\2e\00\30\00\22\00\20\00\73\00\74\00\61\00\6e\00\64\00\61\00\6c\00\6f\00\6e\00\65\00\3d\00         # 1112,1 XML: UAA / CaptureContext
+(200d,3014) IS [1 ]                                               # 2,1 ?
+(200d,3022) IS [0 ]                                               # 2,? (1)  GDCM:UNKNOWN
+(200d,3915) IS [0 ]                                               # 2,1 ?
+(200d,3916) FD 0                                                  # 8,1 ?
+(200d,3a05) SH [ACCEPTED]                                         # 8,1 ?
+(200d,3cf4) SQ (Sequence with defined length)                     # 11265570,? (1)  GDCM:UNKNOWN
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_ECHO]                 # 28,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 11140598,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [66]                                       # 2,1 Number of Frames
+        (200d,3011) IS [256640]                                   # 6,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB 77\64\63\00\42\00\00\00\10\01\00\00\1e\81\01\00\9f\00\03\00\19\80\04\00\9a\00\06\00\0a\80\07\00\e6\ff\08\00\e9\80\0a\00\e8\01\0c\00\83\82\0d\00\c9\02\0f\00\84\82\10\00\1d\02\12\00\3a\81\13\00         # 6513784,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [ZLib]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB 6f\ce\3a\07\01\00\00\00\d0\07\54\04\01\00\00\05\40\ea\03\00\f0\7e\8e\7d\38\7d\2e\86\3c\6a\3a\7b\4b\f8\3a\07\01\00\00\00\d0\07\54\04\01\00\00\05\40\ea\03\00\df\7b\91\79\03\71\f1\6b\f0\78\72\6e         # 2112,1 Frames header array
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [46]                                       # 2,1 Number of Frames
+        (200d,3011) IS [256640]                                   # 6,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [1 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB 5a\8a\46\00\2e\00\00\00\c0\00\00\00\c3\8a\01\00\0b\13\03\00\84\9b\04\00\42\24\06\00\0a\ad\07\00\a0\35\09\00\5f\be\0a\00\5d\47\0c\00\bd\cf\0d\00\16\58\0f\00\e7\df\10\00\6a\67\12\00\f3\ee\13\00         # 4622938,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [ZLib]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB 6f\ce\3a\07\01\00\00\00\d0\07\54\04\01\00\00\04\40\ea\03\00\f0\7e\8e\7d\38\7d\2e\86\3c\6a\3a\7b\4b\f8\3a\07\01\00\00\00\d0\07\54\04\01\00\00\04\40\ea\03\00\df\7b\91\79\03\71\f1\6b\f0\78\72\6e         # 1472,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_ECHO_CONTRAST ]         # 38,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_DOPPLER_CW ]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_DOPPLER_PW ]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_DOPPLER_PW_TDI ]         # 36,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_FLOW]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_PMI ]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_CPA ]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_TDI ]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_ECHO ]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_COLOR]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_COLOR_TDI]         # 36,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_PARAM_BLOCK]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_VELOCITY]         # 38,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 284,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [1 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_POWER ]         # 36,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 284,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [1 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_VARIANCE]         # 38,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 284,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [1 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_DOPPLER_AUDIO]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_DOPPLER_HIGHQ]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_PHYSIO ]                 # 28,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 116102,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [707 ]                                     # 4,1 Number of Frames
+        (200d,3011) IS [128 ]                                     # 4,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB 94\6c\01\00\c3\02\00\00\14\0b\00\00\94\0b\00\00\14\0c\00\00\94\0c\00\00\14\0d\00\00\94\0d\00\00\14\0e\00\00\94\0e\00\00\14\0f\00\00\94\0f\00\00\14\10\00\00\94\10\00\00\14\11\00\00\94\11\00\00         # 93332,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB 88\cb\3a\07\01\00\00\00\00\00\54\04\26\00\00\01\08\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\70\cf\3a\07\01\00\00\00\00\00\54\04\26\00\00\01\08\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 22624,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_COLOR_STRAIN]         # 36,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_COMPOSITE_RGB]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_XFOV_REALTIME_GRAPHICS ]         # 44,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_XFOV_MOSAIC]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_COMPOSITE_R]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_COMPOSITE_G]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_COMPOSITE_B]             # 32,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_COLOR_VELOCITY ]         # 42,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_COLOR_POWER]         # 38,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_MMODE_COLOR_VARIANCE ]         # 42,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_ELASTO]               # 30,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_ELASTO_CONFIDENCE ]         # 42,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+  (fffe,e000) na (Item with defined length)
+    (200d,0030) LO [Philips US Imaging DD 033 ]                   # 26,1 Private Creator
+    (200d,003c) LO [Philips US Imaging DD 045 ]                   # 26,1 Private Creator
+    (200d,300d) LO [UDM_USD_DATATYPE_DIN_2D_STIFFNESS ]           # 34,1 UDM USD DATATYPE DIN
+    (200d,3cf1) SQ (Sequence with defined length)                 # 142,1 Private DataType Image Sequence
+      (fffe,e000) na (Item with defined length)
+        (200d,0030) LO [Philips US Imaging DD 033 ]               # 26,1 Private Creator
+        (200d,003c) LO [Philips US Imaging DD 045 ]               # 26,1 Private Creator
+        (200d,3010) IS [0 ]                                       # 2,1 Number of Frames
+        (200d,3011) IS [0 ]                                       # 2,1 Max Alloc Buffer (Zlib)
+        (200d,3021) IS [0 ]                                       # 2,1 ?Zero?
+        (200d,3cf3) OB (no value)                                 # 0,1 image buffer (Zlib/none compressed)
+        (200d,3cfa) CS [None]                                     # 4,1 ZLib/None
+        (200d,3cfb) OB (no value)                                 # 0,1 Frames header array
+(200d,5100) OB 50\68\69\6c\69\70\73\20\43\6f\6e\66\69\64\65\6e\74\69\61\6c\20\76\2e\31\30\00\80\7c\dc\ea\2c\80\eb\1e\fc\3a\ba\30\b6\0b\ba\5e\2f\92\fa\cb\3e\32\e5\06\5c\06\00\d7\50\79\27\85\1e\60\b2\9f\03\c5         # 30234,1 Philips Confidential v.1
+(7fe0,0010) OB                                                    # u/l,1 Pixel Data
+  (fffe,e000) ?? 00\00\00\00\de\80\07\00\6a\02\0f\00\3c\7e\16\00\5e\fb\1d\00\2c\76\25\00\b4\ef\2c\00\94\6e\34\00         # 264,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\e8\86\02\00\c0\0d\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491734,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\32\87\02\00\52\0e\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491908,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\54\85\02\00\98\0a\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490442,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\c6\85\02\00\7c\0b\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490778,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\f4\84\02\00\da\09\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490182,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\9c\84\02\00\26\09\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 489856,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\54\86\02\00\98\0c\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491224,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ce\82\02\00\8c\05\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488432,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\64\84\02\00\b8\08\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 489694,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ee\86\02\00\cc\0d\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491696,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\22\87\02\00\34\0e\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491826,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\52\89\02\00\94\12\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 493542,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\94\87\02\00\1c\0f\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 492150,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\52\85\02\00\94\0a\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490420,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\78\84\02\00\e0\08\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 489760,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ae\89\02\00\4c\13\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 493772,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\56\86\02\00\9c\0c\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491228,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\3c\85\02\00\68\0a\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490404,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\28\86\02\00\40\0c\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491092,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\50\87\02\00\90\0e\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 492006,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\38\87\02\00\60\0e\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491954,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\78\88\02\00\e0\10\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 492898,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\74\8a\02\00\d8\14\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 494394,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\88\8d\02\00\00\1b\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 496768,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\06\8f\02\00\fc\1d\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 497926,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\e6\8b\02\00\bc\17\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 495486,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\9a\8b\02\00\24\17\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 495302,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\3a\8d\02\00\64\1a\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 496552,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\34\88\02\00\58\10\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 492688,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\7c\88\02\00\e8\10\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 492900,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\f6\86\02\00\dc\0d\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491762,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\88\85\02\00\00\0b\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490658,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\f0\83\02\00\d0\07\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 489412,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\30\83\02\00\50\06\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488842,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\18\83\02\00\20\06\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488760,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\e2\82\02\00\b4\05\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488602,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\02\82\02\00\f4\03\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487902,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\3a\83\02\00\64\06\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488816,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\3c\80\02\00\68\00\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486566,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ec\80\02\00\c8\01\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487014,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ec\84\02\00\c8\09\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490118,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\a2\85\02\00\34\0b\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 490664,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\68\83\02\00\c0\06\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488906,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\a4\84\02\00\38\09\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 489884,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\5e\86\02\00\ac\0c\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 491234,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\90\81\02\00\0e\03\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487460,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\6e\81\02\00\ca\02\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487354,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\f2\81\02\00\d2\03\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487736,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\26\82\02\00\3a\04\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487908,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ea\82\02\00\c2\05\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488514,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\62\82\02\00\b2\04\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488118,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\82\83\02\00\f2\06\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 488972,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\0e\82\02\00\0a\04\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487866,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\f6\81\02\00\da\03\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487774,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\b4\81\02\00\56\03\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487550,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\b4\80\02\00\56\01\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486806,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\1a\81\02\00\22\02\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 487088,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ba\7f\02\00\62\ff\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486052,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\30\80\02\00\4e\00\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486394,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ce\7f\02\00\8a\ff\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486134,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\7a\7f\02\00\e2\fe\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 485858,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\e6\7e\02\00\ba\fd\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 485402,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\18\80\02\00\1e\00\05\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486322,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\ac\7f\02\00\46\ff\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 486004,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\86\7e\02\00\fa\fc\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 485084,1 Item
+  (fffe,e000) ?? 03\00\00\00\40\00\00\00\96\7f\02\00\1a\ff\04\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00         # 485932,1 Item
+(fffe,e0dd) 0
