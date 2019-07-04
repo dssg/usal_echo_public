@@ -28,7 +28,7 @@ def get_db_config(path):
 
 def get_sqlalchemy_connection(conf):
     """
-    Get SQLAlchemy Engine for database
+    Get SQLAlchemy Engine for database specified in configuration object
     
     :param conf: config object
     :return: database connection
