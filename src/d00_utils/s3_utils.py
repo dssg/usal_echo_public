@@ -2,8 +2,7 @@ import boto3
 
 
 def get_matching_s3_objects(bucket, prefix='', suffix=''):
-    """
-    Generate objects in an S3 bucket.
+    """Generate objects in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
     :param prefix: Only fetch objects whose key starts with
@@ -48,8 +47,7 @@ def get_matching_s3_objects(bucket, prefix='', suffix=''):
 
 
 def get_matching_s3_keys(bucket, prefix='', suffix=''):
-    """
-    Generate the keys in an S3 bucket.
+    """Generate the keys in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
     :param prefix: Only fetch keys that start with this prefix (optional).
