@@ -8,7 +8,7 @@ from ..d00_utils.s3_utils import get_matching_s3_keys
 def get_dicom_metadata(bucket, file_path, description=False):
     
     """Get all dicom tags for file in file_path.
-    
+
     This function uses gdcmdump to retrieve the metadata tags of the file in object_bath.
     The tags are as a pandas dataframe.
     
@@ -65,7 +65,6 @@ def get_dicom_metadata(bucket, file_path, description=False):
     return df_dedup_goodvals_short
 
 
-
 def write_dicom_metadata(df, metadata_file_name=None):
     
     """Write the output of 'get_dicom_metadata()' to a csv file.
@@ -89,8 +88,7 @@ def write_dicom_metadata(df, metadata_file_name=None):
         df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
                
     print('dicom metadata saved for study {}, directory {}'.format(df.iloc[0,0], df.iloc[0,1]))
-    
-        
+          
         
 if __name__ == '__main__':
     check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Any other input will stop the process.")
