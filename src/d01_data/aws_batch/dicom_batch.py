@@ -1,7 +1,5 @@
-import pandas as pd
 import os
 import boto3
-import tempfile
 
 from ..dicom_metadata import get_dicom_metadata
 from ...d00_utils.db_utils import save_to_db
