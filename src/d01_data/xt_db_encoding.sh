@@ -3,10 +3,10 @@
 # 		The following processing steps are performed:
 # 		1) The last row of each file is removed, as it contains only NAN values (TODO: should rather use grep to find NAN rows)
 # 		2) File encoding is changed from IS0-8859-2 (Central and Eastern European character set) to UTF-8 (Universal character set)
-# author:	wt
+# author:	wiebket
 # date: 	18 June 2019
-# usage:	./file_processing.sh
-# notes:	chmod +x file_processing.sh (make executable to run)
+# usage:	./xt_db_encoding.sh
+# notes:	chmod +x xt_db_encoding.sh (make executable to run)
 #		saves data to ~/data_usal/02_intermediate/Xcelera_tablas_clean	
 #=====================================================================
 
