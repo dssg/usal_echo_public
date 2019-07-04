@@ -3,10 +3,12 @@ import os
 import boto3
 import tempfile
 
-def get_dicom_metadata(bucket, object_path, description=False):
+from ..d00_utils.s3_utils import get_matching_s3_keys
+
+def get_dicom_metadata(bucket, file_path, description=False):
     
-    """Get all dicom tags for file in object_path.
-    
+    """Get all dicom tags for file in file_path.
+
     This function uses gdcmdump to retrieve the metadata tags of the file in object_bath.
     The tags are as a pandas dataframe.
     
@@ -18,21 +20,20 @@ def get_dicom_metadata(bucket, object_path, description=False):
     
     :param bucket (str): s3 bucket
     :param object_path (str): path to dicom file
-    :param description (bool): include dicom tag descriptions instead of values, default=False
-        
-    Output:
-        pandas DataFrame object with columns=['dirname','filename','tag1','tag2','value']
-    """
+    :param description (bool): include dicom tag descriptions instead of 
+        values, default=False        
+    :return: pandas DataFrame object with columns=['dirname','filename','tag1','tag2','value']
     
+    """
     s3 = boto3.client('s3')
     tmp = tempfile.NamedTemporaryFile()
 
     # Dump metadata of file to temp file
-    s3.download_file(bucket, object_path, tmp.name)
+    s3.download_file(bucket, file_path, tmp.name)
     os.system('gdcmdump '+ tmp.name +' > temp.txt')
 
-    dir_name = object_path.split('/')[0]
-    file_name = object_path.split('/')[1].split('.')[0]
+    dir_name = file_path.split('/')[0]
+    file_name = file_path.split('/')[1].split('.')[0]
 
     # Parse temp.txt file to extract tags
     temp_file='temp.txt'
@@ -66,17 +67,14 @@ def get_dicom_metadata(bucket, object_path, description=False):
 
 def write_dicom_metadata(df, metadata_file_name=None):
     
-    """Save metadata
-    
-    Writes the output of 'get_dicom_metadata()' to a csv file.
+    """Write the output of 'get_dicom_metadata()' to a csv file.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
-    :param metadata_file_name (str): string to append to metadata file name 'dicom_metadata.csv', default=None
-        
-    Output:
-        file (csv): saves to ~/data_usal/02_intermediate/dicom_metadata.csv
+    :param metadata_file_name (str): string to append to metadata file name 
+        'dicom_metadata.csv', default=None
+    :return: csv file; saves to ~/data_usal/02_intermediate/dicom_metadata.csv
+    
     """
-
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
     if metadata_file_name is None:
@@ -90,68 +88,7 @@ def write_dicom_metadata(df, metadata_file_name=None):
         df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
                
     print('dicom metadata saved for study {}, directory {}'.format(df.iloc[0,0], df.iloc[0,1]))
-    
-
-def get_matching_s3_objects(bucket, prefix='', suffix=''):
-    """
-    Generate objects in an S3 bucket.
-
-    :param bucket: Name of the S3 bucket.
-    :param prefix: Only fetch objects whose key starts with
-        this prefix (optional).
-    :param suffix: Only fetch objects whose keys end with
-        this suffix (optional).
-        
-    ** code from https://alexwlchan.net/2018/01/listing-s3-keys-redux/
-
-    """
-    s3 = boto3.client('s3')
-    kwargs = {'Bucket': bucket}
-
-    # If the prefix is a single string (not a tuple of strings), we can
-    # do the filtering directly in the S3 API.
-    if isinstance(prefix, str):
-        kwargs['Prefix'] = prefix
-
-    while True:
-
-        # The S3 API response is a large blob of metadata.
-        # 'Contents' contains information about the listed objects.
-        resp = s3.list_objects_v2(**kwargs)
-
-        try:
-            contents = resp['Contents']
-        except KeyError:
-            return
-
-        for obj in contents:
-            key = obj['Key']
-            if key.startswith(prefix) and key.endswith(suffix):
-                yield obj
-
-        # The S3 API is paginated, returning up to 1000 keys at a time.
-        # Pass the continuation token into the next response, until we
-        # reach the final page (when this field is missing).
-        try:
-            kwargs['ContinuationToken'] = resp['NextContinuationToken']
-        except KeyError:
-            break
-
-
-def get_matching_s3_keys(bucket, prefix='', suffix=''):
-    """
-    Generate the keys in an S3 bucket.
-
-    :param bucket: Name of the S3 bucket.
-    :param prefix: Only fetch keys that start with this prefix (optional).
-    :param suffix: Only fetch keys that end with this suffix (optional).
-    
-    ** code from https://alexwlchan.net/2018/01/listing-s3-keys-redux/
-    
-    """
-    for obj in get_matching_s3_objects(bucket, prefix, suffix):
-        yield obj['Key']
-        
+          
         
 if __name__ == '__main__':
     check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Any other input will stop the process.")
@@ -163,4 +100,4 @@ if __name__ == '__main__':
         os.remove('temp.txt')
         
     else:
-        print('Exciting the dicom metadata retrieval process. Rerun the script and type YES when prompted if this was a mistake.')
+        print('Exiting the dicom metadata retrieval process. Rerun the script and type YES when prompted if this was a mistake.')
