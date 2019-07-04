@@ -4,12 +4,11 @@ import boto3
 import tempfile
 
 from ..d00_utils.s3_utils import get_matching_s3_keys
-from ..d00_utils.db_utils import save_to_db
 
 def get_dicom_metadata(bucket, file_path, description=False):
     
     """Get all dicom tags for file in file_path.
-    
+
     This function uses gdcmdump to retrieve the metadata tags of the file in object_bath.
     The tags are as a pandas dataframe.
     
@@ -21,10 +20,11 @@ def get_dicom_metadata(bucket, file_path, description=False):
     
     :param bucket (str): s3 bucket
     :param object_path (str): path to dicom file
-    :param description (bool): include dicom tag descriptions instead of values, default=False        
+    :param description (bool): include dicom tag descriptions instead of 
+        values, default=False        
     :return: pandas DataFrame object with columns=['dirname','filename','tag1','tag2','value']
-    """
     
+    """
     s3 = boto3.client('s3')
     tmp = tempfile.NamedTemporaryFile()
 
@@ -65,16 +65,16 @@ def get_dicom_metadata(bucket, file_path, description=False):
     return df_dedup_goodvals_short
 
 
-
 def write_dicom_metadata(df, metadata_file_name=None):
     
     """Write the output of 'get_dicom_metadata()' to a csv file.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
-    :param metadata_file_name (str): string to append to metadata file name 'dicom_metadata.csv', default=None
+    :param metadata_file_name (str): string to append to metadata file name 
+        'dicom_metadata.csv', default=None
     :return: csv file; saves to ~/data_usal/02_intermediate/dicom_metadata.csv
+    
     """
-
     data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
     if metadata_file_name is None:
@@ -88,40 +88,7 @@ def write_dicom_metadata(df, metadata_file_name=None):
         df.to_csv(dicom_meta_path, mode='a', index=False, header=False)
                
     print('dicom metadata saved for study {}, directory {}'.format(df.iloc[0,0], df.iloc[0,1]))
-
-    
-    
-def get_meta_lite(dicom_tags, metadata_path, save_to_db=False, credentials_file=None, db_table=None):
-
-    """Select subset of dicom tags and save to database.
-    
-    :param dicom_tags (dict): dict of dicom tag descriptions and tag tuple
-    :param metadata_path (str): path to dicom metadata file
-    :param save_to_db (bool): if True saves tag subset to postgres database; default=False
-    :param credentials_file (str): path to credentials file; required if save_to_db=True
-    :param db_table (str): name of database table to write to; required if save_to_db=True
-    :return: pandas dataframe with filtered metadata
-    """    
-    
-    datalist = []
-    # Read metadata in chunks to avoid kernel crashing due to large data volume.
-    for chunk in pd.read_csv(metadata_path, chunksize=1000000, dtype={'dirname':'category','filename':'category',
-                                                                      'tag1':'category','tag2':'category'}):
-        chunk['tags'] = list(zip(chunk['tag1'],chunk['tag2']))
-        filtered_chunk = chunk[chunk['tags'].isin(dicom_tags.values())]
-        if save_to_db is True:
-            try:
-                save_to_db(filtered_chunk, db_table, credentials_file)
-            except:
-                raise
-            print('saved chunks to db')
-        datalist.append(filtered_chunk)
-    
-    meta = pd.concat(datalist)
-    
-    return meta
-    
-        
+          
         
 if __name__ == '__main__':
     check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Any other input will stop the process.")
