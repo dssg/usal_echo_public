@@ -1,5 +1,12 @@
-import boto3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 3 2019
 
+@author: wiebket
+"""
+
+import boto3
 
 def get_matching_s3_objects(bucket, prefix='', suffix=''):
     """Generate objects in an S3 bucket.
