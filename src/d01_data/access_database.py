@@ -28,7 +28,7 @@ def get_db_config(path):
 
 def get_sqlalchemy_connection(conf):
     """
-    Get SQLAlchemy Engine for database
+    Get SQLAlchemy Engine for database specified in configuration object
     
     :param conf: config object
     :return: database connection
@@ -53,3 +53,16 @@ def read_table(conn, name):
     df = pd.read_sql(query, conn)
     print(f"Table {name} has {df.shape[0]} rows and {df.shape[1]} columns")
     return df
+
+
+def read_measurement_tables(conn):
+    """
+    Get measurement dataframes from SQL tables
+    
+    :param conn: database connection
+    :return: measurement dataframes
+    """
+    measurement_abstract_rpt_df = read_table(conn, 'measurement_abstract_rpt')
+    measgraphref_df = read_table(conn, 'a_measgraphref')
+    measgraphic_df = read_table(conn, 'a_measgraphic')
+    return measurement_abstract_rpt_df, measgraphref_df, measgraphic_df
