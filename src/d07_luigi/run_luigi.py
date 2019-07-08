@@ -3,7 +3,6 @@ from luigi.s3 import S3Target
 from luigi.postgres import PostgresTarget # luigi.contrib.postgres?
 from luigi import LocalTarget
 
-from test_script import square 
 from ..d01_data.ingestion_dcm import ingest_dcm
 from ..d01_data.ingestion_xt_db import ingest_xt_db
 from ..d02_intermediate.dicom_meta_lite import get_meta_lite
