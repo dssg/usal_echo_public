@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
 import matplotlib.pyplot as plt
 
-from ..d00_utils.db_utils import ReadWriteClean
-
-
+from ..d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
@@ -69,7 +66,7 @@ def clean_measgraphic(df):
     return df_clean
 
 
-def clean_summary_table(df):
+def clean_study_summary(df):
     """Clean summary table.
     
     The following cleaning steps are performend:
@@ -120,18 +117,23 @@ def clean_summary_table(df):
 
 
 def clean_tables():
+    """Transforms raw tables and writes them to database schema 'clean'.
     """
-    Produces the clean summary table
-    """
     
-    tables_to_clean = dict('': pd.DataFrame()),
-                           '':'',
-                           '':'',
-                           '':'')
+    raw_data = dbReadWriteRaw()
+    clean_data = dbReadWriteClean()
     
-    summary_table_df = clean_summary_table()
-    measurement_abstract_rpt_df = clean_measurement_abstract_rpt(measurement_abstract_rpt_df)
-    measgraphref_df = clean_measgraphref(measgraphref_df)
-    measgraphic_df = clean_measgraphic(measgraphic_df)
-    
-    return summary_table_df
+    tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
+                       'a_measgraphref' : 'clean_measgraphref(tbl)', 
+                       'a_measgraphic' : 'clean_measgraphic(tbl)', 
+                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
+
+    for key, val in tables_to_clean.items():
+        tbl = raw_data.get_table(key)
+        clean_tbl = eval(val)
+        
+        clean_data.save_to_db(clean_tbl, key)
+        print('Created table `'+key+'` in schema '+clean_data.schema)
+        
+if __name__ == '__main__':
+    clean_tables()        
