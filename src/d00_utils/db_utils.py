@@ -1,5 +1,7 @@
 from json import load
 from sqlalchemy import create_engine
+from sqlalchemy.schema import CreateSchema
+from sqlalchemy import inspect
 import pandas as pd
 import os
 
@@ -17,9 +19,9 @@ def _load_json_credentials(filepath):
     return credentials
 
 
-class ReadWriteData:   
+class dbReadWriteData:   
     """
-    Class for reading and writing data to postgres database.
+    Class for reading and writing data to and from postgres database.
     
     **Requirements
         credentials file formatted as:
@@ -34,58 +36,74 @@ class ReadWriteData:
     :param schema (str): database schema 
             
     """    
-    def __init__(self, schema, credentials_file="~/.psql_credentials.json"):
+    def __init__(self, schema=None, credentials_file="~/.psql_credentials.json"):
         self.filepath = os.path.expanduser(credentials_file)
         self.schema = schema
+        self.credentials = _load_json_credentials(self.filepath)
+        self.connection_str =  "postgresql://{}:{}@{}/{}".format(self.credentials['user'],
+                                                             self.credentials['psswd'],
+                                                             self.credentials['host'],
+                                                             self.credentials['database'])
+        self.engine = create_engine(self.connection_str)
         
 
-    def save_to_db(self, df, db_table):
+    def save_to_db(self, df, db_table, if_exists='replace'):
         """Write dataframe to table in database.
         
-        :params df (pandas.DataFrame): dataframe to save to database
-        :params db_table (str): name of database table to write to
+        :param df (pandas.DataFrame): dataframe to save to database
+        :param db_table (str): name of database table to write to
         
         """
-        credentials = _load_json_credentials(self.filepath)
-        connection_str =  "postgresql://{}:{}@{}/{}".format(credentials['user'],
-                                                             credentials['psswd'],
-                                                             credentials['host'],
-                                                             credentials['database'])
-        conn = create_engine(connection_str)
-        df.to_sql("{}.{}".format(self.schema, db_table), conn, if_exists='append', index=False)
+        df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
         
     
-    def read_from_db(self, db_table):
-        """Read dataframe from table in database
+    def get_table(self, db_table):
+        """Read table in database as dataframe.
         
+        :param db_table (str): name of database table to read
         """
-    
-        credentials = _load_json_credentials(self.filepath)
-        connection_str =  "postgresql://{}:{}@{}/{}".format(credentials['user'],
-                                                             credentials['psswd'],
-                                                             credentials['host'],
-                                                             credentials['database'])
-        conn = create_engine(connection_str)
-        query = ("select * from {};").format(self.schema, db_table)    
-        df = pd.read_sql(query, conn)
+          
+        df = pd.read_sql_table(db_table, self.engine, self.schema)
         
         return df
+    
+    
+    def list_tables(self):
+        """List tables in database.
+        
+        """
+        inspector = inspect(self.engine)
+        print(inspector.get_table_names(self.schema))
        
+        
     
-class ReadWriteRaw(ReadWriteData):
+class dbReadWriteRaw(dbReadWriteData):
+    """
     
-    def __init__(self, credentials_file):
-        super(ReadWriteRaw, self).__init__(schema='raw', credentials_file)
-    
-    
-class ReadWriteEncode(ReadWriteData):
-    
-    def __init__(self, credentials_file):
-        super(ReadWriteRaw, self).__init__(schema='encode', credentials_file)
+    """    
+    def __init__(self):
+        super().__init__(schema='raw')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
 
+            
+            
+class dbReadWriteEncode(dbReadWriteData):
+    """
+    
+    """    
+    def __init__(self):
+        super().__init__(schema='encode')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
 
-class ReadWriteClean(ReadWriteData):
+            
+            
+class dbReadWriteClean(dbReadWriteData):
+    """
     
-    def __init__(self, credentials_file):
-        super(ReadWriteRaw, self).__init__(schema='clean', credentials_file)
-    
+    """    
+    def __init__(self):
+        super().__init__(schema='clean')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))

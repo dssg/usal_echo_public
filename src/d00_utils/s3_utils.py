@@ -8,6 +8,8 @@ Created on Thu Jul 3 2019
 
 import boto3
 
+#TODO need to specify credentials
+
 def get_matching_s3_objects(bucket, prefix='', suffix=''):
     """Generate objects in an S3 bucket.
 
