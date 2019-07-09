@@ -3,10 +3,9 @@ import os
 import sys
 import json
 sys.path.append('../../src')
-import psycopg2
 
-from d01_data.access_database import *
-from d03_processing.clean_measurements import *
+from d00_utils.db_utils import *
+from d03_classification.clean_measurements import *
 
 
 def get_connection():
@@ -27,10 +26,10 @@ def get_connection():
 
 def filter_by_views():
     '''
-    Reads in the following tables from postgres database:
+    Reads in the following tables from postgres db:
         measurement_abstract_rpt, measgraphref, measgraphic
     Joins tables and filters out only frames that have view labels
-    Each frame in csv output has the following attributes:
+    Outputs to db frames_sorted_by_views table with the following attributes:
         is_end_diastolic
         is_end_systolic
         view
@@ -38,13 +37,15 @@ def filter_by_views():
 
     '''
 
-    conn = get_connection()
+    io = dbReadWriteData()
 
     # Read tables from postgres db, clean
+    measurement_abstract_rpt_df = io.get_table('measurement_abstract_rpt')
+    measgraphref_df = io.get_table('a_measgraphref')
+    measgraphic_df = io.get_table('a_measgraphic')
+
     measurement_abstract_rpt_df, measgraphref_df, measgraphic_df = \
-        read_measurement_tables(conn)
-    measurement_abstract_rpt_df, measgraphref_df, measgraphic_df = \
-        clean_measurement_datatframes(measurement_abstract_rpt_df, \
+        clean_all(measurement_abstract_rpt_df, \
             measgraphref_df, measgraphic_df)
 
     # Filter out unnecessary columns in each table
@@ -116,9 +117,7 @@ def filter_by_views():
 
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
 
-
-    return
-
+    io.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
 
 if __name__ == '__main__':
     filter_by_views()
