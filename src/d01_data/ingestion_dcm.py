@@ -99,6 +99,9 @@ def write_dicom_metadata(df, metadata_file_name=None):
 
 
 def ingest_dcm():
+    """Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
+    
+    """
     for key in get_matching_s3_keys('cibercv','','.dcm'): 
         df = get_dicom_metadata('cibercv', key)
         write_dicom_metadata(df)

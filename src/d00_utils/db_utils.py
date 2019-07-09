@@ -44,7 +44,7 @@ class dbReadWriteData:
                                                              self.credentials['psswd'],
                                                              self.credentials['host'],
                                                              self.credentials['database'])
-        self.engine = create_engine(self.connection_str)
+        self.engine = create_engine(self.connection_str, encoding='utf-8')
         
 
     def save_to_db(self, df, db_table, if_exists='replace'):
@@ -83,17 +83,6 @@ class dbReadWriteRaw(dbReadWriteData):
     """    
     def __init__(self):
         super().__init__(schema='raw')
-        if not self.engine.dialect.has_schema(self.engine, self.schema):
-            self.engine.execute(CreateSchema(self.schema))
-
-            
-            
-class dbReadWriteEncode(dbReadWriteData):
-    """
-    
-    """    
-    def __init__(self):
-        super().__init__(schema='encode')
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
