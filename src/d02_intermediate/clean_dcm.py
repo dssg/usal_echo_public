@@ -29,6 +29,8 @@ def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     #Get dicom tags and metadata path from config file(s)
     with open('dicom_tags.json') as f:
         dicom_tags = load(f)
+    for k, v in dicom_tags.items():
+        dicom_tags[k] = tuple(v)
 
     io_clean = dbReadWriteClean()
     
