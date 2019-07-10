@@ -5,8 +5,6 @@ import json
 sys.path.append('../../src')
 
 from d00_utils.db_utils import *
-from d03_classification.clean_measurements import *
-
 
 def get_connection():
     ''' 
@@ -26,10 +24,12 @@ def get_connection():
 
 def filter_by_views():
     '''
-    Reads in the following tables from postgres db:
+    Input: from postgres db schema 'clean', the following tables:
         measurement_abstract_rpt, measgraphref, measgraphic
     Joins tables and filters out only frames that have view labels
-    Outputs to db frames_sorted_by_views table with the following attributes:
+
+    Output: to postgres db schema 'views', the table 'frames_sorted_by_views'
+    Outputs to db schema 'frames_sorted_by_views table with the following attributes:
         is_end_diastolic
         is_end_systolic
         view
@@ -37,16 +37,13 @@ def filter_by_views():
 
     '''
 
-    io = dbReadWriteViews()
+    io_clean = dbReadWriteClean()
+    io_views = dbReadWriteViews()
 
     # Read tables from postgres db, clean
-    measurement_abstract_rpt_df = io.get_table('measurement_abstract_rpt')
-    measgraphref_df = io.get_table('a_measgraphref')
-    measgraphic_df = io.get_table('a_measgraphic')
-
-    measurement_abstract_rpt_df, measgraphref_df, measgraphic_df = \
-        clean_all(measurement_abstract_rpt_df, \
-            measgraphref_df, measgraphic_df)
+    measurement_abstract_rpt_df = io_clean.get_table('measurement_abstract_rpt')
+    measgraphref_df = io_clean.get_table('a_measgraphref')
+    measgraphic_df = io_clean.get_table('a_measgraphic')
 
     # Filter out unnecessary columns in each table
     measgraphref_df = measgraphref_df[['studyidk', \
@@ -117,7 +114,7 @@ def filter_by_views():
 
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
 
-    io.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
+    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
 
 if __name__ == '__main__':
     filter_by_views()
