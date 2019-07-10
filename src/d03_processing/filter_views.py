@@ -37,7 +37,7 @@ def filter_by_views():
 
     '''
 
-    io = dbReadWriteData()
+    io = dbReadWriteViews()
 
     # Read tables from postgres db, clean
     measurement_abstract_rpt_df = io.get_table('measurement_abstract_rpt')
