@@ -43,7 +43,7 @@ def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
         filtered_chunk = chunk[chunk['tags'].isin(dicom_tags.values())]
         if to_db is True:
             try:
-                io_clean.save_to_db(filtered_chunk, db_table, credentials_file)
+                io_clean.save_to_db(filtered_chunk, db_table, if_exists='append')
             except:
                 raise
             print('saved chunks to db')

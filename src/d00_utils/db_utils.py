@@ -12,7 +12,8 @@ from json import load
 from sqlalchemy import create_engine
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
-
+from sqlalchemy import MetaData, Table
+from sqlalchemy.orm import sessionmaker
 
 def _load_json_credentials(filepath):
     """Load json formatted credentials.
@@ -53,7 +54,8 @@ class dbReadWriteData:
                                                              self.credentials['host'],
                                                              self.credentials['database'])
         self.engine = create_engine(self.connection_str, encoding='utf-8')
-        
+        self.Session = sessionmaker(bind=self.engine)
+
 
     def save_to_db(self, df, db_table, if_exists='replace'):
         """Write dataframe to table in database.
@@ -63,9 +65,20 @@ class dbReadWriteData:
         :param if_exists (str): write action if table exists, default='replace'
         
         """
+        session = self.Session()
+        connection = self.engine.raw_connection()
+        cursor = connection.cursor()
+        metadata = MetaData(self.engine, reflect=True)
+        
+        if not db_table in self.engine.table_names():
+            table = Table(db_table, metadata, df.columns)
+            table.create(self.engine)
+        
+        
         #TODO speed up writing to db
         df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
         
+        session.close()
     
     def get_table(self, db_table):
         """Read table in database as dataframe.
