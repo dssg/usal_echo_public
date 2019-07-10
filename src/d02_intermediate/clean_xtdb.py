@@ -120,8 +120,8 @@ def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
     """
     
-    raw_data = dbReadWriteRaw()
-    clean_data = dbReadWriteClean()
+    io_raw = dbReadWriteRaw()
+    io_clean = dbReadWriteClean()
     
     tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
@@ -129,11 +129,11 @@ def clean_tables():
                        'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
 
     for key, val in tables_to_clean.items():
-        tbl = raw_data.get_table(key)
+        tbl = io_raw.get_table(key)
         clean_tbl = eval(val)
         
-        clean_data.save_to_db(clean_tbl, key)
-        print('Created table `'+key+'` in schema '+clean_data.schema)
+        io_clean.save_to_db(clean_tbl, key)
+        print('Created table `'+key+'` in schema '+io_clean.schema)
         
 if __name__ == '__main__':
     clean_tables()        
