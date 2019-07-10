@@ -8,7 +8,7 @@ Created on Thu Jul 4 14:32:40 2019
 
 import pandas as pd
 
-from ..d00_utils.db_utils import save_to_db
+from ..d00_utils.db_utils import dbReadWriteClean
 
 def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None, db_table=None):
 
@@ -21,7 +21,11 @@ def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None,
     :param db_table (str): name of database table to write to; required if save_to_db=True
     :return: pandas dataframe with filtered metadata
     
-    """    
+    """
+
+    #TODO get dicom tags and metadata path from config file(s)
+    clean_data = dbReadWriteClean()
+    
     datalist = []
     # Read metadata in chunks to avoid kernel crashing due to large data volume.
     for chunk in pd.read_csv(metadata_path, chunksize=1000000,
@@ -31,7 +35,7 @@ def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None,
         filtered_chunk = chunk[chunk['tags'].isin(dicom_tags.values())]
         if to_db is True:
             try:
-                save_to_db(filtered_chunk, db_table, credentials_file)
+                clean_data.save_to_db(filtered_chunk, db_table, credentials_file)
             except:
                 raise
             print('saved chunks to db')

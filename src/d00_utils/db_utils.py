@@ -1,9 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 3 2019
+
+@author: wiebket
+"""
+
+import pandas as pd
+import os
 from json import load
 from sqlalchemy import create_engine
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
-import pandas as pd
-import os
 
 
 def _load_json_credentials(filepath):
@@ -44,7 +52,7 @@ class dbReadWriteData:
                                                              self.credentials['psswd'],
                                                              self.credentials['host'],
                                                              self.credentials['database'])
-        self.engine = create_engine(self.connection_str)
+        self.engine = create_engine(self.connection_str, encoding='utf-8')
         
 
     def save_to_db(self, df, db_table, if_exists='replace'):
@@ -52,8 +60,10 @@ class dbReadWriteData:
         
         :param df (pandas.DataFrame): dataframe to save to database
         :param db_table (str): name of database table to write to
+        :param if_exists (str): write action if table exists, default='replace'
         
         """
+        #TODO speed up writing to db
         df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
         
     
@@ -61,8 +71,9 @@ class dbReadWriteData:
         """Read table in database as dataframe.
         
         :param db_table (str): name of database table to read
+        
         """
-          
+        #TODO speed up reading from db         
         df = pd.read_sql_table(db_table, self.engine, self.schema)
         
         return df
@@ -79,25 +90,13 @@ class dbReadWriteData:
     
 class dbReadWriteRaw(dbReadWriteData):
     """
-    
+    Instantiates class for postres I/O to 'raw' schema 
     """    
     def __init__(self):
         super().__init__(schema='raw')
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
-            
-            
-class dbReadWriteEncode(dbReadWriteData):
-    """
-    
-    """    
-    def __init__(self):
-        super().__init__(schema='encode')
-        if not self.engine.dialect.has_schema(self.engine, self.schema):
-            self.engine.execute(CreateSchema(self.schema))
-
-            
             
 class dbReadWriteClean(dbReadWriteData):
     """

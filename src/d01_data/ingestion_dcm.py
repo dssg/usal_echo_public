@@ -80,10 +80,10 @@ def write_dicom_metadata(df, metadata_file_name=None):
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
     :param metadata_file_name (str): string to append to metadata file name 
         'dicom_metadata.csv', default=None
-    :return: csv file; saves to ~/data_usal/02_intermediate/dicom_metadata.csv
+    :return: csv file; saves to ~/data_usal/01_raw/dicom_metadata.csv
     
     """
-    data_path = os.path.join(os.path.expanduser('~'),'data_usal','02_intermediate')
+    data_path = os.path.join(os.path.expanduser('~'),'data_usal','01_raw')
     os.makedirs(os.path.expanduser(data_path), exist_ok=True)
     if metadata_file_name is None:
         dicom_meta_path = os.path.join(data_path,'dicom_metadata.csv')
@@ -99,6 +99,9 @@ def write_dicom_metadata(df, metadata_file_name=None):
 
 
 def ingest_dcm():
+    """Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
+    
+    """
     for key in get_matching_s3_keys('cibercv','','.dcm'): 
         df = get_dicom_metadata('cibercv', key)
         write_dicom_metadata(df)
