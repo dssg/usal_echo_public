@@ -1,29 +1,61 @@
 import luigi
 from luigi.s3 import S3Target
-from luigi.postgres import PostgresTarget # luigi.contrib.postgres?
-from luigi import LocalTarget
+from luigi.postgres import PostgresTarget 
 
+from ..d00_utils.db_utils import *
 from ..d01_data.ingestion_dcm import ingest_dcm
-from ..d01_data.ingestion_xt_db import ingest_xt_db
-from ..d02_intermediate.dicom_meta_lite import get_meta_lite
+from ..d01_data.ingestion_xtdb import ingest_xtdb
+from ..d02_intermediate.clean_dcm import clean_dcm
+from ..d02_intermediate.clean_xtdb import clean_tables
 
+# Questions
+# credentials - make a super class according to GitHub
+# Then sub-classes, e.g. IngestDCM(), will be a sub-class of parents QueryInfo and Luigi
+#       how to do this properly?
+# How to get credentials from dbReadWriteData as opposed to redoing my own way
+# Multiple inheritance example: https://www.pythonforbeginners.com/super/working-python-super-function
 
+'''
 def get_postgres_credentials():
-	''' 
-	Access postgres credentials from .json in user root directory
-	Outputs host postgres server address, db user/password, db name
+    	'''
+#	Access postgres credentials from .json in user root directory
+#	Outputs host postgres server address, db user/password, db name
 	'''
 	filename = os.path.expanduser('~') + '/.psql_credentials.json'
 	with open(filename) as f:
 		data = json.load(f)
 		return data["host"], data["user"], data["psswd"], data["database"]
-		# host = data["host"]
-		# user = data["user"]
-		# password = data["psswd"]
-		# database = data["database"]
+'''
 
-# Okay to define this globally?
-host, user, password, database = get_postgres_credentials()
+class QueryInfo():
+    def __init__(self, table, update_id):
+        self.table = table
+        self.update_id = update_id
+
+        # Option A - isn't this redundant, declaring variables already declared in parent?
+        io = dbReadWriteData()
+        creds = io.credentials
+        self.host = cred["host"] #, etc.
+
+        # Option B - json load
+        filename = os.path.expanduser('~') + '/.psql_credentials.json'
+        with open(filename) as f:
+            data = json.load(f)
+            self.host = data["host"]
+            self.user = data["user"]
+            self.psswd = data["psswd"]
+            self.database = data["database"]
+
+    def output(self):
+        '''
+        Returns a PostgresTarget representing the executed query
+        '''
+        return PostgresTarget(host=self.host, database=self.database, user=self.user \
+                            password=self.psswd, table=self.table, update_id=self.update_id)
+
+                                
+
+    
 
 class S3Bucket(luigi.ExternalTask): # ensure connection to S3 bucket
 
@@ -32,72 +64,67 @@ class S3Bucket(luigi.ExternalTask): # ensure connection to S3 bucket
 	# e.g. https://stackoverflow.com/questions/33332058/luigi-pipeline-beginning-in-s3
 
 
-class IngestDicom(luigi.Task):
+class IngestDCM(luigi.Task):
 
 	def requires(self):
 		return S3Bucket()
 
 	def output(self):
-		return S3Target('s3://usal-pipeline/ingestion/dicom/metadata.csv')
-
-	def run(self):
+            host, user, psswd, database = get_postgres_credentials()
+	    table = 'raw.metadata'
+            update_id = 'ingest'
+            return PostgresTarget(host, database, user, password, table, update_id)
+	
+        def run(self):
 		ingest_dcm()
 
 
-class CreateMetadataTable(luigi.Task):
+class CleanDCM(luigi.Task):
 
 	def requires(self):
-		return IngestDicom()
+    	    return IngestDCM()
 		
 	def output(self):
-		# host, user, password, database = get_postgres_credentials()
-		#table, update_id
-		return PostgresTarget(host, database, user, password, table, update_id, port=None)
-
-		# https://luigi.readthedocs.io/en/stable/api/luigi.contrib.postgres.html
-		# e.g. https://vsupalov.com/luigi-query-postgresql/
-
-	def run(self):
-		get_meta_lite()
+	    host, user, password, database = get_postgres_credentials()
+            table = 'clean.meta_lite'
+            update_id = 'clean'
+            return PostgresTarget(host, database, user, password, table, update_id)
+    	    # https://luigi.readthedocs.io/en/stable/api/luigi.contrib.postgres.html
+            # e.g. https://vsupalov.com/luigi-query-postgresql/
 
 
-class IngestXcelera(luigi.Task):
+class IngestXTDB(luigi.Task):
+    '''
+    Assumes that all tables exist if a_measgraphic exists.
+    This assumption is based upon ingest_xtdb() populates all tables at once from csv's in cibercv db
+    '''
 
-	def requires(self): # input tables
-		host, user, password, database = get_postgres_credentials()
-		# table, update_id -- multiple tables
-		return PostgresTarget(host, database, user, password, table, update_id, port=None)
+	def requires(self):
+            return S3Bucket()
 
 	def output(self): # output tables
-		# table, update_id
-		return PostgresTarget(host, database, user, password, table, update_id, port=None)
-		# return S3Target('s3://usal-pipeline/ingestion/xcelera/study_characteristics.csv')
+	    # table, update_id
+            table = 'raw.A_measgraphic'
+            update_id = 'ingest'
+	    return PostgresTarget(host, database, user, password, table, update_id)
 
 	def run(self):
-		return ingest_xt_db()
+	    return ingest_xt_db()
 
 
-class CleanXcelera(luigi.Task):
+class CleanXTDB(luigi.Task):
 
 	def requires (self):
-		return IngestXcelera()
+	    return IngestXTDB()
 
 	def output(self): 
-		# table, update id
-		return PostgresTarget(host, database, user, password, table, update_id, port=None)
+	    host, user, password, database = get_postgres_credentials()
+            table = 'clean.a_measgraphic'
+            update_id = 'clean'
+	    return PostgresTarget(host, database, user, password, table, update_id)
 
 	def run(self):
-		return clean() # get actual function name
-
-
-
-
-# Changes to develop_pipeline.png
-# ingestion_s3 --> ingestion_dcm
-# ingestion_xcelera arrow out directly to PostgresSQL
-# add filtering.py
-# transforming.py likely within Zhang et al.
-# .py scripts --> function calls?
+	    return clean_tables()
 
 
 
