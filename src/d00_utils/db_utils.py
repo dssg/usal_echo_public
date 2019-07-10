@@ -101,9 +101,20 @@ class dbReadWriteEncode(dbReadWriteData):
             
 class dbReadWriteClean(dbReadWriteData):
     """
-    
+    Instantiates class for postgres I/O to 'clean' schema
     """    
     def __init__(self):
         super().__init__(schema='clean')
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+
+
+class dbReadWriteViews(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'view' schema
+    """
+    def __init__(self):
+        super().__init__(schema='views')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
+            
