@@ -7,7 +7,8 @@ sys.path.append('../../src')
 from d00_utils.db_utils import *
 
 def get_connection():
-    ''' 
+    '''
+    Currently this function is unused
     Establish connection to psql database
     Requirement: .psql_credentials.json in root directory
     '''
@@ -88,7 +89,7 @@ def filter_by_views():
         'VTS(MDD-ps2)', 'VTS 2C']
 
     # df containing all frames for which we have measurements
-    filter_df = merge_df[merge_df.name.isin(ALL_MEASUREMENTS)].copy()
+    filter_df = merge_df#[merge_df.name.isin(ALL_MEASUREMENTS)].copy()
 
     filter_df['is_end_diastolic'] = filter_df['name'].isin(MEASUREMENTS_END_DIASTOLIC)
     filter_df['is_end_systolic'] = filter_df['name'].isin(MEASUREMENTS_END_SYSTOLIC)
