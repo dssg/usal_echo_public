@@ -81,7 +81,6 @@ def clean_study_summary(df):
     column_names_to_clean = ['age', 'patientweight', 'patientheight']
     for column in column_names_to_clean:
         df[column] = df[column].replace('', 1) 
-        df[column] = df[column].str.replace(',', '.') 
         df[column] = df[column].fillna(1)
     
     if df['age'].dtype != 'int64':

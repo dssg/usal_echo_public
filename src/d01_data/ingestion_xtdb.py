@@ -9,8 +9,8 @@ import boto3
 import tempfile
 import pandas as pd
 
-from .d00_utils.s3_utils import get_matching_s3_keys
-from .d00_utils.db_utils import dbReadWriteRaw
+from ..d00_utils.s3_utils import get_matching_s3_keys
+from ..d00_utils.db_utils import dbReadWriteRaw
 
 
 def ingest_xtdb():
@@ -25,7 +25,9 @@ def ingest_xtdb():
         s3.download_file('cibercv', file, tmp.name)
        
         tbl = pd.read_csv(tmp.name, encoding='iso-8859-2', na_values='', decimal=',')
-        tbl_name = file.split('/')[-1].split('.')[0]
+        tbl.columns = [t.lower() for t in tbl.columns]
+        tbl.dropna(inplace=True)
+        tbl_name = file.split('/')[-1].split('.')[0].lower()
        
         io_raw.save_to_db(tbl, tbl_name)
         print('Created table `'+tbl_name+'` in schema '+io_raw.schema)
