@@ -1,10 +1,22 @@
-import pandas as pandas
+import pandas
 import os
 import sys
 import json
-sys.path.append('../../src')
+import psycopg2
 
-from d00_utils.db_utils import *
+#sys.path.append(os.pardir)
+#os.chdir('.')
+#sys.path.append('../d00_utils')
+#sys.path.append('/home/dave_van_veen/dicom_image_classification/src/d00_utils')
+print(sys.path)
+
+from ..d00_utils.test import test
+
+from ..d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
+
+
+#sys.path.append('../d02_intermediate')
+#from clean_xtdb import *
 
 def get_connection():
     '''
@@ -41,7 +53,6 @@ def filter_by_views():
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
 
-    # Read tables from postgres db, clean
     measurement_abstract_rpt_df = io_clean.get_table('measurement_abstract_rpt')
     measgraphref_df = io_clean.get_table('a_measgraphref')
     measgraphic_df = io_clean.get_table('a_measgraphic')
@@ -62,6 +73,7 @@ def filter_by_views():
     merge_df = merge_df.merge(measurement_abstract_rpt_df, on=[\
         'studyidk', 'measabstractnumber'])
 
+
     # Define measurement names
     MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám raíz Ao', \
         'Diám. Ao asc.', 'Diám TSVI', 'Dimensión AI']
@@ -81,12 +93,14 @@ def filter_by_views():
     ALL_MEASUREMENTS = MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW + \
         POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW + \
         MEASUREMENTS_APICAL_4_CHAMBER_VIEW + MEASUREMENTS_APICAL_2_CHAMBER_VIEW
+
     MEASUREMENTS_END_DIASTOLIC = ['DVItd', 'SIVtd', 'PPVItd', \
     'AVItd ap4', 'VTD(el-ps4)', 'VTD(MDD-ps4)', 'VTD 4C', 'AVItd ap2', \
     'VTD(el-ps2)', 'VTD(MDD-ps2)', 'VTD 2C']
     MEASUREMENTS_END_SYSTOLIC = ['DVIts', 'AVIts ap4', 'VTS(el-ps4)', \
         'VTS(MDD-ps4)', 'VTS 4C', 'AVIts ap2', 'VTS(el-ps2)', \
         'VTS(MDD-ps2)', 'VTS 2C']
+
 
     # df containing all frames for which we have measurements
     filter_df = merge_df#[merge_df.name.isin(ALL_MEASUREMENTS)].copy()
@@ -105,17 +119,16 @@ def filter_by_views():
     filter_df.loc[filter_df['is_a4c']==True, 'view'] = 'a4c'
     filter_df.loc[filter_df['is_a2c']==True, 'view'] = 'a2c'
 
-    group_df = filter_df.groupby(['instanceidk', 'frame']).first()
+    group_df = filter_df.groupby(['instanceidk', 'indexinmglist']).first()
     group_df = group_df.drop(['measabstractnumber', 'name'], axis='columns')
 
-    is_instance_multiview = (group_df.reset_index().groupby('instanceidk')['view'].nunique().eq(1)==False).reset_index()
-    is_instance_multiview = is_instance_multiview.rename(index=str, columns={"view": "is_multiview"})
+    group_df = group_df.reset_index()
+    (group_df.reset_index().groupby(['instanceidk', 'indexinmglist'])['view'].nunique().eq(1)==False).sum()
+    (group_df.reset_index().groupby('instanceidk')['view'].nunique().eq(1)==False).sum()
 
-    frames_with_views_df = group_df.merge(is_instance_multiview, on='instanceidk')
-
+    frames_with_views_df = group_df#.merge(is_instance_multiview, on='instanceidk')
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
+    
 
-    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
-
-if __name__ == '__main__':
+if __name__=='__main__':
     filter_by_views()

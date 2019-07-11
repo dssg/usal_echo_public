@@ -86,7 +86,15 @@ class dbReadWriteData:
         inspector = inspect(self.engine)
         print(inspector.get_table_names(self.schema))
        
-        
+class dbReadWritePublic(dbReadWriteData):
+    """
+    TODO: delete this class when other schemas properly populated
+    Instantiates class for postres I/O to 'public' schema 
+    """
+    def __init__(self):
+        super().__init__(schema='public')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))        
     
 class dbReadWriteRaw(dbReadWriteData):
     """

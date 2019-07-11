@@ -2,7 +2,9 @@
 
 import matplotlib.pyplot as plt
 
-from ..d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
+import sys
+sys.path.append('../d00_utils')
+from db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
