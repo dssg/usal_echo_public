@@ -4,15 +4,11 @@ import sys
 import json
 import psycopg2
 
-#sys.path.append(os.pardir)
-#os.chdir('.')
-#sys.path.append('../d00_utils')
-#sys.path.append('/home/dave_van_veen/dicom_image_classification/src/d00_utils')
-print(sys.path)
+from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
-from ..d00_utils.test import test
-
-from ..d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
+# to do: get rid of all name==main, fix relative paths
+# if script has import from other place, run through test and not script directly
+# if you do that, it will think that location is the main root directory for project
 
 
 #sys.path.append('../d02_intermediate')
@@ -129,6 +125,4 @@ def filter_by_views():
     frames_with_views_df = group_df#.merge(is_instance_multiview, on='instanceidk')
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
     
-
-if __name__=='__main__':
-    filter_by_views()
+    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
