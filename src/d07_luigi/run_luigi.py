@@ -99,4 +99,14 @@ class CleanXTDB(luigi.Task):
     def run(self):
         return clean_tables()
 
+class Pipeline(luigi.WrapperTask):
+    '''
+    Dummy task to trigger entire dependency chain for project
+    This class is the only that should be actioned upon
+    Question for Lily: do we need to include each class? Or only the individual chains?
+    '''
+    def requires(self):
+        yield CleanDCM()
+        yield CleanXTDB()
+
 
