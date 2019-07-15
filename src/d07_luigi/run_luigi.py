@@ -7,9 +7,6 @@ from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
 from d02_intermediate.clean_dcm import get_meta_lite
 
-# Note: extra comments in get_postgres_credentials and QueryInfo()
-#       will be deleted when methodology is finalized
-
 
 def get_postgres_credentials():
     '''
@@ -19,22 +16,7 @@ def get_postgres_credentials():
     io = dbReadWriteData()
     creds = io.credentials
     return creds["host"], creds["user"], creds["psswd"], creds["database"]
-        '''
-        filename = os.path.expanduser('~') + '/.psql_credentials.json'
-	with open(filename) as f:
-		data = json.load(f)
-		return data["host"], data["user"], data["psswd"], data["database"]
 
-class QueryInfo():
-    def __init__(self, table, update_id):
-        self.table = table
-        self.update_id = update_id
-    def output(self):
-#        Returns a PostgresTarget representing the executed query
-        return PostgresTarget(host=self.host, database=self.database, user=self.user \
-                            password=self.psswd, table=self.table, update_id=self.update_id)
-'''                                
-   
 
 class S3Bucket(luigi.ExternalTask): # ensure connection to S3 bucket
 
