@@ -28,7 +28,8 @@ def ingest_xtdb():
         tbl.columns = [t.lower() for t in tbl.columns]
         tbl.dropna(how='all', inplace=True)
         tbl_name = file.split('/')[-1].split('.')[0].lower()
-       
+        tbl.fillna('', inplace=True)
+        
         io_raw.save_to_db(tbl, tbl_name)
         print('Created table `'+tbl_name+'` in schema '+io_raw.schema)
        
