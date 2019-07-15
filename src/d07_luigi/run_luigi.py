@@ -89,13 +89,13 @@ class IngestXTDB(luigi.Task):
         return S3Bucket()
 
     def output(self): # output tables
-        # table, update_id
+        host, user, password, database = get_postgres_credentials()
         table = 'raw.A_measgraphic'
         update_id = 'ingest'
 	return PostgresTarget(host, database, user, password, table, update_id)
 
     def run(self):
-        return ingest_xt_db()
+        return ingest_xtdb()
 
 
 class CleanXTDB(luigi.Task):
