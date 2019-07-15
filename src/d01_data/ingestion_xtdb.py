@@ -26,7 +26,7 @@ def ingest_xtdb():
        
         tbl = pd.read_csv(tmp.name, encoding='iso-8859-2', na_values='', decimal=',')
         tbl.columns = [t.lower() for t in tbl.columns]
-        tbl.dropna(inplace=True)
+        tbl.dropna(how='all', inplace=True)
         tbl_name = file.split('/')[-1].split('.')[0].lower()
        
         io_raw.save_to_db(tbl, tbl_name)
