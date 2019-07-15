@@ -102,11 +102,19 @@ class dbReadWriteData:
         inspector = inspect(self.engine)
         print(inspector.get_table_names(self.schema))
        
-        
+class dbReadWritePublic(dbReadWriteData):
+    """
+    TODO: delete this class when other schemas properly populated
+    Instantiates class for postres I/O to 'public' schema 
+    """
+    def __init__(self):
+        super().__init__(schema='public')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))        
     
 class dbReadWriteRaw(dbReadWriteData):
-    """Subclass for reading and writing data to and from `raw` schema.
-    
+    """
+    Instantiates class for postres I/O to 'raw' schema 
     """    
     def __init__(self):
         super().__init__(schema='raw')
@@ -114,12 +122,22 @@ class dbReadWriteRaw(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
             
-            
 class dbReadWriteClean(dbReadWriteData):
-    """Subclass for reading and writing data to and from `clean` schema.
-    
+    """
+    Instantiates class for postgres I/O to 'clean' schema
     """    
     def __init__(self):
         super().__init__(schema='clean')
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+
+
+class dbReadWriteViews(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'view' schema
+    """
+    def __init__(self):
+        super().__init__(schema='views')
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
+            

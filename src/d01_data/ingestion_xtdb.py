@@ -9,8 +9,8 @@ import boto3
 import tempfile
 import pandas as pd
 
-from ..d00_utils.s3_utils import get_matching_s3_keys
-from ..d00_utils.db_utils import dbReadWriteRaw
+from d00_utils.s3_utils import get_matching_s3_keys
+from d00_utils.db_utils import dbReadWriteRaw
 
 
 def ingest_xtdb():
@@ -33,6 +33,3 @@ def ingest_xtdb():
         io_raw.save_to_db(tbl, tbl_name)
         print('Created table `'+tbl_name+'` in schema '+io_raw.schema)
        
-       
-if __name__ == '__main__':
-    ingest_xtdb()        

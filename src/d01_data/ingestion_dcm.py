@@ -11,7 +11,7 @@ import os
 import boto3
 import tempfile
 
-from ..d00_utils.s3_utils import get_matching_s3_keys
+from d00_utils.s3_utils import get_matching_s3_keys
 
 def get_dicom_metadata(bucket, file_path, description=False):
     
@@ -99,21 +99,20 @@ def write_dicom_metadata(df, metadata_file_name=None):
 
 
 def ingest_dcm():
-    """Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
-    
     """
-    for key in get_matching_s3_keys('cibercv','','.dcm'): 
-        df = get_dicom_metadata('cibercv', key)
-        write_dicom_metadata(df)
-    os.remove('temp.txt')
+    Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
+    """
+
+    check = input("Retrieving all dicom metadata will take ~48 hours. Type YES to continue.")
+
+    if check.lower() == 'yes':
+        for key in get_matching_s3_keys('cibercv','','.dcm'): 
+            df = get_dicom_metadata('cibercv', key)
+            write_dicom_metadata(df)
+        os.remove('temp.txt')
+        print('All dicom metadata has been retrieved.')
+    else:
+        print('Exiting dicom metadata retrieval process.')
     
     return('All dicom metadata has been retrieved.')    
-          
         
-if __name__ == '__main__':
-    check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Any other input will stop the process.")
-    
-    if check.lower() == 'yes':
-        ingest_dcm()        
-    else:
-        print('Exiting the dicom metadata retrieval process. Rerun the script and type YES when prompted if this was a mistake.')
