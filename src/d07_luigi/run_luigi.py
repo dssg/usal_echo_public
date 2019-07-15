@@ -1,11 +1,11 @@
 import luigi
-from luigi.s3 import S3Target
-from luigi.postgres import PostgresTarget # luigi.contrib.postgres?
+from luigi.contrib.s3 import S3Target
+from luigi.contrib.postgres import PostgresTarget # luigi.contrib.postgres?
 from luigi import LocalTarget
 
-from ..d01_data.ingestion_dcm import ingest_dcm
-from ..d01_data.ingestion_xt_db import ingest_xt_db
-from ..d02_intermediate.dicom_meta_lite import get_meta_lite
+from d01_data.ingestion_dcm import ingest_dcm
+from d01_data.ingestion_xtdb import ingest_xtdb
+from d02_intermediate.clean_dcm import get_meta_lite
 
 
 def get_postgres_credentials():
@@ -98,10 +98,6 @@ class CleanXcelera(luigi.Task):
 # add filtering.py
 # transforming.py likely within Zhang et al.
 # .py scripts --> function calls?
-
-
-
-
 
 
 class PrintNumbers(luigi.Task):
