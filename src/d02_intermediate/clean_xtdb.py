@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from ..d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
@@ -14,6 +15,9 @@ def clean_measurement_abstract_rpt(df):
     :return: cleaned dataframe
     
     """
+    for column in ["row_id", "studyid", "measabstractnumber"]:
+        df[column] = df[column].astype(int)
+    
     for column in ["name", "unitname"]:
         df[column] = df[column].str.strip()
     print("Cleaned measurement_abstract_rpt table.")
@@ -34,15 +38,13 @@ def clean_measgraphref(df):
     :return: cleaned table as dataframe
     
     """
-    df_noempty = df[df["instanceidk"] != ""]
+    df['instanceidk'] = df['instanceidk'].replace('', -1)
     
-    for column in ["instanceidk", "indexinmglist"]:
-        df_noempty[column] = df_noempty[column].astype(int)
-        
-    df_noempty_positive = df_noempty[(df_noempty["instanceidk"] >= 0) &  
-                                     (df_noempty["indexinmglist"] >= 0)]
+    for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
 
-    df_clean = df_noempty_positive.drop("srinstanceidk", axis="columns")
+    df_clean = df.drop("srinstanceidk", axis="columns")
+    
     print("Cleaned measgraphref table.")
 
     return df_clean
@@ -59,6 +61,9 @@ def clean_measgraphic(df):
     :return: cleaned table as dataframe
     
     """
+    for column in ["row_id", "instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+    
     df_clean = df.drop(columns=["graphictoolidk","longaxisindex","measidk",
                           "loopidk","instancerecordtype"])
     print("Cleaned measgraphic table.")
@@ -78,21 +83,17 @@ def clean_study_summary(df):
     
     """
     # clean age, patientweight, patientheight columns
-    column_names_to_clean = ['age', 'patientweight', 'patientheight']
-    for column in column_names_to_clean:
-        df[column] = df[column].replace('', 1) 
-        df[column] = df[column].fillna(1)
+    for column in ['age', 'patientweight', 'patientheight']:
+        df[column] = df[column].replace('', -1)
     
-    if df['age'].dtype != 'int64':
-         df['age'] = df['age'].astype('int64')
-    if df['patientweight'].dtype != 'float64':
-         df['patientweight'] = df['patientweight'].astype('float64')
-    if df['patientheight'].dtype != 'float64':
-         df['patientheight'] = df['patientheight'].astype('float64')
+    for column in ["row_id", "studyidk", "age"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+        
+    for column in ["patientweight", "patientheight"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce')
     
     # remove outliers
-    column_names_to_clean = ['age', 'patientweight', 'patientheight']
-    for column in column_names_to_clean:
+    for column in ['age', 'patientweight', 'patientheight']:
         boxplot = plt.boxplot(df[column])
         outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot['caps']]
         df[column] = df[column].apply(lambda x: 1 if x > outlier_max else x)
