@@ -2,8 +2,6 @@
 
 import matplotlib.pyplot as plt
 
-import sys
-#sys.path.append('../d00_utils')
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
