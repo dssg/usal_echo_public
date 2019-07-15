@@ -6,14 +6,6 @@ import psycopg2
 
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
-# to do: get rid of all name==main, fix relative paths
-# if script has import from other place, run through test and not script directly
-# if you do that, it will think that location is the main root directory for project
-
-
-#sys.path.append('../d02_intermediate')
-#from clean_xtdb import *
-
 def get_connection():
     '''
     Currently this function is unused
@@ -59,9 +51,7 @@ def filter_by_views():
     measgraphic_df = measgraphic_df[['instanceidk', \
         'indexinmglist', 'frame']]
     measurement_abstract_rpt_df = measurement_abstract_rpt_df[[\
-        'studyid', 'measabstractnumber', 'name']]
-    measurement_abstract_rpt_df = measurement_abstract_rpt_df.rename(\
-        index=str, columns={"studyid": "studyidk"})
+        'studyidk', 'measabstractnumber', 'name']] #here
 
     # Merge individual dataframes into one
     merge_df = measgraphref_df.merge(measgraphic_df, on=[\
