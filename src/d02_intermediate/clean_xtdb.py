@@ -15,7 +15,9 @@ def clean_measurement_abstract_rpt(df):
     :return: cleaned dataframe
     
     """
-    for column in ["row_id", "studyid", "measabstractnumber"]:
+    df.rename(columns={"studyid": "studyidk"}, inplace=True)
+    
+    for column in ["row_id", "studyidk", "measabstractnumber"]:
         df[column] = df[column].astype(int)
     
     for column in ["name", "unitname"]:
