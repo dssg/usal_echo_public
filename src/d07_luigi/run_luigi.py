@@ -1,13 +1,11 @@
 import luigi
-from luigi.s3 import S3Target
-from luigi.postgres import PostgresTarget 
+from luigi.contrib.s3 import S3Target
+from luigi.contrib.postgres import PostgresTarget 
+from luigi import LocalTarget
 
-from ..d00_utils.db_utils import *
-from ..d01_data.ingestion_dcm import ingest_dcm
-from ..d01_data.ingestion_xtdb import ingest_xtdb
-from ..d02_intermediate.clean_dcm import clean_dcm
-from ..d02_intermediate.clean_xtdb import clean_tables
-
+from d01_data.ingestion_dcm import ingest_dcm
+from d01_data.ingestion_xtdb import ingest_xtdb
+from d02_intermediate.clean_dcm import get_meta_lite
 
 # Note: extra comments in get_postgres_credentials and QueryInfo()
 #       will be deleted when methodology is finalized
@@ -26,6 +24,7 @@ def get_postgres_credentials():
 	with open(filename) as f:
 		data = json.load(f)
 		return data["host"], data["user"], data["psswd"], data["database"]
+
 class QueryInfo():
     def __init__(self, table, update_id):
         self.table = table
