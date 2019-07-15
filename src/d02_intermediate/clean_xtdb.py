@@ -1,4 +1,15 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 3 2019
+
+@author: wiebket
+description: the clean_xtdb script processes Xcelera_tablas database tables to have 
+                a) consistent column headers 
+                b) consistent treatment of missing values (either '' or -1)                
+                c) consistent column data types
+                d) whitespace removed from string columns
+"""
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,9 +18,6 @@ from ..d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
-
-    The following cleaning steps are performend:
-        1. strip string columns: `name`, `unitname`
     
     :param df: measurement_abstract_rpt table as dataframe
     :return: cleaned dataframe
@@ -27,14 +35,9 @@ def clean_measurement_abstract_rpt(df):
     return df
 
 
+
 def clean_measgraphref(df):
-    """Clean measgraphref table.
-    
-    The following cleaning steps are performend:
-        1. remove rows with empty `instanceidk` column
-        2. transform `instanceidk` and `indexinmglist` values to integer datatype
-        3. remove rows with negative values in `instanceidk` and `indexinmglist`
-        4. drop `srinstanceidk` column           
+    """Clean measgraphref table.      
     
     :param df: measgraphref table as dataframe
     :return: cleaned table as dataframe
@@ -44,20 +47,15 @@ def clean_measgraphref(df):
     
     for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
-
-    df_clean = df.drop("srinstanceidk", axis="columns")
     
     print("Cleaned measgraphref table.")
 
-    return df_clean
+    return df
+
 
 
 def clean_measgraphic(df):
     """Clean measgraphic table.
-    
-    The following cleaning steps are performend:
-        1. drop the following columns: ["graphictoolidk","longaxisindex",
-                                        "measidk","loopidk","instancerecordtype"]
     
     :param df: measgraphic table as pandas dataframe
     :return: cleaned table as dataframe
@@ -66,21 +64,22 @@ def clean_measgraphic(df):
     for column in ["row_id", "instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
-    df_clean = df.drop(columns=["graphictoolidk","longaxisindex","measidk",
-                          "loopidk","instancerecordtype"])
     print("Cleaned measgraphic table.")
 
-    return df_clean
+    return df
+
 
 
 def clean_study_summary(df):
-    """Clean summary table.
+    """Clean dm_spain_view_study_summary table.
     
-    The following cleaning steps are performend:
-        1. replace empty values with 1 in columns `age`, `patientweight`, `patientheight`
-        2. replace `,` with `.` in columns `age`, `patientweight`, `patientheight`
+    In addition to processing missing values, data types and column headers, 
+    this function also:
+        a) adds a 'bmi' column, with outliers removed
+        b) replaces missing gender information with 'U'
+        c) splits the findingcode column on commas into indiviudal codes
     
-    :param df: 
+    :param df: dm_spain_view_study_summary table as dataframe
     :return: cleaned table as dataframe
     
     """
@@ -118,10 +117,11 @@ def clean_study_summary(df):
     return df
 
 
+
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
-    """
     
+    """    
     io_raw = dbReadWriteRaw()
     io_clean = dbReadWriteClean()
     
@@ -135,7 +135,4 @@ def clean_tables():
         clean_tbl = eval(val)
         
         io_clean.save_to_db(clean_tbl, key)
-        print('Created table `'+key+'` in schema '+io_clean.schema)
-        
-if __name__ == '__main__':
-    clean_tables()        
+        print('Created table `'+key+'` in schema '+io_clean.schema) 
