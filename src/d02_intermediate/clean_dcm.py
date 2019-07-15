@@ -7,9 +7,9 @@ Created on Thu Jul 4 14:32:40 2019
 """
 
 import pandas as pd
-
 from json import load
-from ..d00_utils.db_utils import dbReadWriteClean
+
+from d00_utils.db_utils import dbReadWriteClean
 
 def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     """Select subset of dicom tags and save to database.

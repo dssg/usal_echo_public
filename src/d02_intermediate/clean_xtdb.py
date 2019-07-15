@@ -14,7 +14,7 @@ description: the clean_xtdb script processes Xcelera_tablas database tables to h
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from ..d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
+from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.

@@ -11,7 +11,7 @@ import os
 import boto3
 import tempfile
 
-from ..d00_utils.s3_utils import get_matching_s3_keys
+from d00_utils.s3_utils import get_matching_s3_keys
 
 def get_dicom_metadata(bucket, file_path, description=False):
     
@@ -99,22 +99,18 @@ def write_dicom_metadata(df, metadata_file_name=None):
 
 
 def ingest_dcm():
-    """Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
-    
     """
-    check = input("Do you want to fetch all dicom metadata? This will take ~48 hours. Type YES to continue. Type anything else to exit.")
+    Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
+    """
+
+    check = input("Retrieving all dicom metadata will take ~48 hours. Type YES to continue.")
 
     if check.lower() == 'yes':
-
         for key in get_matching_s3_keys('cibercv','','.dcm'): 
             df = get_dicom_metadata('cibercv', key)
             write_dicom_metadata(df)
         os.remove('temp.txt')
-    
         return('All dicom metadata has been retrieved.')    
-        
     else:
-        return('Dicom metadata retrieval exited.')
+        return('Exiting dicom metadata retrieval process.')
         
-if __name__ == '__main__':
-    ingest_dcm()        
