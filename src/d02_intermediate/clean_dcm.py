@@ -7,14 +7,18 @@ Created on Thu Jul 4 14:32:40 2019
 """
 
 import pandas as pd
+from json import load
 
 from d00_utils.db_utils import dbReadWriteClean
 
-def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None, db_table=None):
-
+def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     """Select subset of dicom tags and save to database.
     
-    :param dicom_tags (dict): dict of dicom tag descriptions and tag tuple
+    This function selects a subset of dicom metadata tags and saves it.
+    
+    **Requirements:
+    json formatted config file with dicom tag descriptions and values in dicom_tags.json
+    
     :param metadata_path (str): path to dicom metadata file
     :param save_to_db (bool): if True saves tag subset to postgres database; default=False
     :param credentials_file (str): path to credentials file; required if save_to_db=True
@@ -22,9 +26,13 @@ def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None,
     :return: pandas dataframe with filtered metadata
     
     """
+    #Get dicom tags and metadata path from config file(s)
+    with open('dicom_tags.json') as f:
+        dicom_tags = load(f)
+    for k, v in dicom_tags.items():
+        dicom_tags[k] = tuple(v)
 
-    #TODO get dicom tags and metadata path from config file(s)
-    clean_data = dbReadWriteClean()
+    io_clean = dbReadWriteClean()
     
     datalist = []
     # Read metadata in chunks to avoid kernel crashing due to large data volume.
@@ -35,7 +43,7 @@ def get_meta_lite(dicom_tags, metadata_path, to_db=False, credentials_file=None,
         filtered_chunk = chunk[chunk['tags'].isin(dicom_tags.values())]
         if to_db is True:
             try:
-                clean_data.save_to_db(filtered_chunk, db_table, credentials_file)
+                io_clean.save_to_db(filtered_chunk, db_table, if_exists='append')
             except:
                 raise
             print('saved chunks to db')

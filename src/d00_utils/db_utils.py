@@ -12,7 +12,7 @@ from json import load
 from sqlalchemy import create_engine
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
-
+import tempfile
 
 def _load_json_credentials(filepath):
     """Load json formatted credentials.
@@ -53,7 +53,7 @@ class dbReadWriteData:
                                                              self.credentials['host'],
                                                              self.credentials['database'])
         self.engine = create_engine(self.connection_str, encoding='utf-8')
-        
+
 
     def save_to_db(self, df, db_table, if_exists='replace'):
         """Write dataframe to table in database.
@@ -62,10 +62,26 @@ class dbReadWriteData:
         :param db_table (str): name of database table to write to
         :param if_exists (str): write action if table exists, default='replace'
         
-        """
-        #TODO speed up writing to db
-        df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
+        """        
+        # Create new database table from empty dataframe
+        df[:0].to_sql(db_table, self.engine, self.schema, if_exists, index=False)
         
+        # Replace `|` so that it can be used as column separator
+        for col in df.columns:
+            df[col] = df[col].replace('\|',',', regex=True) 
+    
+        # Save data to temporary file to be able to use it in fast write method `copy_from`
+        tmp = tempfile.NamedTemporaryFile()
+        df.to_csv(tmp.name, encoding='utf-8', decimal='.', index=False, sep='|')
+
+        connection = self.engine.raw_connection()
+        cursor = connection.cursor()           
+        
+        with open(tmp.name, 'r') as f:
+            next(f) # Skip the header row.
+            cursor.copy_from(f, '{}.{}'.format(self.schema, db_table), sep='|', size=100000) 
+            connection.commit()
+            
     
     def get_table(self, db_table):
         """Read table in database as dataframe.

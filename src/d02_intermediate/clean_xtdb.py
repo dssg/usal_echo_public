@@ -1,19 +1,33 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 3 2019
+
+@author: wiebket
+description: the clean_xtdb script processes Xcelera_tablas database tables to have 
+                a) consistent column headers 
+                b) consistent treatment of missing values (either '' or -1)                
+                c) consistent column data types
+                d) whitespace removed from string columns
+"""
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
-
-    The following cleaning steps are performend:
-        1. strip string columns: `name`, `unitname`
     
     :param df: measurement_abstract_rpt table as dataframe
     :return: cleaned dataframe
     
     """
+    df.rename(columns={"studyid": "studyidk"}, inplace=True)
+    
+    for column in ["row_id", "studyidk", "measabstractnumber"]:
+        df[column] = df[column].astype(int)
+    
     for column in ["name", "unitname"]:
         df[column] = df[column].str.strip()
     print("Cleaned measurement_abstract_rpt table.")
@@ -21,79 +35,66 @@ def clean_measurement_abstract_rpt(df):
     return df
 
 
+
 def clean_measgraphref(df):
-    """Clean measgraphref table.
-    
-    The following cleaning steps are performend:
-        1. remove rows with empty `instanceidk` column
-        2. transform `instanceidk` and `indexinmglist` values to integer datatype
-        3. remove rows with negative values in `instanceidk` and `indexinmglist`
-        4. drop `srinstanceidk` column           
+    """Clean measgraphref table.      
     
     :param df: measgraphref table as dataframe
     :return: cleaned table as dataframe
     
     """
-    df_noempty = df[df["instanceidk"] != ""]
+    df['instanceidk'] = df['instanceidk'].replace('', -1)
     
-    for column in ["instanceidk", "indexinmglist"]:
-        df_noempty[column] = df_noempty[column].astype(int)
-        
-    df_noempty_positive = df_noempty[(df_noempty["instanceidk"] >= 0) &  
-                                     (df_noempty["indexinmglist"] >= 0)]
-
-    df_clean = df_noempty_positive.drop("srinstanceidk", axis="columns")
+    for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+    
     print("Cleaned measgraphref table.")
 
-    return df_clean
+    return df
+
 
 
 def clean_measgraphic(df):
     """Clean measgraphic table.
     
-    The following cleaning steps are performend:
-        1. drop the following columns: ["graphictoolidk","longaxisindex",
-                                        "measidk","loopidk","instancerecordtype"]
-    
     :param df: measgraphic table as pandas dataframe
     :return: cleaned table as dataframe
     
     """
-    df_clean = df.drop(columns=["graphictoolidk","longaxisindex","measidk",
-                          "loopidk","instancerecordtype"])
+    for column in ["row_id", "instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+    
     print("Cleaned measgraphic table.")
 
-    return df_clean
+    return df
+
 
 
 def clean_study_summary(df):
-    """Clean summary table.
+    """Clean dm_spain_view_study_summary table.
     
-    The following cleaning steps are performend:
-        1. replace empty values with 1 in columns `age`, `patientweight`, `patientheight`
-        2. replace `,` with `.` in columns `age`, `patientweight`, `patientheight`
+    In addition to processing missing values, data types and column headers, 
+    this function also:
+        a) adds a 'bmi' column, with outliers removed
+        b) replaces missing gender information with 'U'
+        c) splits the findingcode column on commas into indiviudal codes
     
-    :param df: 
+    :param df: dm_spain_view_study_summary table as dataframe
     :return: cleaned table as dataframe
     
     """
     # clean age, patientweight, patientheight columns
-    column_names_to_clean = ['age', 'patientweight', 'patientheight']
-    for column in column_names_to_clean:
-        df[column] = df[column].replace('', 1) 
-        df[column] = df[column].str.replace(',', '.') 
-        df[column] = df[column].fillna(1)
+    for column in ['age', 'patientweight', 'patientheight']:
+        df[column] = df[column].replace('', -1)
     
-    if df['age'].dtype != 'int64':
-         df['age'] = df['age'].astype('int64')
-    if df['patientweight'].dtype != 'float64':
-         df['patientweight'] = df['patientweight'].astype('float64')
-    if df['patientheight'].dtype != 'float64':
-         df['patientheight'] = df['patientheight'].astype('float64')
+    for column in ["row_id", "studyidk", "age"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+        
+    for column in ["patientweight", "patientheight"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce')
     
     # remove outliers
-    column_names_to_clean = ['age', 'patientweight', 'patientheight']
-    for column in column_names_to_clean:
+    for column in ['age', 'patientweight', 'patientheight']:
         boxplot = plt.boxplot(df[column])
         outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot['caps']]
         df[column] = df[column].apply(lambda x: 1 if x > outlier_max else x)
@@ -116,12 +117,13 @@ def clean_study_summary(df):
     return df
 
 
+
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
-    """
     
-    raw_data = dbReadWriteRaw()
-    clean_data = dbReadWriteClean()
+    """    
+    io_raw = dbReadWriteRaw()
+    io_clean = dbReadWriteClean()
     
     tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
@@ -129,9 +131,8 @@ def clean_tables():
                        'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
 
     for key, val in tables_to_clean.items():
-        tbl = raw_data.get_table(key)
+        tbl = io_raw.get_table(key)
         clean_tbl = eval(val)
         
-        clean_data.save_to_db(clean_tbl, key)
-        print('Created table `'+key+'` in schema '+clean_data.schema)
-        
+        io_clean.save_to_db(clean_tbl, key)
+        print('Created table `'+key+'` in schema '+io_clean.schema) 
