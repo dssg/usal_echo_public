@@ -3,8 +3,8 @@
 import matplotlib.pyplot as plt
 
 import sys
-sys.path.append('../d00_utils')
-from db_utils import dbReadWriteRaw, dbReadWriteClean
+#sys.path.append('../d00_utils')
+from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
@@ -137,5 +137,3 @@ def clean_tables():
         clean_data.save_to_db(clean_tbl, key)
         print('Created table `'+key+'` in schema '+clean_data.schema)
         
-if __name__ == '__main__':
-    clean_tables()        
