@@ -119,4 +119,31 @@ def filter_by_views():
     frames_with_views_df = group_df#.merge(is_instance_multiview, on='instanceidk')
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
     
-    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views')
+    # Intermediate dataframe; saving to db no longer necessary
+    #io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
+    
+    # Remove unlabeled instances
+    df2 = frames_with_views_df
+    labeled_df = df2.drop(df2[(df2['view']=='')].index)
+
+    # Remove instances with view conflicts
+    df3 = labeled_df
+    conflict_sets = df3[df3['is_multiview']==True].groupby('instanceidk')
+    conflict_list = []
+    for instance in list(conflict_sets.instanceidk):
+        conflict_list.append(instance[0]) # get instanceidk for multidimn list
+    
+    frames_without_conflicts_df = df3[~df3['instanceidk'].isin(conflict_list)]
+    labels_by_frame_df = frames_without_conflicts_df.drop('is_multiview', axis=1)
+
+    # Remove unlabeled instances, save to database
+    #df2 = frames_without_conflicts_df
+    #labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
+    io_views.save_to_db(labels_by_frame_df, 'frames_with_labels')
+
+    # Group all frames of same instance, drop frame-specific columns
+    agg_functions = {'view': 'first', 'studyidk': 'first'}
+    labels_by_inst_df = labels_by_frame_df.groupby(['instanceidk']).agg(agg_functions)
+    labels_by_inst_df = labels_by_inst_df.reset_index()
+    io_views.save_to_db(labels_by_inst_df, 'instances_with_labels')
+    
