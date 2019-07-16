@@ -117,6 +117,22 @@ def clean_study_summary(df):
     return df
 
 
+def clean_modvolume(df):
+    """Clean modvolume table.
+    
+    :param df: modvolume table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    for column in ["row_id", "instanceidk", "indexinmglist", "chordsequence"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+        
+    for column in ["chordtype"]:
+        df[column] = df[column].str.strip()
+    
+    return df
+
+
 
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
@@ -128,7 +144,8 @@ def clean_tables():
     tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
                        'a_measgraphic' : 'clean_measgraphic(tbl)', 
-                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
+                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'
+                       'a_modvolume': 'clean_modvolume(tbl)'}
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
