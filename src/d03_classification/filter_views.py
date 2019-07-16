@@ -111,6 +111,10 @@ def filter_by_views():
     group_df = group_df.reset_index()
     (group_df.reset_index().groupby(['instanceidk', 'indexinmglist'])['view'].nunique().eq(1)==False).sum()
     (group_df.reset_index().groupby('instanceidk')['view'].nunique().eq(1)==False).sum()
+    is_instance_multiview = (group_df.reset_index().groupby('instanceidk')['view'].nunique().eq(1)==False).reset_index()
+    is_instance_multiview = is_instance_multiview.rename(index=str, columns={"view": "is_multiview"})
+    group_df = group_df.merge(is_instance_multiview, on='instanceidk')
+
 
     frames_with_views_df = group_df#.merge(is_instance_multiview, on='instanceidk')
     frames_with_views_df = frames_with_views_df.drop(['is_plax', 'maybe_plax', 'is_a4c', 'is_a2c'], axis=1)
