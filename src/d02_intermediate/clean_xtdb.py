@@ -144,7 +144,7 @@ def clean_tables():
     tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
                        'a_measgraphic' : 'clean_measgraphic(tbl)', 
-                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'
+                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)',
                        'a_modvolume': 'clean_modvolume(tbl)'}
 
     for key, val in tables_to_clean.items():
