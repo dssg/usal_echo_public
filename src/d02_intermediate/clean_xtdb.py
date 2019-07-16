@@ -117,6 +117,7 @@ def clean_study_summary(df):
     return df
 
 
+
 def clean_modvolume(df):
     """Clean modvolume table.
     
@@ -134,6 +135,23 @@ def clean_modvolume(df):
 
 
 
+def clean_instance_filename(df):
+    """Clean instance_filename table.
+    
+    :param df: instance_filename table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    # TODO: Is "seriesdbkey" the same as "studyseriesidk"?
+    df.rename(columns={"instancedbkey": "instanceidk"}, inplace=True)
+    
+    for column in ["row_id", "instanceidk", "seriesdbkey"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+    
+    return df
+
+
+
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
     
@@ -145,7 +163,8 @@ def clean_tables():
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
                        'a_measgraphic' : 'clean_measgraphic(tbl)', 
                        'dm_spain_view_study_summary' : 'clean_study_summary(tbl)',
-                       'a_modvolume': 'clean_modvolume(tbl)'}
+                       'a_modvolume': 'clean_modvolume(tbl)',
+                       'instance_filename': 'clean_instance_filename(tbl)'}
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
