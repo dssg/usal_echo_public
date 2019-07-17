@@ -13,6 +13,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
 import tempfile
+import gc
 
 def _load_json_credentials(filepath):
     """Load json formatted credentials.
@@ -62,7 +63,8 @@ class dbReadWriteData:
         :param db_table (str): name of database table to write to
         :param if_exists (str): write action if table exists, default='replace'
         
-        """        
+        """
+        gc.collect()        
         # Create new database table from empty dataframe
         df[:0].to_sql(db_table, self.engine, self.schema, if_exists, index=False)
         
@@ -89,8 +91,14 @@ class dbReadWriteData:
         :param db_table (str): name of database table to read
         
         """
-        #TODO speed up reading from db         
-        df = pd.read_sql_table(db_table, self.engine, self.schema)
+        tmp = tempfile.NamedTemporaryFile()
+        connection = self.engine.raw_connection()
+        cursor = connection.cursor() 
+        with open(tmp.name, 'w') as f:
+            cursor.copy_to(f, '{}.{}'.format(self.schema, db_table)) 
+        connection.commit()
+        df = pd.read_csv(tmp.name, sep='\t')         
+        #df = pd.read_sql_table(db_table, self.engine, self.schema)
         
         return df
     
