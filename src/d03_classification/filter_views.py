@@ -145,5 +145,27 @@ def filter_by_views():
     agg_functions = {'view': 'first', 'studyidk': 'first'}
     labels_by_inst_df = labels_by_frame_df.groupby(['instanceidk']).agg(agg_functions)
     labels_by_inst_df = labels_by_inst_df.reset_index()
-    io_views.save_to_db(labels_by_inst_df, 'instances_with_labels')
+
+    # Filter out instances with naming conflicts per master table
+    all_inst_df = io_views.get_table('instances_unique_master_list')
+    inst_fair_game = list(set(all_inst_df['instanceidk'].tolist()))
+    labels_by_inst_df = labels_by_inst_df[labels_by_inst_df['instanceidk'].isin(inst_fair_game)]
+
+    #io_views.save_to_db(labels_by_inst_df, 'instances_with_labels')
+
+    # Filter out instances from old machines
+    new_machines_df = io_views.get_table('machines_new_bmi')
+    studies_new_machines = list(set(new_machines_df['studyidk'].tolist()))
+    lab_inst_new_df = labels_by_inst_df[labels_by_inst_df['studyidk'].isin(studies_new_machines)]
+
+    #io_views.save_to_db(lab_inst_new_df, 'instances_with_labels')
+
+    # Merge with views.instances_unique_master_list table to get the following columns:
+    # sopinstanceuid, instancefilename
+    master_df = io_views.get_table('instances_unique_master_list')
+    merge_df = master_df.merge(lab_inst_new_df, on='instanceidk')
+    merge_df = merge_df[merge_df['studyidk_x'] == merge_df['studyidk_y']]
+    merge_df['studyidk'] = merge_df['studyidk_x']
+    merge_df.drop(labels=['studyidk_x', 'studyidk_y'], axis=1, inplace=True)
     
+    io_views.save_to_db(merge_df, 'instances_with_labels')

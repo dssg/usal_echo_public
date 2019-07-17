@@ -40,4 +40,13 @@ def create_unlabeled_instances():
     # remove instances which have conflicts
     poss_inst_df = poss_inst_df[~poss_inst_df['instanceidk'].isin(inst_w_conflicts)]
 
-    io_views.save_to_db(poss_inst_df, 'instances_labeled_other')
+    #io_views.save_to_db(poss_inst_df, 'instances_labeled_other')
+
+    # Filter out instances from old machines
+    new_machines_df = io_views.get_table('machines_new_bmi')
+    studies_new_machines = list(set(new_machines_df['studyidk'].tolist()))
+    oth_inst_new_df = poss_inst_df[poss_inst_df['studyidk'].isin(studies_new_machines)]
+
+    oth_inst_new_df['view'] = 'other' # add 'other' column for consistency with view table
+    
+    io_views.save_to_db(oth_inst_new_df, 'instances_labeled_other')

@@ -6,6 +6,6 @@ from d03_classification import filter_views, unlabeled_instances
 #from d07_luigi import run_luigi
 
 if __name__ == '__main__':
-    #filter_views.filter_by_views()
+    filter_views.filter_by_views()
     #master_list.create_master_instance_list()
-    unlabeled_instances.create_unlabeled_instances()
+    #unlabeled_instances.create_unlabeled_instances()
