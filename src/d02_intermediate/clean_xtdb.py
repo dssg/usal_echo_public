@@ -25,7 +25,7 @@ def clean_measurement_abstract_rpt(df):
     """
     df.rename(columns={"studyid": "studyidk"}, inplace=True)
     
-    for column in ["row_id", "studyidk", "measabstractnumber"]:
+    for column in ["studyidk", "measabstractnumber"]:
         df[column] = df[column].astype(int)
     
     for column in ["name", "unitname"]:
@@ -45,7 +45,7 @@ def clean_measgraphref(df):
     """
     df['instanceidk'] = df['instanceidk'].replace('', -1)
     
-    for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
+    for column in ["studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
     print("Cleaned measgraphref table.")
@@ -61,7 +61,7 @@ def clean_measgraphic(df):
     :return: cleaned table as dataframe
     
     """
-    for column in ["row_id", "instanceidk", "indexinmglist"]:
+    for column in ["instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
     print("Cleaned measgraphic table.")
@@ -125,7 +125,7 @@ def clean_modvolume(df):
     :return: cleaned table as dataframe
     
     """
-    for column in ["row_id", "instanceidk", "indexinmglist", "chordsequence"]:
+    for column in ["instanceidk", "indexinmglist", "chordsequence"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
         
     for column in ["chordtype"]:
@@ -145,7 +145,7 @@ def clean_instance_filename(df):
     # TODO: Is "seriesdbkey" the same as "studyseriesidk"?
     df.rename(columns={"instancedbkey": "instanceidk"}, inplace=True)
     
-    for column in ["row_id", "instanceidk", "seriesdbkey"]:
+    for column in ["instanceidk", "seriesdbkey"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
     return df
