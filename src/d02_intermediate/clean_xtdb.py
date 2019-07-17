@@ -87,7 +87,7 @@ def clean_study_summary(df):
     for column in ['age', 'patientweight', 'patientheight']:
         df[column] = df[column].replace('', -1)
     
-    for column in ["row_id", "studyidk", "age"]:
+    for column in ["studyidk", "age"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
         
     for column in ["patientweight", "patientheight"]:

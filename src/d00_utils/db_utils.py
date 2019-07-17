@@ -81,7 +81,7 @@ class dbReadWriteData:
         
         with open(tmp.name, 'r') as f:
             next(f) # Skip the header row.
-            cursor.copy_from(f, '{}.{}'.format(self.schema, db_table), sep='|', size=100000) 
+            cursor.copy_from(f, '{}.{}'.format(self.schema, db_table), sep='|', size=100000, null='') 
             connection.commit()
             
         gc.collect()
@@ -98,10 +98,6 @@ class dbReadWriteData:
         #Fetch column names
         q = 'SELECT * FROM {}.{} LIMIT(0)'.format(self.schema, db_table)
         cols = pd.read_sql(q, self.engine).columns.to_list()
-#        try:
-#            cols.remove('row_id')
-#        except ValueError:
-#            pass
         
         tmp = tempfile.NamedTemporaryFile()
         connection = self.engine.raw_connection()
@@ -112,6 +108,7 @@ class dbReadWriteData:
         connection.commit()
         
         df = pd.read_csv(tmp.name, sep='\t', names=cols)
+        df.fillna('', inplace=True)
         
         gc.collect()         
         
