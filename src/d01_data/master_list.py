@@ -44,6 +44,8 @@ def create_master_instance_list():
     merge_df = A_instance_df.merge(filename_list_df, on='sopinstanceuid')
     merge_df = merge_df[merge_df['instanceidk_x'] == merge_df['instanceidk_y']]
     merge_df['instanceidk'] = merge_df['instanceidk_x']
+    cols_to_drop = ['instanceidk_x', 'instanceidk_y']
+    merge_df.drop(labels=cols_to_drop, axis=1, inplace=True)
     
     # Second merge, i.e. step 3 in script overview
     merge2_df = merge_df.merge(A_study_series_df, on = 'studyseriesidk')
