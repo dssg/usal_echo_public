@@ -25,9 +25,9 @@ def create_master_instance_list():
     A_study_series_df = io_raw.get_table('a_studyseries')
 
     # Drop unnecessary columns
-    filename_list_df.drop(labels=['row_id', 'seriesdbkey'], axis=1, inplace=True)
-    A_instance_df.drop(labels=['row_id', 'sopclassuid'], axis=1, inplace=True)
-    A_study_series_df.drop(labels=['row_id', 'studyseriesuid', 'modality'], axis=1, inplace=True)
+    filename_list_df.drop(labels='seriesdbkey', axis=1, inplace=True)
+    A_instance_df.drop(labels='sopclassuid', axis=1, inplace=True)
+    A_study_series_df.drop(labels=['studyseriesuid', 'modality'], axis=1, inplace=True)
 
     # Drop all rows which have duplicate values in specified columns
     cols_drop_filename = ['sopinstanceuid', 'instanceidk', 'instancefilename']
