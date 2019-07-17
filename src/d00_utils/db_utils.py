@@ -85,7 +85,8 @@ class dbReadWriteData:
             connection.commit()
             
         gc.collect()
-        return 'Saved table {} to schema {} (mode={})'.format(db_table, self.schema, if_exists)
+        
+        print('Saved table {} to schema {} (mode={})'.format(db_table, self.schema, if_exists))
             
     
     def get_table(self, db_table):
@@ -96,14 +97,18 @@ class dbReadWriteData:
         """
         #Fetch column names
         q = 'SELECT * FROM {}.{} LIMIT(0)'.format(self.schema, db_table)
-        cols = pd.read_sql(q, self.engine).columns
+        cols = pd.read_sql(q, self.engine).columns.to_list()
+#        try:
+#            cols.remove('row_id')
+#        except ValueError:
+#            pass
         
         tmp = tempfile.NamedTemporaryFile()
         connection = self.engine.raw_connection()
         cursor = connection.cursor() 
         
         with open(tmp.name, 'w') as f:
-            cursor.copy_to(f, '{}.{}'.format(self.schema, db_table)) 
+            cursor.copy_to(f, '{}.{}'.format(self.schema, db_table), columns=cols) 
         connection.commit()
         
         df = pd.read_csv(tmp.name, sep='\t', names=cols)
