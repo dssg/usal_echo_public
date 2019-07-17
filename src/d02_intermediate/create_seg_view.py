@@ -14,17 +14,22 @@ def create_seg_view():
     The following steps are performend:
         1. Import a_modvolume, a_measgraphref, a_measgraphic, 
             measurement_abstract_rpt
-        2. Create df by merging a_modvolume, a_measgraphref, a_measgraphic 
-            based on 'instanceidk' and 'indexinmglist'
-        3. Add measurement_abstract_rpt to df by merging on 'studyidk' 
-            and 'measabstractnumber'
-        4. Drop instance id 1789286 and  3121715 due to problems linking and 
-            conflicts
-        5. Create one hot encoded columns for measurements of interest based
-            on measurement names
-        6. Create one shot encode columns for segment names based on one 
-            hot encoded columns for measurements
-        7. Drop one hot encoded columns for measurements of interest
+        2. Create df by merging a_measgraphref_df, measurement_abstract_rpt_df
+            on 'studyidk' and 'measabstractnumber'
+        3. Create one hot encoded columns for measurements of interest based 
+        on measurement names
+        4. Create one shot encode columns for segment names based on one 
+        hot encoded columns for measurements
+        5. Drop one hot encoded columns for measurements of interest
+        6. Cut the dataframe to relevant columns as drop duplicates
+        7. merge with a_measgraphic_df for frame number
+        8. Cut the dataframe to relevant columns as drop duplicates
+        9. merge with a_modvolume
+        10. Drop instance id 1789286 and 3121715 due to problems linking and 
+        conflicts.  Drop unnessecary row_id from orginal tables (causes 
+        problems in dbWrite)
+        11. write to db
+
     
     :param: 
     :return df: the merge dataframe containing the segment labels
@@ -123,13 +128,13 @@ def create_seg_view():
     del df_3
 
     
-    # 8. merge with a_modvolume
+    # 9. merge with a_modvolume
     df_5 = pd.merge(a_modvolume_df, df_4, how='left'
                   , on=['instanceidk','indexinmglist'])
     del df_4
     del a_modvolume_df
 
-    #4. Drop instance id 1789286 and 3121715 due to problems linking and 
+    #10. Drop instance id 1789286 and 3121715 due to problems linking and 
     #        conflicts
     #   Drop unnessecary row_id from orginal tables (causes problems in dbWrite)
     df_6 = df_5.drop(df_5[(df_5.instanceidk == 1789286)|(df_5.instanceidk == 3121715)].index)
