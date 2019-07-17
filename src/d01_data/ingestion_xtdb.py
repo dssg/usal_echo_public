@@ -31,5 +31,4 @@ def ingest_xtdb():
         tbl.fillna('', inplace=True)
         
         io_raw.save_to_db(tbl, tbl_name)
-        print('Created table `'+tbl_name+'` in schema '+io_raw.schema)
        

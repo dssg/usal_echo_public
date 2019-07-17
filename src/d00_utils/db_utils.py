@@ -84,6 +84,9 @@ class dbReadWriteData:
             cursor.copy_from(f, '{}.{}'.format(self.schema, db_table), sep='|', size=100000) 
             connection.commit()
             
+        gc.collect()
+        return 'Saved table {} to schema {} (mode={})'.format(db_table, self.schema, if_exists)
+            
     
     def get_table(self, db_table):
         """Read table in database as dataframe.
@@ -91,14 +94,21 @@ class dbReadWriteData:
         :param db_table (str): name of database table to read
         
         """
+        #Fetch column names
+        q = 'SELECT * FROM {}.{} LIMIT(0)'.format(self.schema, db_table)
+        cols = pd.read_sql(q, self.engine).columns
+        
         tmp = tempfile.NamedTemporaryFile()
         connection = self.engine.raw_connection()
         cursor = connection.cursor() 
+        
         with open(tmp.name, 'w') as f:
             cursor.copy_to(f, '{}.{}'.format(self.schema, db_table)) 
         connection.commit()
-        df = pd.read_csv(tmp.name, sep='\t')         
-        #df = pd.read_sql_table(db_table, self.engine, self.schema)
+        
+        df = pd.read_csv(tmp.name, sep='\t', names=cols)
+        
+        gc.collect()         
         
         return df
     
