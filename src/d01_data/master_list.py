@@ -51,6 +51,7 @@ def create_master_instance_list():
     merge2_df = merge_df.merge(A_study_series_df, on = 'studyseriesidk')
     merge2_df.drop(labels='studyseriesidk', axis=1, inplace=True)
     merge2_df['studyinstanceidk'] = merge2_df['studyinstanceidk'].astype('int')
+    merge2_df.rename(index=str, columns={'studyinstanceidk': 'studyidk'}, inplace=True)
 
     final_df = merge2_df
     io_views.save_to_db(final_df, 'instances_unique_master_list')
