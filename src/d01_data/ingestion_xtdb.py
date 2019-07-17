@@ -24,11 +24,12 @@ def ingest_xtdb():
         s3 = boto3.client('s3')
         s3.download_file('cibercv', file, tmp.name)
        
-        tbl = pd.read_csv(tmp.name, encoding='iso-8859-2', na_values='', decimal=',')
+        tbl = pd.read_csv(tmp.name, encoding='iso-8859-2', na_values='', decimal=',', index_col=False)
         tbl.columns = [t.lower() for t in tbl.columns]
+        tbl.drop(columns='row_id', inplace=True, errors='ignore')
+        
         tbl.dropna(how='all', inplace=True)
         tbl_name = file.split('/')[-1].split('.')[0].lower()
-        tbl.fillna('', inplace=True)
         
         io_raw.save_to_db(tbl, tbl_name)
        
