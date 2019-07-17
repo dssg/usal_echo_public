@@ -108,7 +108,7 @@ class dbReadWriteData:
         cursor = connection.cursor() 
         
         with open(tmp.name, 'w') as f:
-            cursor.copy_to(f, '{}.{}'.format(self.schema, db_table), columns=cols) 
+            cursor.copy_to(f, '{}.{}'.format(self.schema, db_table), columns=cols, null='') 
         connection.commit()
         
         df = pd.read_csv(tmp.name, sep='\t', names=cols)

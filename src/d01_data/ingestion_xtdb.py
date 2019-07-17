@@ -30,7 +30,7 @@ def ingest_xtdb():
         
         tbl.dropna(how='all', inplace=True)
         tbl_name = file.split('/')[-1].split('.')[0].lower()
-        tbl.fillna('', inplace=True)
+#        tbl.fillna('', inplace=True)
         
         io_raw.save_to_db(tbl, tbl_name)
        
