@@ -54,7 +54,9 @@ def create_seg_view():
     
     #4. Drop instance id 1789286 and 3121715 due to problems linking and 
     #        conflicts
-    df = df_2.drop(df_2[(df_2.instanceidk == 1789286)|(df_2.instanceidk == 3121715)].index)
+    #   Drop unnessecary row_id from orginal tables (causes problems in dbWrite)
+    df_3 = df_2.drop(df_2[(df_2.instanceidk == 1789286)|(df_2.instanceidk == 3121715)].index)
+    df = df_3.drop(['row_id_x', 'row_id_y', 'row_id_x', 'row_id_y'], 1)
     
     #5. Create one hot encoded columns for measurements of interest based
     #        on measurement names
