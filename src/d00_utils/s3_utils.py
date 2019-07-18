@@ -1,9 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 3 2019
+
+@author: wiebket
+"""
+
 import boto3
 
+# TODO specify aws s3 credentials
 
 def get_matching_s3_objects(bucket, prefix='', suffix=''):
-    """
-    Generate objects in an S3 bucket.
+    """Generate objects in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
     :param prefix: Only fetch objects whose key starts with
@@ -48,8 +56,7 @@ def get_matching_s3_objects(bucket, prefix='', suffix=''):
 
 
 def get_matching_s3_keys(bucket, prefix='', suffix=''):
-    """
-    Generate the keys in an S3 bucket.
+    """Generate the keys in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
     :param prefix: Only fetch keys that start with this prefix (optional).
