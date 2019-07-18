@@ -71,8 +71,9 @@ def get_dicom_metadata(bucket, file_path, description=False):
     df_dedup_goodvals = df_dedup[~df_dedup.value.str.contains('no value')]
     df_dedup_goodvals_short = df_dedup_goodvals[(df_dedup_goodvals['value'].str.len()>0)&
                                                 (df_dedup_goodvals['value'].str.len()<50)]
+    df_out = df_dedup_goodvals_short.replace({'value': {r'\\':'--'}}, regex=True)
     
-    return df_dedup_goodvals_short
+    return df_out
 
 
 def write_dicom_metadata_csv(df, metadata_file_suffix=None):    
