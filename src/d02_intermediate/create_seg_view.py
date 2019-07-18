@@ -140,5 +140,7 @@ def create_seg_view():
     df_6 = df_5.drop(df_5[(df_5.instanceidk == 1789286)|(df_5.instanceidk == 3121715)].index)
     del df_5
     
+    df_6.columns = map(str.lower, df_6.columns)
+    
     # write output to db
     io_views.save_to_db(df_6, 'frames_by_volume_mask') 
