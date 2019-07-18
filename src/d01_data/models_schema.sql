@@ -50,8 +50,35 @@ drop table if exists modeling.prediction_output_files;
 create table modeling.prediction_output_files(
   model_id integer references modeling.model_groups(model_group_id),
   entity_id varchar,
+  output_id serial,
   chamber_label varchar,
   output_np_array bytea[],
   output_image uuid [],
-  primary key(model_id, entity_id)
+  primary key(output_id, model_id, entity_id)
+);
+
+
+--table evaluations: stores the evalutation metric used for this algorithm
+drop table if exists modeling.evaluations;
+
+create table modeling.evaluations(
+  model_id integer references modeling.model_groups(model_group_id),
+  metric varchar,
+  value doble,
+  comment varchar,
+  evalutaion_start_time timestamp with time zone,
+  evaluation_end_time timestamp with time zone,
+  primary key(model_id, metric)
+);
+
+--table feature_importances: stores the feataure importance from a model (if available)
+drop table if exists modeling.feature_importances;
+
+create table modeling.feature_importances(
+  model_id integer references modeling.model_groups(model_group_id),
+  feature varchar,
+  feature_importance integer,
+  rank_abs integer,
+  rank_pct double,
+  primary key(model_id,feature)
 );
