@@ -147,7 +147,11 @@ def clean_instance_filename(df):
     
     for column in ["instanceidk", "seriesdbkey"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
-    
+        
+    # TODO: strip "sopinstanceuid" in all tables
+    for column in ["instancefilename"]:
+        df[column] = df[column].str.strip()
+
     return df
 
 
