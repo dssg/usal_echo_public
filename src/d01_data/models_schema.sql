@@ -35,16 +35,17 @@ drop table if exists modeling.predictions;
 
 create table modeling.predictions(
   model_id integer references modeling.model_groups(model_group_id),
-  entity id varchar,
+  entity_id varchar,
   as_of_date timestamp with time zone,
   score double,
   label_value varchar,
   primary key(model_id, entity_id)
 );
 
---table predition_output_files: specifically for the prediction of the
+--table prediction_output_files: specifically for the prediction of the
 --segmentation task we will need to store 2 numpy arrays with the x,y
---coordinate of the submask and 4 different images related to these submasks
+--coordinate of the submask and 3 different images related to these submasks:
+--original image, prediction and overlay of the two.
 drop table if exists modeling.prediction_output_files;
 
 create table modeling.prediction_output_files(
@@ -64,14 +65,14 @@ drop table if exists modeling.evaluations;
 create table modeling.evaluations(
   model_id integer references modeling.model_groups(model_group_id),
   metric varchar,
-  value doble,
+  value double,
   comment varchar,
   evalutaion_start_time timestamp with time zone,
   evaluation_end_time timestamp with time zone,
   primary key(model_id, metric)
 );
 
---table feature_importances: stores the feataure importance from a model (if available)
+--table feature_importances: stores the feature importance from a model (if available)
 drop table if exists modeling.feature_importances;
 
 create table modeling.feature_importances(
