@@ -1,11 +1,13 @@
-# Project title
+# Echocardiographic Image Classification with CIBERCV data
 
-Write project summary
+This project classifies echocardiographic DICOM images obtained from the CIBERCV (Biomedical Research Networking Centres - Cardiovascular).
+
 
 ## Table of Contents
 
 1. [Introduction](https://github.com/dssg/repo_name#introduction)
 2. [Installation and setup](https://github.com/dssg/repo_name#setup)
+3. [Code Examples]
 
 ## Introduction
 
@@ -17,7 +19,7 @@ For three months they learn, hone, and apply their data science, analytical, and
 
 ### Partners
 
-Introduce the partners of your project
+Hospital Universitario de Salamanca
 
 
 ## Installation and setup
@@ -35,7 +37,12 @@ Describe and show how to run the tests with code examples.
 
 ## Contributors
 
-Specify who has worked on  the project
+* Courtney Irwin
+* Liliana Millán (Technical Mentor)
+* Yoni Nachmany
+* Sara Guerreiro de Sousa (Project Manager)
+* Wiebke Toussaint
+* Dave Van Veen
 
 ## License
 
