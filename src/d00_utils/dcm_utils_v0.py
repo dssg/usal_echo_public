@@ -3,14 +3,17 @@ import sys
 import os
 import dicom
 import time
-sys.path.append("/home/rdeo/anaconda/lib/python2.7/site-packages/")
 import numpy as np
 import subprocess
 from subprocess import Popen, PIPE
 from scipy.misc import imresize
 import cv2
 
+
 def computehr_gdcm(data):
+    """
+    
+    """
     hr = "None"
     for i in data:
         i = i.lstrip()
@@ -19,7 +22,11 @@ def computehr_gdcm(data):
             print("heart rate found")
     return hr
 
+
 def computexy_gdcm(data):
+    """
+    
+    """
     for i in data:
         i = i.lstrip()
         if i.split(" ")[0] == '(0028,0010)':
@@ -28,12 +35,14 @@ def computexy_gdcm(data):
             cols = i.split(" ")[2]
     return int(rows), int(cols)
 
+
 def computebsa_gdcm(data):
-    '''
+    """
     dubois, height in m, weight in kg
     :param data: 
     :return: 
-    '''
+    
+    """
     for i in data:
         i = i.lstrip()
         if i.split(" ")[0] == '(0010,1020)':
@@ -42,10 +51,12 @@ def computebsa_gdcm(data):
             w = i.split("[")[1].split("]")[0]
     return 0.20247 * (eval(h)**0.725) * (eval(w)**0.425)
 
+
 def computedeltaxy_gdcm(data):
-    '''
+    """
     the unit is the number of cm per pixel 
-    '''
+    
+    """
     xlist = []
     ylist = []
     for i in data:
@@ -60,7 +71,11 @@ def computedeltaxy_gdcm(data):
                 ylist.append(np.abs(eval(deltay)))
     return np.min(xlist), np.min(ylist)
 
+
 def remove_periphery(imgs):
+    """
+    
+    """
     imgs_ret = []
     for img in imgs:
         image = img.astype('uint8').copy()
@@ -89,7 +104,11 @@ def remove_periphery(imgs):
             imgs_ret.append(img*mask)
     return np.array(imgs_ret)
 
+
 def computeft_gdcm(video, study, appdir):
+    """
+    
+    """
     videodir = appdir + "static/studies/" + study.file
     command = 'gdcmdump ' + videodir + "/" + video.file + "| grep Frame"
     pipe = Popen(command, stdout=PIPE, stderr=None, shell=True)
@@ -116,7 +135,11 @@ def computeft_gdcm(video, study, appdir):
     ft = eval(frametime)
     return ft
 
+
 def computeft_gdcm_strain(data):
+    """
+    
+    """
     defaultframerate = None
     counter = 0
     for i in data:
@@ -138,10 +161,12 @@ def computeft_gdcm_strain(data):
     ft = eval(frametime)
     return ft
 
+
 def output_imgdict(imagefile):
-    '''
+    """
     converts raw dicom to numpy arrays
-    '''
+    
+    """
     try:
         ds = imagefile
         if len(ds.pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
@@ -200,9 +225,10 @@ def output_imgdict(imagefile):
 
 
 def create_mask(imgs):
-    '''
+    """
     removes static burned in pixels in image; will use for disease diagnosis
-    '''
+    
+    """
     from scipy.ndimage.filters import gaussian_filter
     diffs = []
     for i in range(len(imgs) - 1):
@@ -217,6 +243,7 @@ def create_mask(imgs):
     diff[diff >= 0.5] = 1
     diff[diff < 0.5] = 0
     return diff
+
 
 def ybr2gray(y, u, v):
     r = y + 1.402 * (v - 128)
