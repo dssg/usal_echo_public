@@ -114,3 +114,6 @@ class Pipeline(luigi.WrapperTask):
         yield CleanXTDB()
 
 
+if __name__ == '__main__':
+    luigi.run()
+
