@@ -1,19 +1,23 @@
-
-import numpy as np
-import tensorflow as tf
 import random
 import sys
-import cv2
-import dicom
 import os
-sys.path.append('./funcs/')
-sys.path.append('./nets/')
 import subprocess
 import time
-from shutil import rmtree
+import cv2
+import dicom
 from optparse import OptionParser
+from shutil import rmtree
+
+import tensorflow as tf
+import vgg as network
+import numpy as np
 from scipy.misc import imread
-from echoanalysis_tools import output_imgdict
+
+from d00_utils.dcm_utils_v0 import output_imgdict
+
+sys.path.append('./funcs/')
+sys.path.append('./nets/')
+
 
 # # Hyperparams
 parser=OptionParser()
@@ -26,11 +30,13 @@ dicomdir = params.dicomdir
 modeldir = params.modeldir
 model = params.model
 
-import vgg as network
-
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
+
 def read_dicom(out_directory, filename, counter):
+    """
+    
+    """
     if counter < 50:
         outrawfilename = filename + "_raw"
         print(out_directory, filename, counter, "trying")
@@ -57,6 +63,7 @@ def read_dicom(out_directory, filename, counter):
             time.sleep(3)
             read_dicom(out_directory, filename, counter)
     return counter
+
 
 def extract_imgs_from_dicom(directory, out_directory):
     """
@@ -166,6 +173,7 @@ def main():
     print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
     #rmtree(temp_image_directory)
     out.close()
+    
 
 if __name__ == '__main__':
     main()
