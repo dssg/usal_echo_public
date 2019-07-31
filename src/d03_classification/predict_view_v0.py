@@ -4,7 +4,7 @@ import tensorflow as tf
 import random
 import sys
 import cv2
-import dicom
+import pydicom
 import os
 sys.path.append('./funcs/')
 sys.path.append('./nets/')
@@ -37,7 +37,7 @@ def read_dicom(out_directory, filename, counter):
         if os.path.exists(os.path.join(out_directory, outrawfilename)):
             time.sleep(2)
             try:
-                ds = dicom.read_file(os.path.join(out_directory, outrawfilename),
+                ds = pydicom.read_file(os.path.join(out_directory, outrawfilename),
                                  force=True)
                 framedict = output_imgdict(ds)
                 y = len(list(framedict.keys())) - 1
@@ -73,7 +73,7 @@ def extract_imgs_from_dicom(directory, out_directory):
         global dicomdir
         prefix = "Image" if dicomdir == "dicomsample" else "a"
         if filename.startswith(prefix):
-            ds = dicom.read_file(os.path.join(directory, filename),
+            ds = pydicom.read_file(os.path.join(directory, filename),
                                  force=True)
             if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
                 outrawfilename = filename + "_raw"
