@@ -1,29 +1,32 @@
 import pandas as pd
-import sys
 import numpy as np
 
 from d00_utils.db_utils import dbReadWriteViews
 
-def downsample_df():
-    ''' Split dataset into train/test from db table views.instances_with_labels '''
+def downsample_df(df, ratio=0.1):
+    ''' Downsample any dataframe by a given ratio '''
 
-    io_views = dbReadWriteViews()
+    msk = np.random.rand(len(df)) < ratio
 
-    df = io_views.get_table('instances_with_labels')
-
-    msk = np.random.rand(len(df)) < 0.8
-
-    df_train = df[msk]
-    df_test = df[~msk]
-
-    io_views.save_to_db(df_train, 'instances_w_labels_train')
-    io_views.save_to_db(df_test, 'instances_w_labels_test')
-
+    return df[msk]
 
 def downsample_train_test():
     
     io_views = dbReadWriteViews()
 
-    df_inst_w_labels = io_views.get_table('instances_with_labels')
+    #df_inst_w_labels = io_views.get_table('instances_with_labels')
+    df_train = io_views.get_table('instances_w_labels_train')
+    df_test = io_views.get_table('instances_w_labels_test')
 
-    ratio = 0.25
+    ratio = 0.1
+    inv_ratio = 1 / ratio
+
+    df_train_downsampled = downsample_df(df_train, ratio)
+    df_test_downsampled = downsample_df(df_test, ratio)
+
+    io_views.save_to_db(df_train_downsampled, \
+                        'instances_w_labels_train_downsamp{0}'.format(inv_ratio))
+    io_views.save_to_db(df_test_downsampled, \
+                        'instances_w_labels_test_downsamp{0}'.format(inv_ratio))
+
+
