@@ -159,9 +159,9 @@ def main():
         out.write(dicomdir + "\t" + prefix)
         #for (i,k) in zip(predictprobmean, views):
             #out.write("\n" + "prob_" + k + " :" + str(i))
-    for i in predictprobmean:
-        out.write("\t" + str(i))
-        out.write( "\n")
+        for i in predictprobmean:
+            out.write("\t" + str(i))
+            out.write( "\n")
     y = time.time()
     print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
     #rmtree(temp_image_directory)
