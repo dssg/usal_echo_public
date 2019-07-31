@@ -1,7 +1,7 @@
 # coding: utf-8
 import sys
 import os
-import dicom
+import pydicom
 import time
 import numpy as np
 import subprocess
@@ -262,14 +262,14 @@ def create_imgdict_from_dicom(directory, filename):
     temp_directory = os.path.join(directory, "image")
     if not os.path.exists(temp_directory):
         os.makedirs(temp_directory)
-    ds = dicom.read_file(targetfile, force = True)
+    ds = pydicom.read_file(targetfile, force = True)
     if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
         outrawfile = os.path.join(temp_directory, filename + "_raw")
         command = 'gdcmconv -w ' + os.path.join(directory, filename) + " "  + outrawfile
         subprocess.Popen(command, shell=True)
         time.sleep(10)
         if os.path.exists(outrawfile):
-            ds = dicom.read_file(outrawfile, force = True)
+            ds = pydicom.read_file(outrawfile, force = True)
             imgdict = output_imgdict(ds)
         else:
             print(outrawfile, "missing")
