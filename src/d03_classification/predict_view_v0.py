@@ -130,7 +130,7 @@ def main():
     label_dim = len(views)
 
     probabilities_dir = 'probabilities/'
-    #probabilities_dir = '/home/ubuntu/data/d03_classification/probabilities'	
+    #probabilities_dir = '/home/ubuntu/data/d03_classification/probabilities'
     if not os.path.exists(probabilities_dir):
         os.makedirs(probabilities_dir)
     # In case dicomdir is path with more than one part.
@@ -159,8 +159,8 @@ def main():
         out.write(dicomdir + "\t" + prefix)
         #for (i,k) in zip(predictprobmean, views):
             #out.write("\n" + "prob_" + k + " :" + str(i))
-	for i in predictprobmean:
-	    out.write("\t" + str(i))
+    for i in predictprobmean:
+        out.write("\t" + str(i))
         out.write( "\n")
     y = time.time()
     print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
