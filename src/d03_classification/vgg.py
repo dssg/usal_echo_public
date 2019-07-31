@@ -3,7 +3,7 @@ import tensorflow as tf
 import sys
 
 sys.path.append('../funcs/')
-import nn
+from d03_classification import nn
 
 # # Network
 class Network(object):
