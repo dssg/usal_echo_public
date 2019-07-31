@@ -30,11 +30,8 @@ dicomdir = params.dicomdir
 modeldir = params.modeldir
 model = params.model
 
-<<<<<<< HEAD
-=======
 import d03_classification.vgg as network
 
->>>>>>> 011273296ebb6d1eb7c126549ae8531ca851e7ad
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
 
