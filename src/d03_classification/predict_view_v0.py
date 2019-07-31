@@ -13,7 +13,7 @@ import time
 from shutil import rmtree
 from optparse import OptionParser
 from scipy.misc import imread
-from echoanalysis_tools import output_imgdict
+from d00_utils.dcm_utils_v0 import output_imgdict
 
 # # Hyperparams
 parser=OptionParser()
