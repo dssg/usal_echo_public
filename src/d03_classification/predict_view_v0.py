@@ -122,7 +122,7 @@ def main():
     global dicomdir, modeldir
     model_name = os.path.join(modeldir, model)
 
-    infile = open("viewclasses_" + model + ".txt")
+    infile = open("d03_classification/viewclasses_" + model + ".txt")
     infile = infile.readlines()
     views = [i.rstrip() for i in infile]
 
