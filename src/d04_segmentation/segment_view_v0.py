@@ -1,15 +1,18 @@
+import time
+from optparse import OptionParser
 
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+
 import tensorflow as tf
-import time
 from PIL import Image
-from util import *
 from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
-from optparse import OptionParser
-from echoanalysis_tools import create_imgdict_from_dicom
+
+from d00_utils.echocv_utils_v0 import *
+from d00_utils.dcm_utils_v0 import create_imgdict_from_dicom
+
 
 # # Hyperparams
 parser=OptionParser()
@@ -21,6 +24,7 @@ dicomdir = params.dicomdir
 modeldir = params.modeldir
 
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
+
 
 class Unet(object):        
     def __init__(self, mean, weight_decay, learning_rate, label_dim, maxout = False):
@@ -42,18 +46,23 @@ class Unet(object):
 #         self.train_summary = tf.summary.scalar('training_accuracy', self.train_accuracy)
     
     # Gradient Descent on mini-batch
+    
     def fit_batch(self, sess, x_train, y_train):
-        _, loss, loss_summary = sess.run((self.opt, self.loss, self.loss_summary), feed_dict={self.x_train: x_train, self.y_train: y_train})
+        _, loss, loss_summary = sess.run((self.opt, self.loss, self.loss_summary), 
+                                         feed_dict={self.x_train: x_train, self.y_train: y_train})
         return loss, loss_summary
+
     
     def predict(self, sess, x):
         prediction = sess.run((self.pred), feed_dict={self.x_test: x})
         return prediction
 
+    
     def unet(self, input, mean, keep_prob = 0.5, reuse = None):
         width = 1
         weight_decay = 1e-12
         label_dim = self.label_dim
+        
         with tf.variable_scope('vgg', reuse=reuse):
             input = input - mean
             pool_ = lambda x: max_pool(x, 2, 2)
@@ -115,9 +124,14 @@ class Unet(object):
             conv_11_2 = conv_(conv_11_1, int(64*width), 'conv11_2')
             
             conv_12 = conv_(conv_11_2, label_dim, 'conv12_2', filter_size = 1, relu = False)
+            
             return conv_12
 
+        
 def segmentChamber(videofile, dicomdir, view):
+    """
+    
+    """
     mean = 24
     weight_decay = 1e-12
     learning_rate = 1e-4
@@ -234,6 +248,7 @@ def segmentChamber(videofile, dicomdir, view):
     outImage.save(outpath + '/' + videofile + '_' + str(j) + '_' + 'overlay.png', "PNG")
     return 1
 
+
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
     for video in viewlist_a4c:
         segmentChamber(video, dicomdir, "a4c")
@@ -253,6 +268,7 @@ def create_seg(output, label):
     output[output == -1] = 0
     return output
 
+
 def extract_images(framedict):
     images = []
     orig_images = []
@@ -263,6 +279,7 @@ def extract_images(framedict):
         orig_images.append(framedict[key])
     images = np.array(images).reshape((len(images), 384,384,1))
     return images, orig_images
+
 
 def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label):
     segs = []
@@ -286,6 +303,7 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
         lvo_segs.append(lvo_seg)
         la_segs.append(la_seg)
     return lv_segs, la_segs, lvo_segs, preds
+
 
 def main():
     # To use dicomdir option set in global scope.
@@ -338,6 +356,7 @@ def main():
     #if os.path.exists(tempdir):
     #    shutil.rmtree(tempdir)
 
+    
 if __name__ == '__main__':
     main()
 

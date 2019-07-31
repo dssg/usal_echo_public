@@ -1,7 +1,7 @@
 # coding: utf-8
 import sys
 import os
-import dicom
+import pydicom
 import time
 import numpy as np
 import subprocess
@@ -169,16 +169,19 @@ def output_imgdict(imagefile):
     """
     try:
         ds = imagefile
-        if len(ds.pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
-            nframes = ds.pixel_array.shape[1]
+        # pydicom reads ds.pixel array as (nframes, nrow, ncol, nchannels)
+        # pixel_array is a copy of ds.pixel_array with dicom's format
+        pixel_array = np.moveaxis(ds.pixel_array, -1, 0)
+        if len(pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
+            nframes = pixel_array.shape[1]
             maxframes = nframes * 3
-        elif len(ds.pixel_array.shape) == 3: #format nframes, nrow, ncol
-            nframes = ds.pixel_array.shape[0]
+        elif len(pixel_array.shape) == 3: #format nframes, nrow, ncol
+            nframes = pixel_array.shape[0]
             maxframes = nframes * 1
         #print("nframes", nframes)
         nrow = int(ds.Rows)
         ncol = int(ds.Columns)
-        ArrayDicom = np.zeros((nrow, ncol), dtype=ds.pixel_array.dtype)
+        ArrayDicom = np.zeros((nrow, ncol), dtype=pixel_array.dtype)
         imgdict = {}
         for counter in range(0, maxframes, 3):  # this will iterate through all subframes for a loop
             k = counter % nframes
@@ -188,10 +191,10 @@ def output_imgdict(imagefile):
             o = (counter + 2) % nframes
             n = (counter + 2) // nframes
             #print("j", j, "k", k, "l", l, "m", m, "n", n, "o", o)
-            if len(ds.pixel_array.shape) == 4:
-                a = ds.pixel_array[j, k, :, :]
-                b = ds.pixel_array[l, m, :, :]
-                c = ds.pixel_array[n, o, :, :]
+            if len(pixel_array.shape) == 4:
+                a = pixel_array[j, k, :, :]
+                b = pixel_array[l, m, :, :]
+                c = pixel_array[n, o, :, :]
                 d = np.vstack((a, b))
                 e = np.vstack((d, c))
                 #print(e.shape)
@@ -210,8 +213,8 @@ def output_imgdict(imagefile):
                 ncolout = ncol
                 x = int(counter / 3)
                 imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
-            elif len(ds.pixel_array.shape) == 3:
-                ArrayDicom[:, :] = ds.pixel_array[counter, :, :]
+            elif len(pixel_array.shape) == 3:
+                ArrayDicom[:, :] = pixel_array[counter, :, :]
                 ArrayDicom[0:int(nrow / 10), 0:int(ncol)] = 0  # blanks out name
                 counter = counter + 1
                 ArrayDicom.clip(0)
@@ -262,14 +265,14 @@ def create_imgdict_from_dicom(directory, filename):
     temp_directory = os.path.join(directory, "image")
     if not os.path.exists(temp_directory):
         os.makedirs(temp_directory)
-    ds = dicom.read_file(targetfile, force = True)
+    ds = pydicom.read_file(targetfile, force = True)
     if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
         outrawfile = os.path.join(temp_directory, filename + "_raw")
         command = 'gdcmconv -w ' + os.path.join(directory, filename) + " "  + outrawfile
         subprocess.Popen(command, shell=True)
         time.sleep(10)
         if os.path.exists(outrawfile):
-            ds = dicom.read_file(outrawfile, force = True)
+            ds = pydicom.read_file(outrawfile, force = True)
             imgdict = output_imgdict(ds)
         else:
             print(outrawfile, "missing")
