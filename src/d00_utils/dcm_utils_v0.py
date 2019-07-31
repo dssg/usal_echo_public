@@ -162,71 +162,6 @@ def computeft_gdcm_strain(data):
     return ft
 
 
-def output_imgdict(imagefile):
-    """
-    converts raw dicom to numpy arrays
-    
-    """
-    try:
-        ds = imagefile
-        # pydicom reads ds.pixel array as (nframes, nrow, ncol, nchannels)
-        # pixel_array is a copy of ds.pixel_array with dicom's format
-        pixel_array = np.moveaxis(ds.pixel_array, -1, 0)
-        if len(pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
-            nframes = pixel_array.shape[0]
-            maxframes = nframes * 3
-        elif len(pixel_array.shape) == 3: #format nframes, nrow, ncol
-            nframes = pixel_array.shape[0]
-            maxframes = nframes * 1
-        #print("nframes", nframes)
-        nrow = int(ds.Rows)
-        ncol = int(ds.Columns)
-        ArrayDicom = np.zeros((nrow, ncol), dtype=pixel_array.dtype)
-        imgdict = {}
-        for counter in range(0, maxframes, 3):  # this will iterate through all subframes for a loop
-            k = counter % nframes
-            j = (counter) // nframes
-            m = (counter + 1) % nframes
-            l = (counter + 1) // nframes
-            o = (counter + 2) % nframes
-            n = (counter + 2) // nframes
-            #print("j", j, "k", k, "l", l, "m", m, "n", n, "o", o)
-            if len(pixel_array.shape) == 4:
-                a = pixel_array[j, k, :, :]
-                b = pixel_array[l, m, :, :]
-                c = pixel_array[n, o, :, :]
-                d = np.vstack((a, b))
-                e = np.vstack((d, c))
-                #print(e.shape)
-                g = e.reshape(3 * nrow * ncol, 1)
-                y = g[::3]
-                u = g[1::3]
-                v = g[2::3]
-                y = y.reshape(nrow, ncol)
-                u = u.reshape(nrow, ncol)
-                v = v.reshape(nrow, ncol)
-                ArrayDicom[:, :] = ybr2gray(y, u, v)
-                ArrayDicom[0:int(nrow / 10), 0:int(ncol)] = 0  # blanks out name
-                counter = counter + 1
-                ArrayDicom.clip(0)
-                nrowout = nrow
-                ncolout = ncol
-                x = int(counter / 3)
-                imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
-            elif len(pixel_array.shape) == 3:
-                ArrayDicom[:, :] = pixel_array[counter, :, :]
-                ArrayDicom[0:int(nrow / 10), 0:int(ncol)] = 0  # blanks out name
-                counter = counter + 1
-                ArrayDicom.clip(0)
-                nrowout = nrow
-                ncolout = ncol
-                x = int(counter / 3)
-                imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
-        return imgdict
-    except:
-        return None
-
-
 def create_mask(imgs):
     """
     removes static burned in pixels in image; will use for disease diagnosis
@@ -246,36 +181,3 @@ def create_mask(imgs):
     diff[diff >= 0.5] = 1
     diff[diff < 0.5] = 0
     return diff
-
-
-def ybr2gray(y, u, v):
-    r = y + 1.402 * (v - 128)
-    g = y - 0.34414 * (u - 128) - 0.71414 * (v - 128)
-    b = y + 1.772 * (u - 128)
-    # print r, g, b
-    gray = (0.2989 * r + 0.5870 * g + 0.1140 * b)
-    return np.array(gray, dtype="int8")
-
-
-def create_imgdict_from_dicom(directory, filename):
-    """
-    convert compressed DICOM format into numpy array
-    """
-    targetfile = os.path.join(directory, filename)
-    temp_directory = os.path.join(directory, "image")
-    if not os.path.exists(temp_directory):
-        os.makedirs(temp_directory)
-    ds = pydicom.read_file(targetfile, force = True)
-    if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
-        outrawfile = os.path.join(temp_directory, filename + "_raw")
-        command = 'gdcmconv -w ' + os.path.join(directory, filename) + " "  + outrawfile
-        subprocess.Popen(command, shell=True)
-        time.sleep(10)
-        if os.path.exists(outrawfile):
-            ds = pydicom.read_file(outrawfile, force = True)
-            imgdict = output_imgdict(ds)
-        else:
-            print(outrawfile, "missing")
-    return imgdict
-
-
