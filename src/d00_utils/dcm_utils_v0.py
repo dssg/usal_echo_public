@@ -173,7 +173,7 @@ def output_imgdict(imagefile):
         # pixel_array is a copy of ds.pixel_array with dicom's format
         pixel_array = np.moveaxis(ds.pixel_array, -1, 0)
         if len(pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
-            nframes = pixel_array.shape[0]
+            nframes = pixel_array.shape[1]
             maxframes = nframes * 3
         elif len(pixel_array.shape) == 3: #format nframes, nrow, ncol
             nframes = pixel_array.shape[0]

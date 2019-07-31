@@ -10,7 +10,6 @@ from optparse import OptionParser
 from shutil import rmtree
 
 import tensorflow as tf
-import vgg as network
 import numpy as np
 from scipy.misc import imread
 
