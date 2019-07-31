@@ -71,7 +71,7 @@ def extract_imgs_from_dicom(directory, out_directory):
     for filename in allfiles[:]:
         # Prefix differs for sample files and our files.
         global dicomdir
-        prefix = "Image" if dicomdir == "dicomsample" else "a"
+        prefix = "Image" if 'dicomsample' in dicomdir else "a"
         if filename.startswith(prefix):
             ds = pydicom.read_file(os.path.join(directory, filename),
                                  force=True)
