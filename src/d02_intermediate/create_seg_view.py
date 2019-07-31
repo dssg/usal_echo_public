@@ -142,5 +142,36 @@ def create_seg_view():
     
     df_6.columns = map(str.lower, df_6.columns)
     
+    # New transformations added later - may need to revise scripts to make more
+    # efficient :see git issue
+    #11. melt the table to a single field for the views
+    df_7 = pd.melt(df_6, id_vars=['instanceidk', 'indexinmglist', 'chordsequence', 'chordtype'
+                                  , 'x1coordinate', 'y1coordinate', 'chordlength', 'x2coordinate'
+                                  , 'y2coordinate', 'interchorddistance', 'studyidk', 'frame'
+                                  ]
+        , value_vars=['a4c_ven_ed', 'a4c_ven_es', 'a2c_ven_ed'
+                      , 'a2c_ven_es', 'a4c_atr_es', 'a2c_atr_es'], var_name='view_name'   
+                      , value_name='view_exists')
+    del df_6
+    
+    #12. drop chord sequence and remove duplicates
+    df_8 = df_7.drop(['chordsequence', 'chordtype', 'x1coordinate', 'y1coordinate'
+                                         , 'chordlength', 'x2coordinate', 'y2coordinate'
+                                         , 'interchorddistance'], axis=1)
+    df_9 = df_8.drop_duplicates()
+    del df_7
+    del df_8
+    
+    #13. create detailed columns
+    #create view column
+    df_9['view_only'] = df_9['view_name'].apply(lambda x: str(x)[:3])
+    #create ventricle column
+    df_9['ventricle_only'] = df_9['view_name'].apply(lambda x: str(x)[4:7])
+    #create cycle column
+    df_9['cycle_only'] = df_9['view_name'].apply(lambda x: str(x)[8:10])
+    
+    #14. # reset index
+    df_9.reset_index()
+    
     # write output to db
-    io_views.save_to_db(df_6, 'frames_by_volume_mask') 
+    io_views.save_to_db(df_9, 'frames_by_volume_mask') 
