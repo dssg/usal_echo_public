@@ -25,7 +25,7 @@ def clean_measurement_abstract_rpt(df):
     """
     df.rename(columns={"studyid": "studyidk"}, inplace=True)
     
-    for column in ["row_id", "studyidk", "measabstractnumber"]:
+    for column in ["studyidk", "measabstractnumber"]:
         df[column] = df[column].astype(int)
     
     for column in ["name", "unitname"]:
@@ -45,7 +45,7 @@ def clean_measgraphref(df):
     """
     df['instanceidk'] = df['instanceidk'].replace('', -1)
     
-    for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
+    for column in ["studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
     print("Cleaned measgraphref table.")
@@ -61,7 +61,7 @@ def clean_measgraphic(df):
     :return: cleaned table as dataframe
     
     """
-    for column in ["row_id", "instanceidk", "indexinmglist"]:
+    for column in ["instanceidk", "indexinmglist"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
     
     print("Cleaned measgraphic table.")
@@ -87,7 +87,7 @@ def clean_study_summary(df):
     for column in ['age', 'patientweight', 'patientheight']:
         df[column] = df[column].replace('', -1)
     
-    for column in ["row_id", "studyidk", "age"]:
+    for column in ["studyidk", "age"]:
         df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
         
     for column in ["patientweight", "patientheight"]:
@@ -118,6 +118,44 @@ def clean_study_summary(df):
 
 
 
+def clean_modvolume(df):
+    """Clean modvolume table.
+    
+    :param df: modvolume table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    for column in ["instanceidk", "indexinmglist", "chordsequence"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+        
+    for column in ["chordtype"]:
+        df[column] = df[column].str.strip()
+    
+    return df
+
+
+
+def clean_instance_filename(df):
+    """Clean instance_filename table.
+    
+    :param df: instance_filename table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    # TODO: Is "seriesdbkey" the same as "studyseriesidk"?
+    df.rename(columns={"instancedbkey": "instanceidk"}, inplace=True)
+    
+    for column in ["instanceidk", "seriesdbkey"]:
+        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
+        
+    # TODO: strip "sopinstanceuid" in all tables
+    for column in ["instancefilename"]:
+        df[column] = df[column].str.strip()
+
+    return df
+
+
+
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
     
@@ -128,7 +166,9 @@ def clean_tables():
     tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
                        'a_measgraphref' : 'clean_measgraphref(tbl)', 
                        'a_measgraphic' : 'clean_measgraphic(tbl)', 
-                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
+                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)',
+                       'a_modvolume': 'clean_modvolume(tbl)',
+                       'instance_filename': 'clean_instance_filename(tbl)'}
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
