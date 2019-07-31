@@ -4,7 +4,7 @@ import tensorflow as tf
 import random
 import sys
 import cv2
-import dicom
+import pydicom
 import os
 sys.path.append('./funcs/')
 sys.path.append('./nets/')
@@ -13,7 +13,7 @@ import time
 from shutil import rmtree
 from optparse import OptionParser
 from scipy.misc import imread
-from echoanalysis_tools import output_imgdict
+from d00_utils.dcm_utils_v0 import output_imgdict
 
 # # Hyperparams
 parser=OptionParser()
@@ -26,7 +26,7 @@ dicomdir = params.dicomdir
 modeldir = params.modeldir
 model = params.model
 
-import vgg as network
+import d03_classification.vgg as network
 
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
@@ -37,7 +37,7 @@ def read_dicom(out_directory, filename, counter):
         if os.path.exists(os.path.join(out_directory, outrawfilename)):
             time.sleep(2)
             try:
-                ds = dicom.read_file(os.path.join(out_directory, outrawfilename),
+                ds = pydicom.read_file(os.path.join(out_directory, outrawfilename),
                                  force=True)
                 framedict = output_imgdict(ds)
                 y = len(list(framedict.keys())) - 1
@@ -71,9 +71,9 @@ def extract_imgs_from_dicom(directory, out_directory):
     for filename in allfiles[:]:
         # Prefix differs for sample files and our files.
         global dicomdir
-        prefix = "Image" if dicomdir == "dicomsample" else "a"
+        prefix = "Image" if 'dicomsample' in dicomdir else "a"
         if filename.startswith(prefix):
-            ds = dicom.read_file(os.path.join(directory, filename),
+            ds = pydicom.read_file(os.path.join(directory, filename),
                                  force=True)
             if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
                 outrawfilename = filename + "_raw"
@@ -122,7 +122,7 @@ def main():
     global dicomdir, modeldir
     model_name = os.path.join(modeldir, model)
 
-    infile = open("viewclasses_" + model + ".txt")
+    infile = open("d03_classification/viewclasses_" + model + ".txt")
     infile = infile.readlines()
     views = [i.rstrip() for i in infile]
 
@@ -130,7 +130,7 @@ def main():
     label_dim = len(views)
 
     probabilities_dir = 'probabilities/'
-    #probabilities_dir = '/home/ubuntu/data/d03_classification/probabilities'	
+    #probabilities_dir = '/home/ubuntu/data/d03_classification/probabilities'
     if not os.path.exists(probabilities_dir):
         os.makedirs(probabilities_dir)
     # In case dicomdir is path with more than one part.
@@ -159,9 +159,9 @@ def main():
         out.write(dicomdir + "\t" + prefix)
         #for (i,k) in zip(predictprobmean, views):
             #out.write("\n" + "prob_" + k + " :" + str(i))
-	for i in predictprobmean:
-	    out.write("\t" + str(i))
-        out.write( "\n")
+        for i in predictprobmean:
+            out.write("\t" + str(i))
+            out.write( "\n")
     y = time.time()
     print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
     #rmtree(temp_image_directory)
