@@ -17,7 +17,7 @@ def computehr_gdcm(data):
     hr = "None"
     for i in data:
         i = i.lstrip()
-        if i.split(" ")[0] == '(0018,1088)':
+        if i.split(" ")[0] == "(0018,1088)":
             hr = eval(i.split("[")[1].split("]")[0])
             print("heart rate found")
     return hr
@@ -29,9 +29,9 @@ def computexy_gdcm(data):
     """
     for i in data:
         i = i.lstrip()
-        if i.split(" ")[0] == '(0028,0010)':
+        if i.split(" ")[0] == "(0028,0010)":
             rows = i.split(" ")[2]
-        elif i.split(" ")[0] == '(0028,0011)':
+        elif i.split(" ")[0] == "(0028,0011)":
             cols = i.split(" ")[2]
     return int(rows), int(cols)
 
@@ -45,11 +45,11 @@ def computebsa_gdcm(data):
     """
     for i in data:
         i = i.lstrip()
-        if i.split(" ")[0] == '(0010,1020)':
+        if i.split(" ")[0] == "(0010,1020)":
             h = i.split("[")[1].split("]")[0]
-        elif i.split(" ")[0] == '(0010,1030)':
+        elif i.split(" ")[0] == "(0010,1030)":
             w = i.split("[")[1].split("]")[0]
-    return 0.20247 * (eval(h)**0.725) * (eval(w)**0.425)
+    return 0.20247 * (eval(h) ** 0.725) * (eval(w) ** 0.425)
 
 
 def computedeltaxy_gdcm(data):
@@ -61,11 +61,11 @@ def computedeltaxy_gdcm(data):
     ylist = []
     for i in data:
         i = i.lstrip()
-        if i.split(" ")[0] == '(0018,602c)':
+        if i.split(" ")[0] == "(0018,602c)":
             deltax = i.split(" ")[2]
             if np.abs(eval(deltax)) > 0.012:
                 xlist.append(np.abs(eval(deltax)))
-        if i.split(" ")[0] == '(0018,602e)':
+        if i.split(" ")[0] == "(0018,602e)":
             deltay = i.split(" ")[2]
             if np.abs(eval(deltax)) > 0.012:
                 ylist.append(np.abs(eval(deltay)))
@@ -78,9 +78,9 @@ def remove_periphery(imgs):
     """
     imgs_ret = []
     for img in imgs:
-        image = img.astype('uint8').copy()
+        image = img.astype("uint8").copy()
         fullsize = image.shape[0] * image.shape[1]
-        image[image > 0 ] = 255
+        image[image > 0] = 255
         image = cv2.bilateralFilter(image, 11, 17, 17)
         thresh = cv2.threshold(image, 200, 255, cv2.THRESH_BINARY)[1]
         cnts = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -95,13 +95,13 @@ def remove_periphery(imgs):
         else:
             select = np.argmax(areas)
             roi_corners_clean = []
-            roi_corners = np.array(contours[select], dtype = np.int32)
+            roi_corners = np.array(contours[select], dtype=np.int32)
             for i in roi_corners:
                 roi_corners_clean.append(i[0])
-            hull = cv2.convexHull(np.array([roi_corners_clean], dtype = np.int32))
+            hull = cv2.convexHull(np.array([roi_corners_clean], dtype=np.int32))
             mask = np.zeros(image.shape, dtype=np.uint8)
             mask = cv2.fillConvexPoly(mask, hull, 1)
-            imgs_ret.append(img*mask)
+            imgs_ret.append(img * mask)
     return np.array(imgs_ret)
 
 
@@ -110,21 +110,21 @@ def computeft_gdcm(video, study, appdir):
     
     """
     videodir = appdir + "static/studies/" + study.file
-    command = 'gdcmdump ' + videodir + "/" + video.file + "| grep Frame"
+    command = "gdcmdump " + videodir + "/" + video.file + "| grep Frame"
     pipe = Popen(command, stdout=PIPE, stderr=None, shell=True)
     text = pipe.communicate()[0]
     data = text.split("\n")
     defaultframerate = 30
     counter = 0
     for i in data:
-        if i.split(" ")[0] == '(0018,1063)':
+        if i.split(" ")[0] == "(0018,1063)":
             frametime = i.split(" ")[2][1:-1]
             counter = 1
-        elif i.split(" ")[0] == '(0018,0040)':
+        elif i.split(" ")[0] == "(0018,0040)":
             framerate = i.split("[")[1].split(" ")[0][:-1]
             frametime = str(1000 / eval(framerate))
             counter = 1
-        elif i.split(" ")[0] == '(7fdf,1074)':
+        elif i.split(" ")[0] == "(7fdf,1074)":
             framerate = i.split(" ")[3]
             frametime = str(1000 / eval(framerate))
             counter = 1
@@ -143,14 +143,14 @@ def computeft_gdcm_strain(data):
     defaultframerate = None
     counter = 0
     for i in data:
-        if i.split(" ")[0] == '(0018,1063)':
+        if i.split(" ")[0] == "(0018,1063)":
             frametime = i.split(" ")[2][1:-1]
             counter = 1
-        elif i.split(" ")[0] == '(0018,0040)':
+        elif i.split(" ")[0] == "(0018,0040)":
             framerate = i.split("[")[1].split(" ")[0][:-1]
             frametime = str(1000 / eval(framerate))
             counter = 1
-        elif i.split(" ")[0] == '(7fdf,1074)':
+        elif i.split(" ")[0] == "(7fdf,1074)":
             framerate = i.split(" ")[3]
             frametime = str(1000 / eval(framerate))
             counter = 1
@@ -172,32 +172,34 @@ def output_imgdict(imagefile):
         # pydicom reads ds.pixel array as (nframes, nrow, ncol, nchannels)
         # pixel_array is a copy of ds.pixel_array with dicom's format
         pixel_array = np.moveaxis(ds.pixel_array, -1, 0)
-        if len(pixel_array.shape) == 4: #format 3, nframes, nrow, ncol
+        if len(pixel_array.shape) == 4:  # format 3, nframes, nrow, ncol
             nframes = pixel_array.shape[1]
             maxframes = nframes * 3
-        elif len(pixel_array.shape) == 3: #format nframes, nrow, ncol
+        elif len(pixel_array.shape) == 3:  # format nframes, nrow, ncol
             nframes = pixel_array.shape[0]
             maxframes = nframes * 1
-        #print("nframes", nframes)
+        # print("nframes", nframes)
         nrow = int(ds.Rows)
         ncol = int(ds.Columns)
         ArrayDicom = np.zeros((nrow, ncol), dtype=pixel_array.dtype)
         imgdict = {}
-        for counter in range(0, maxframes, 3):  # this will iterate through all subframes for a loop
+        for counter in range(
+            0, maxframes, 3
+        ):  # this will iterate through all subframes for a loop
             k = counter % nframes
             j = (counter) // nframes
             m = (counter + 1) % nframes
             l = (counter + 1) // nframes
             o = (counter + 2) % nframes
             n = (counter + 2) // nframes
-            #print("j", j, "k", k, "l", l, "m", m, "n", n, "o", o)
+            # print("j", j, "k", k, "l", l, "m", m, "n", n, "o", o)
             if len(pixel_array.shape) == 4:
                 a = pixel_array[j, k, :, :]
                 b = pixel_array[l, m, :, :]
                 c = pixel_array[n, o, :, :]
                 d = np.vstack((a, b))
                 e = np.vstack((d, c))
-                #print(e.shape)
+                # print(e.shape)
                 g = e.reshape(3 * nrow * ncol, 1)
                 y = g[::3]
                 u = g[1::3]
@@ -206,7 +208,7 @@ def output_imgdict(imagefile):
                 u = u.reshape(nrow, ncol)
                 v = v.reshape(nrow, ncol)
                 ArrayDicom[:, :] = ybr2gray(y, u, v)
-                ArrayDicom[0:int(nrow / 10), 0:int(ncol)] = 0  # blanks out name
+                ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
                 counter = counter + 1
                 ArrayDicom.clip(0)
                 nrowout = nrow
@@ -215,7 +217,7 @@ def output_imgdict(imagefile):
                 imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
             elif len(pixel_array.shape) == 3:
                 ArrayDicom[:, :] = pixel_array[counter, :, :]
-                ArrayDicom[0:int(nrow / 10), 0:int(ncol)] = 0  # blanks out name
+                ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
                 counter = counter + 1
                 ArrayDicom.clip(0)
                 nrowout = nrow
@@ -233,6 +235,7 @@ def create_mask(imgs):
     
     """
     from scipy.ndimage.filters import gaussian_filter
+
     diffs = []
     for i in range(len(imgs) - 1):
         temp = np.abs(imgs[i] - imgs[i + 1])
