@@ -246,36 +246,3 @@ def create_mask(imgs):
     diff[diff >= 0.5] = 1
     diff[diff < 0.5] = 0
     return diff
-
-
-def ybr2gray(y, u, v):
-    r = y + 1.402 * (v - 128)
-    g = y - 0.34414 * (u - 128) - 0.71414 * (v - 128)
-    b = y + 1.772 * (u - 128)
-    # print r, g, b
-    gray = (0.2989 * r + 0.5870 * g + 0.1140 * b)
-    return np.array(gray, dtype="int8")
-
-
-def create_imgdict_from_dicom(directory, filename):
-    """
-    convert compressed DICOM format into numpy array
-    """
-    targetfile = os.path.join(directory, filename)
-    temp_directory = os.path.join(directory, "image")
-    if not os.path.exists(temp_directory):
-        os.makedirs(temp_directory)
-    ds = pydicom.read_file(targetfile, force = True)
-    if ("NumberOfFrames" in  dir(ds)) and (ds.NumberOfFrames>1):
-        outrawfile = os.path.join(temp_directory, filename + "_raw")
-        command = 'gdcmconv -w ' + os.path.join(directory, filename) + " "  + outrawfile
-        subprocess.Popen(command, shell=True)
-        time.sleep(10)
-        if os.path.exists(outrawfile):
-            ds = pydicom.read_file(outrawfile, force = True)
-            imgdict = output_imgdict(ds)
-        else:
-            print(outrawfile, "missing")
-    return imgdict
-
-
