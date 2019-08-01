@@ -17,14 +17,18 @@ from scipy.misc import imread
 
 from d00_utils.dcm_utils import dcmdir_to_jpgs_for_classification
 
-sys.path.append('./funcs/')
-sys.path.append('./nets/')
+sys.path.append("./funcs/")
+sys.path.append("./nets/")
 
 # # Hyperparams
-parser=OptionParser()
-parser.add_option("-d", "--dicomdir", dest="dicomdir", default = "dicomsample", help = "dicomdir")
-parser.add_option("-g", "--gpu", dest="gpu", default = "0", help = "cuda device to use")
-parser.add_option("-M", "--modeldir", dest="modeldir", default = "models", help = "modeldir")
+parser = OptionParser()
+parser.add_option(
+    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
+)
+parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
+parser.add_option(
+    "-M", "--modeldir", dest="modeldir", default="models", help="modeldir"
+)
 parser.add_option("-m", "--model", dest="model")
 params, args = parser.parse_args()
 dicomdir = params.dicomdir
@@ -45,8 +49,8 @@ def classify(directory, feature_dim, label_dim, model_name):
     predictions = {}
     for filename in os.listdir(directory):
         if "jpg" in filename:
-            image = imread(directory + filename, flatten = True).astype('uint8')
-            imagedict[filename] = [image.reshape((224,224,1))]
+            image = imread(directory + filename, flatten=True).astype("uint8")
+            imagedict[filename] = [image.reshape((224, 224, 1))]
 
     tf.reset_default_graph()
     sess = tf.Session()
@@ -57,22 +61,24 @@ def classify(directory, feature_dim, label_dim, model_name):
     saver.restore(sess, model_name)
 
     for filename in imagedict:
-        predictions[filename] =np.around(model.probabilities(sess, \
-                  imagedict[filename]), decimals = 3)
-    
+        predictions[filename] = np.around(
+            model.probabilities(sess, imagedict[filename]), decimals=3
+        )
+
     return predictions
 
 
 def run_classify(model):
-    
+
     # To use dicomdir option set in global scope.
-    global dicomdir, modeldir #TODO should not be setting global parameters
-    
+    global dicomdir, modeldir  # TODO should not be setting global parameters
+
     # Create directories for saving images
-    results_dir = '/home/ubuntu/data/03_classification/results' #TODO this shouldn't be hardcoded    
+    results_dir = (
+        "/home/ubuntu/data/03_classification/results"
+    )  # TODO this shouldn't be hardcoded
     os.makedirs(results_dir, exist_ok=True)
     temp_image_dir = os.path.join(dicomdir, 'image/')
-    
     model_name = os.path.join(modeldir, model)
 
     infile = open("d03_classification/viewclasses_" + model + ".txt")
@@ -81,15 +87,17 @@ def run_classify(model):
 
     feature_dim = 1
     label_dim = len(views)
-   
+
     # In case dicomdir is path with more than one part.
     dicomdir_basename = os.path.basename(dicomdir)
-    out = open(results_dir + model + "_" + dicomdir_basename + "_probabilities.txt", 'w')
+    out = open(
+        results_dir + model + "_" + dicomdir_basename + "_probabilities.txt", "w"
+    )
     out.write("study\timage")
 
     for j in views:
         out.write("\t" + j)
-    out.write('\n')
+    out.write("\n")
     x = time.time()
 
     dcmdir_to_jpgs_for_classification(dicomdir, temp_image_dir)
@@ -103,17 +111,26 @@ def run_classify(model):
         predictprobdict[prefix].append(predictions[image][0])
 
     for prefix in list(predictprobdict.keys()):
-        predictprobmean =  np.mean(predictprobdict[prefix], axis = 0)
+        predictprobmean = np.mean(predictprobdict[prefix], axis=0)
         out.write(dicomdir + "\t" + prefix)
+
 
         for i in predictprobmean:
             out.write("\t" + str(i))
-            out.write( "\n")
+            out.write("\n")
     y = time.time()
-    print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
 
+    print(
+        "time:  "
+        + str(y - x)
+        + " seconds for "
+        + str(len(list(predictprobdict.keys())))
+        + " videos"
+    )
+    # rmtree(temp_image_directory)
     out.close()
-    
+
 
 if __name__ == '__main__':
     run_classify(model = "view_23_e5_class_11-Mar-2018")
+

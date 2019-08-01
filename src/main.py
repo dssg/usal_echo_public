@@ -6,5 +6,5 @@ from d03_classification import predict_view_v0
 from d02_intermediate import train_test_split
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     predict_view_v0.main()
