@@ -21,7 +21,7 @@ def downsample_train_test():
     df_test = io_views.get_table("instances_w_labels_test")
 
     ratio = 0.1
-    inv_ratio = 1 / ratio
+    inv_ratio = int(1 / ratio)
 
     df_train_downsampled = downsample_df(df_train, ratio)
     df_test_downsampled = downsample_df(df_test, ratio)

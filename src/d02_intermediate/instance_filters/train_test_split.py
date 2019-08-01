@@ -12,7 +12,7 @@ def split_train_test():
 
     df = io_views.get_table("instances_with_labels")
 
-    msk = np.random.rand(len(df)) < 0.8
+    msk = np.random.rand(len(df)) < 0.5
 
     df_train = df[msk]
     df_test = df[~msk]
