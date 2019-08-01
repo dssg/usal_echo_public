@@ -110,7 +110,7 @@ def ingest_dcm():
             df = get_dicom_metadata('cibercv', key)
             write_dicom_metadata(df)
         os.remove('temp.txt')
-        return('All dicom metadata has been retrieved.')    
+        print('All dicom metadata has been retrieved.')
     else:
-        return('Exiting dicom metadata retrieval process.')
+        print('Exiting dicom metadata retrieval process.')
         
