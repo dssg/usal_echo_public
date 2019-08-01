@@ -1,18 +1,15 @@
 # coding: utf-8
 
 import random
-import sys
 import os
 import subprocess
-from subprocess import Popen, PIPE
-import time
-from optparse import OptionParser
-from shutil import rmtree
+import logger
 
 import numpy as np
-from scipy.misc import imread, imresize
+from scipy.misc import imresize
 import cv2
 import pydicom
+from skimage.color import rgb2gray
 
 
 def _ybr2gray(y, u, v):
@@ -24,34 +21,29 @@ def _ybr2gray(y, u, v):
     return np.array(gray, dtype="int8")
 
 
-def _decompress_dcm(dcm_filepath):
-    """Decompresses and saves dicom videos at dcm_filepath with suffix '_raw'.
-    
-    """
-    dcmraw_filepath = dcm_filepath + "_raw"
+def _decompress_dcm(dcm_filepath, dcmraw_filepath):
+
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
     subprocess.Popen(command, shell=True)
+    print('decompressed', dcm_filepath)  # log this
 
     return
 
 
-def _read_dcmraw(dcm_dir, filename):
+def _read_dcmraw(dcmraw_filepath):
 
-    dcmraw_filepath = os.path.join(dcm_dir, filename + "_raw")
-    ds = pydicom.read_file(dcmraw_filepath, force=True)
-
+    ds = pydicom.dcmread(dcmraw_filepath, force=True)
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
-        return dcmraw_obj
-
+        return ds
     else:
-        print(filename, "is a single frame")
+        print("{} is a single frame".format(dcmraw_filepath))  # log as exception
 
 
 def _dcmraw_to_np(dcmraw_obj):
     """Converts frames of decompressed dicom object to dictionary of numpy arrays.
-    
+
     :param dcmraw_obj (pydicom): pydicom.read_file() object
-    
+
     """
     # pydicom reads ds.pixel array as (nframes, nrow, ncol, nchannels)
     # pxl_array is a copy of ds.pixel_array with dicom's format
@@ -67,18 +59,15 @@ def _dcmraw_to_np(dcmraw_obj):
     nrow = int(dcmraw_obj.Rows)
     ncol = int(dcmraw_obj.Columns)
     ArrayDicom = np.zeros((nrow, ncol), dtype=pxl_array.dtype)
-    imgdict = {}
+    framedict = {}
 
-    for counter in range(
-        0, maxframes, 3
-    ):  # this will iterate through all subframes for a loop
+    for counter in range(0, maxframes, 3):  # iterate through all subframes
         k = counter % nframes
         j = (counter) // nframes
         m = (counter + 1) % nframes
         l = (counter + 1) // nframes
         o = (counter + 2) % nframes
         n = (counter + 2) // nframes
-        # print("j", j, "k", k, "l", l, "m", m, "n", n, "o", o)
 
         if len(pxl_array.shape) == 4:
             a = pxl_array[j, k, :, :]
@@ -86,7 +75,6 @@ def _dcmraw_to_np(dcmraw_obj):
             c = pxl_array[n, o, :, :]
             d = np.vstack((a, b))
             e = np.vstack((d, c))
-            # print(e.shape)
             g = e.reshape(3 * nrow * ncol, 1)
             y = g[::3]
             u = g[1::3]
@@ -101,7 +89,7 @@ def _dcmraw_to_np(dcmraw_obj):
             nrowout = nrow
             ncolout = ncol
             x = int(counter / 3)
-            imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
+            framedict[x] = imresize(ArrayDicom, (nrowout, ncolout))
         elif len(pxl_array.shape) == 3:
             ArrayDicom[:, :] = pxl_array[counter, :, :]
             ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
@@ -110,18 +98,37 @@ def _dcmraw_to_np(dcmraw_obj):
             nrowout = nrow
             ncolout = ncol
             x = int(counter / 3)
-            imgdict[x] = imresize(ArrayDicom, (nrowout, ncolout))
+            framedict[x] = imresize(ArrayDicom, (nrowout, ncolout))
 
-    return imgdict
+    return framedict
 
 
-def _dcmraw_to_10_jpgs(dcm_dir, img_dir, filename):
+def extract_framedict_from_dcmraw(dcmraw_filepath):
+    """Extracts dicom frames as dictionary of numpy arrays.
+
+    The following processing steps are performed:
+    1. Reads in the raw dicom file.
+    2. Creates a dictionary of numpy arrays for all frames in the file.
+
+    :param dcmraw_filepath: path to decompressed dicom file
+
     """
-    For CLASSIFICATION.
-    
-    """
-    dcmraw_obj = _read_dcmraw(dcm_dir, filename)
+    dcmraw_obj = _read_dcmraw(dcmraw_filepath)
     framedict = _dcmraw_to_np(dcmraw_obj)
+
+    return framedict
+
+
+def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
+    """Selects 10 frames from dicom image and saves them as jpg files.
+
+    :param dcm_filepath: path to dicom file
+    :param img_dir: directory for storing image files
+
+    """
+    os.makedirs(img_dir, exist_ok=True)
+    filename = dcmraw_filepath.split("/")[-1].split('.')[0]
+    framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
 
     y = len(list(framedict.keys())) - 1
     if y > 10:
@@ -135,73 +142,81 @@ def _dcmraw_to_10_jpgs(dcm_dir, img_dir, filename):
                 [cv2.IMWRITE_JPEG_QUALITY, 95],
             )
 
+    print('10 random frames extracted for {}'.format(filename))
+
     return
 
 
-def extract_jpgs_from_dcmdir(dcm_dir, img_dir):
-    """Extracts jpg images from DCM files in the given directory for CLASSIFICATION.
+def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
+    """Creates jpg images for all files in dcm_dir.
 
-    :param directory: directory with DCM files of echos
-    :param out_directory: destination folder to where converted jpg files are placed
-    
+    The following processing steps are performed:
+    0. Checks if raw dicom file exists.
+    1. Decompresses and saves dicom video at dcm_filepath adding suffix '_raw'.
+
+    :param dcm_dir: directory with dicom files
+    :param img_dir: directory for storing image files
+
     """
+    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+
     for filename in os.listdir(dcm_dir):
-        if file.endswith(".dcm"):
+        
+        if filename.endswith(".dcm"):
             dcm_filepath = os.path.join(dcm_dir, filename)
-            if os.path.isfile(dcm_filepath + "_raw"):
-                continue
+            dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
+            
+            if os.path.isfile(dcmraw_filepath):
+                pass
             else:
-                _decompress_dcm(dcm_filepath)
-
-            _dcmraw_to_10_jpgs(img_dir, filename)
+                _decompress_dcm(dcm_filepath, dcmraw_filepath)
+            try:
+                dcm_filepath = os.path.join(dcm_dir, filename)
+                dcmraw_to_10_jpgs(dcm_filepath, img_dir)
+            except AttributeError:
+                print('Could not save images for {}'.format(filename))
 
     return
 
 
-######################%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%_________________
-# SEGMENTATION
+def s3_to_jpgs_for_classification():
+
+    # TODO
+
+    return
 
 
-def create_imgdict_from_dicom(directory, filename):
-    """
-    Convert compressed DICOM format into numpy array for SEGMENTATION.
+def dcm_to_segmentation_arrays(dcm_dir, filename):
+    """Creates a numpy array of all frames for filename in dcm_dir.
     
+    :param dcm_dir: directory with dicom files
+    :param filename: path to dicom file
+
     """
-    temp_directory = os.path.join(directory, "image")
-    os.makedirs(temp_directory, exist_ok=True)
 
-    targetfile = os.path.join(directory, filename, force=True)
-    ds = pydicom.read_file(targetfile, force=True)
+    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+    dcm_filepath = os.path.join(dcm_dir, filename)
+    dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
-    if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
-        out_raw_filepath = os.path.join(temp_directory, filename + "_raw")
-        command = (
-            "gdcmconv -w " + os.path.join(directory, filename) + " " + out_raw_filepath
-        )
-        subprocess.Popen(command, shell=True)
+    if os.path.isfile(dcmraw_filepath):
+        pass
+    else:
+        _decompress_dcm(dcm_filepath, dcmraw_filepath)
 
-        if os.path.exists(outrawfile):
-            ds = pydicom.read_file(out_raw_filepath, force=True)
-            imgdict = _dcmraw_to_np(ds)
-        else:
-            print(out_raw_filepath, "missing")
+    try:
+        framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
+        images = []
+        orig_images = []
 
-    return imgdict
+        for key in list(framedict.keys()):
+            image = np.zeros((384, 384))
+            image[:, :] = imresize(rgb2gray(framedict[key]), (384, 384, 1))
+            images.append(image)
+            orig_images.append(framedict[key])
 
+        images = np.array(images).reshape((len(images), 384, 384, 1))
 
-def extract_images(framedict):
-    """
-    Used for SEGMENTATION.
-    """
-    images = []
-    orig_images = []
+        return images, orig_images
 
-    for key in list(framedict.keys()):
-        image = np.zeros((384, 384))
-        image[:, :] = imresize(rgb2gray(framedict[key]), (384, 384, 1))
-        images.append(image)
-        orig_images.append(framedict[key])
-
-    images = np.array(images).reshape((len(images), 384, 384, 1))
-
-    return images, orig_images
+    except AttributeError:
+        print('Could not return dict for {}'.format(filename))

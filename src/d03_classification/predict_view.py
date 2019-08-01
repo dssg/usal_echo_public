@@ -15,7 +15,7 @@ import tensorflow as tf
 import numpy as np
 from scipy.misc import imread
 
-from d00_utils.dcm_utils import extract_imgs_from_dicom
+from d00_utils.dcm_utils import dcmdir_to_jpgs_for_classification
 
 sys.path.append('./funcs/')
 sys.path.append('./nets/')
@@ -38,7 +38,8 @@ def classify(directory, feature_dim, label_dim, model_name):
     """
     Classifies echo images in given directory
 
-    @param directory: folder with jpg echo images for classification
+    :param directory: folder with jpg echo images for classification
+    
     """
     imagedict = {}
     predictions = {}
@@ -62,7 +63,7 @@ def classify(directory, feature_dim, label_dim, model_name):
     return predictions
 
 
-def main():
+def run_classify(model):
     
     # To use dicomdir option set in global scope.
     global dicomdir, modeldir #TODO should not be setting global parameters
@@ -71,9 +72,7 @@ def main():
     results_dir = '/home/ubuntu/data/03_classification/results' #TODO this shouldn't be hardcoded    
     os.makedirs(results_dir, exist_ok=True)
     temp_image_dir = os.path.join(dicomdir, 'image/')
-    os.makedirs(temp_image_dir, exist_ok=True)
     
-    model = "view_23_e5_class_11-Mar-2018"
     model_name = os.path.join(modeldir, model)
 
     infile = open("d03_classification/viewclasses_" + model + ".txt")
@@ -93,7 +92,7 @@ def main():
     out.write('\n')
     x = time.time()
 
-    extract_jpgs_from_dcmdir(dicomdir, temp_image_dir)
+    dcmdir_to_jpgs_for_classification(dicomdir, temp_image_dir)
     predictions = classify(temp_image_dir, feature_dim, label_dim, model_name)
     predictprobdict = {}
 
@@ -106,17 +105,15 @@ def main():
     for prefix in list(predictprobdict.keys()):
         predictprobmean =  np.mean(predictprobdict[prefix], axis = 0)
         out.write(dicomdir + "\t" + prefix)
-        #for (i,k) in zip(predictprobmean, views):
-            #out.write("\n" + "prob_" + k + " :" + str(i))
 
         for i in predictprobmean:
             out.write("\t" + str(i))
             out.write( "\n")
     y = time.time()
     print("time:  " +str(y - x) + " seconds for " +  str(len(list(predictprobdict.keys())))  + " videos")
-    #rmtree(temp_image_directory)
+
     out.close()
     
 
 if __name__ == '__main__':
-    main()
+    run_classify(model = "view_23_e5_class_11-Mar-2018")
