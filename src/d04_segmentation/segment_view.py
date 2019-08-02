@@ -273,7 +273,7 @@ def main():
     infile = open(viewfile)
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
-    infile = [i.split("\t") for i in infile]
+    infile = [i.split(",") for i in infile]
 
     start = time.time()
     for i in infile[1:]:
