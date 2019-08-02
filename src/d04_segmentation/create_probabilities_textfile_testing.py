@@ -54,9 +54,13 @@ def create_probabilities_textfile_testing(instance_id_list):
                                  , "psax_apex"])
     
     prob_tb.at[:, "study"] = '/home/ubuntu/data/01_raw/dcm_sample_labelled'
+    instancefilename = df_2.at[i, 'instancefilename']
+    studyidk = df_2.at[i, 'studyidk']
     
     for i in df_2.index:
-        prob_tb.at[i, "image"] = df_2.at[i, 'instancefilename']
+        instancefilename = df_2.at[i, 'instancefilename']
+        studyidk = df_2.at[i, 'studyidk']
+        prob_tb.at[i, "image"] = 'a_" + str(studyidk) + '_' + instancefilename
         if df_2.at[i, 'view_only'] == 'a4c':
             prob_tb.at[i, "a4c"] = 1
         elif df_2.at[i, 'view_only'] == 'a2c':
@@ -72,7 +76,7 @@ def create_probabilities_textfile_testing(instance_id_list):
         os.makedirs(data_dir)
     
     time_stamp = datetime.date.today()
-    file_name = 'view_probabilities_test' + str(time_stamp)
+    file_name = 'view_probabilities_test' + str(time_stamp) + '.txt'
     data_path = os.path.join(data_dir, file_name)
         
     df_3.to_csv(data_path, index = None, header=True) 
