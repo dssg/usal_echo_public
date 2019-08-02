@@ -41,6 +41,9 @@ def segmentChamber(videofile, dicomdir, view):
     sesses = []
     models = []
     global modeldir
+    
+    print(dicomdir)
+    
     if view == "a4c":
         g_1 = tf.Graph()
         with g_1.as_default():
