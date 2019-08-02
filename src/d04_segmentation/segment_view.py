@@ -42,7 +42,7 @@ def segmentChamber(videofile, dicomdir, view):
     models = []
     global modeldir
     
-    print(dicomdir)
+    print(videofile, dicomdir)
     
     if view == "a4c":
         g_1 = tf.Graph()
