@@ -11,6 +11,7 @@ from shutil import rmtree
 
 import numpy as np
 from scipy.misc import imread, imresize
+from skimage.color import rgb2gray
 import cv2
 import pydicom
 
