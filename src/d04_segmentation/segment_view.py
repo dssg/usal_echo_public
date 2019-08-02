@@ -257,7 +257,7 @@ def main():
     viewlist_plax = []
     viewlist_psax = []
 
-    infile = open("/home/ubuntu/courtney/usal_echo/data/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt")
+    infile = open("/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt")
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
 
