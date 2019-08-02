@@ -10,7 +10,8 @@ import boto3
 
 # TODO specify aws s3 credentials
 
-def get_matching_s3_objects(bucket, prefix='', suffix=''):
+
+def get_matching_s3_objects(bucket, prefix="", suffix=""):
     """Generate objects in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
@@ -22,13 +23,13 @@ def get_matching_s3_objects(bucket, prefix='', suffix=''):
     ** code from https://alexwlchan.net/2018/01/listing-s3-keys-redux/
 
     """
-    s3 = boto3.client('s3')
-    kwargs = {'Bucket': bucket}
+    s3 = boto3.client("s3")
+    kwargs = {"Bucket": bucket}
 
     # If the prefix is a single string (not a tuple of strings), we can
     # do the filtering directly in the S3 API.
     if isinstance(prefix, str):
-        kwargs['Prefix'] = prefix
+        kwargs["Prefix"] = prefix
 
     while True:
 
@@ -37,12 +38,12 @@ def get_matching_s3_objects(bucket, prefix='', suffix=''):
         resp = s3.list_objects_v2(**kwargs)
 
         try:
-            contents = resp['Contents']
+            contents = resp["Contents"]
         except KeyError:
             return
 
         for obj in contents:
-            key = obj['Key']
+            key = obj["Key"]
             if key.startswith(prefix) and key.endswith(suffix):
                 yield obj
 
@@ -50,12 +51,12 @@ def get_matching_s3_objects(bucket, prefix='', suffix=''):
         # Pass the continuation token into the next response, until we
         # reach the final page (when this field is missing).
         try:
-            kwargs['ContinuationToken'] = resp['NextContinuationToken']
+            kwargs["ContinuationToken"] = resp["NextContinuationToken"]
         except KeyError:
             break
 
 
-def get_matching_s3_keys(bucket, prefix='', suffix=''):
+def get_matching_s3_keys(bucket, prefix="", suffix=""):
     """Generate the keys in an S3 bucket.
 
     :param bucket: Name of the S3 bucket.
@@ -66,4 +67,4 @@ def get_matching_s3_keys(bucket, prefix='', suffix=''):
     
     """
     for obj in get_matching_s3_objects(bucket, prefix, suffix):
-        yield obj['Key']
+        yield obj["Key"]

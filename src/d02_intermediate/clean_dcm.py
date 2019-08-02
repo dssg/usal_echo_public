@@ -11,6 +11,7 @@ from json import load
 
 from d00_utils.db_utils import dbReadWriteClean
 
+
 def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     """Select subset of dicom tags and save to database.
     
@@ -26,29 +27,36 @@ def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     :return: pandas dataframe with filtered metadata
     
     """
-    #Get dicom tags and metadata path from config file(s)
-    with open('dicom_tags.json') as f:
+    # Get dicom tags and metadata path from config file(s)
+    with open("dicom_tags.json") as f:
         dicom_tags = load(f)
     for k, v in dicom_tags.items():
         dicom_tags[k] = tuple(v)
 
     io_clean = dbReadWriteClean()
-    
+
     datalist = []
     # Read metadata in chunks to avoid kernel crashing due to large data volume.
-    for chunk in pd.read_csv(metadata_path, chunksize=1000000,
-                             dtype={'dirname':'category','filename':'category',
-                                    'tag1':'category','tag2':'category'}):
-        chunk['tags'] = list(zip(chunk['tag1'],chunk['tag2']))
-        filtered_chunk = chunk[chunk['tags'].isin(dicom_tags.values())]
+    for chunk in pd.read_csv(
+        metadata_path,
+        chunksize=1000000,
+        dtype={
+            "dirname": "category",
+            "filename": "category",
+            "tag1": "category",
+            "tag2": "category",
+        },
+    ):
+        chunk["tags"] = list(zip(chunk["tag1"], chunk["tag2"]))
+        filtered_chunk = chunk[chunk["tags"].isin(dicom_tags.values())]
         if to_db is True:
             try:
-                io_clean.save_to_db(filtered_chunk, db_table, if_exists='append')
+                io_clean.save_to_db(filtered_chunk, db_table, if_exists="append")
             except:
                 raise
-            print('saved chunks to db')
+            print("saved chunks to db")
         datalist.append(filtered_chunk)
-    
+
     meta = pd.concat(datalist)
-    
+
     return meta
