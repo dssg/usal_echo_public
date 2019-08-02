@@ -3,7 +3,7 @@
 import random
 import os
 import subprocess
-import logger
+import logging
 
 import numpy as np
 from scipy.misc import imresize
@@ -42,7 +42,7 @@ def _read_dcmraw(dcmraw_filepath):
 def _dcmraw_to_np(dcmraw_obj):
     """Converts frames of decompressed dicom object to dictionary of numpy arrays.
 
-    :param dcmraw_obj (pydicom): pydicom.read_file() object
+    :param dcmraw_obj (pydicom): pydicom.dcmread() object
 
     """
     # pydicom reads ds.pixel array as (nframes, nrow, ncol, nchannels)
@@ -122,7 +122,7 @@ def extract_framedict_from_dcmraw(dcmraw_filepath):
 def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
     """Selects 10 frames from dicom image and saves them as jpg files.
 
-    :param dcm_filepath: path to dicom file
+    :param dcmraw_filepath: path to dicom file
     :param img_dir: directory for storing image files
 
     """
@@ -166,9 +166,7 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
             dcm_filepath = os.path.join(dcm_dir, filename)
             dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
             
-            if os.path.isfile(dcmraw_filepath):
-                pass
-            else:
+            if not os.path.isfile(dcmraw_filepath):
                 _decompress_dcm(dcm_filepath, dcmraw_filepath)
             try:
                 dcm_filepath = os.path.join(dcm_dir, filename)
@@ -198,9 +196,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
     dcm_filepath = os.path.join(dcm_dir, filename)
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
-    if os.path.isfile(dcmraw_filepath):
-        pass
-    else:
+    if not os.path.isfile(dcmraw_filepath):
         _decompress_dcm(dcm_filepath, dcmraw_filepath)
 
     try:
