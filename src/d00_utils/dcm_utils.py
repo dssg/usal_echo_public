@@ -180,7 +180,7 @@ def create_imgdict_from_dicom(directory, filename):
         )
         subprocess.Popen(command, shell=True)
 
-        if os.path.exists(outrawfile):
+        if os.path.exists(out_raw_filepath):
             ds = pydicom.read_file(out_raw_filepath)
             imgdict = _dcmraw_to_np(ds)
         else:
