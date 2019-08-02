@@ -279,6 +279,7 @@ def main():
     for i in infile[1:]:
         dicomdir = i[0]
         filename = i[1]
+        print(filename)
         if eval(i[viewdict["psax_pap"]]) > probthresh:
             viewlist_psax.append(filename)
         elif eval(i[viewdict["a4c"]]) > probthresh:
