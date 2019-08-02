@@ -59,7 +59,7 @@ def create_probabilities_textfile_testing(instance_id_list):
         instancefilename = df_2.at[i, 'instancefilename']
         studyidk = df_2.at[i, 'studyidk']
         prob_tb.at[i, "image"] = ('a_' + str(studyidk).strip() + '_' 
-                  + str(instancefilename).strip()) + '.dcm'
+                  + str(instancefilename).strip() + '.dcm')
         if df_2.at[i, 'view_only'] == 'a4c':
             prob_tb.at[i, "a4c"] = 1
         elif df_2.at[i, 'view_only'] == 'a2c':
