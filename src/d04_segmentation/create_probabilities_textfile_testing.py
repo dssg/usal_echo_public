@@ -5,7 +5,7 @@ Created on Wed Jul 31 14:03:56 2019
 @author: court
 """
 
-from d00_utils.db_utils import dbReadWriteViews
+from src.d00_utils.db_utils import dbReadWriteViews
 import os
 import datetime
 import pandas as pd
@@ -54,8 +54,6 @@ def create_probabilities_textfile_testing(instance_id_list):
                                  , "psax_apex"])
     
     prob_tb.at[:, "study"] = '/home/ubuntu/data/01_raw/dcm_sample_labelled'
-    instancefilename = df_2.at[i, 'instancefilename']
-    studyidk = df_2.at[i, 'studyidk']
     
     for i in df_2.index:
         instancefilename = df_2.at[i, 'instancefilename']
