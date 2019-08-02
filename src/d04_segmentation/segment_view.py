@@ -281,6 +281,7 @@ def main():
 
     start = time.time()
     for i in infile[1:]:
+        print(i)
         dicomdir = i[0]
         filename = i[1]
         print(filename)
