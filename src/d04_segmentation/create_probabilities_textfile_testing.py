@@ -5,7 +5,7 @@ Created on Wed Jul 31 14:03:56 2019
 @author: court
 """
 
-from src.d00_utils.db_utils import dbReadWriteViews
+from d00_utils.db_utils import dbReadWriteViews
 import os
 import datetime
 import pandas as pd
