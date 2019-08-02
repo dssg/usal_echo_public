@@ -170,7 +170,7 @@ def create_imgdict_from_dicom(directory, filename):
     temp_directory = os.path.join(directory, "image")
     os.makedirs(temp_directory, exist_ok=True)
 
-    targetfile = os.path.join(directory, filename, force=True)
+    targetfile = os.path.join(directory, filename)
     ds = pydicom.read_file(targetfile, force=True)
 
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
@@ -181,7 +181,7 @@ def create_imgdict_from_dicom(directory, filename):
         subprocess.Popen(command, shell=True)
 
         if os.path.exists(outrawfile):
-            ds = pydicom.read_file(out_raw_filepath, force=True)
+            ds = pydicom.read_file(out_raw_filepath)
             imgdict = _dcmraw_to_np(ds)
         else:
             print(out_raw_filepath, "missing")
