@@ -253,7 +253,8 @@ def main():
     global dicomdir
     # In case dicomdir is path with more than one part.
     #dicomdir_basename = os.path.basename(dicomdir)
-    viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-02.txt"
+    #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-02.txt"
+    viewfile = '/home/ubuntu/courtney/usal_echo/src/d03_classification/view_23_e5_class_11-Mar-2018_129694_probabilities.txt'
     viewlist_a2c = []
     viewlist_a3c = []
     viewlist_a4c = []
