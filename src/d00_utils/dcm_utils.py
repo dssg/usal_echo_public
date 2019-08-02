@@ -173,6 +173,7 @@ def create_imgdict_from_dicom(directory, filename):
 
     targetfile = os.path.join(directory, filename)
     ds = pydicom.read_file(targetfile, force=True)
+    imgdict = None
 
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
         out_raw_filepath = os.path.join(temp_directory, filename + "_raw")
