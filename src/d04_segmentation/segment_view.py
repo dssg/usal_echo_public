@@ -113,7 +113,7 @@ def segmentChamber(videofile, dicomdir, view):
             saver.restore(
                 sess5, os.path.join(modeldir, "plax_45_20_all_model.ckpt-9600")
             )
-    outpath = "./segment/" + view + "/"
+    outpath = "/home/courtney/usal_echo/data/segment/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     framedict = create_imgdict_from_dicom(dicomdir, videofile)
