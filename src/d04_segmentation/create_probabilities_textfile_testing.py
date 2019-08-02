@@ -54,6 +54,7 @@ def create_probabilities_textfile_testing(instance_id_list):
                                  , "psax_apex"])
     
     for i in df_2.index:
+        prob_tb.at[:, "study"] = '/home/ubuntu/data/01_raw/dcm_sample_labelled'
         instancefilename = df_2.at[i, 'instancefilename']
         studyidk = df_2.at[i, 'studyidk']
         prob_tb.at[i, "image"] = ('a_' + str(studyidk).strip() + '_' 
@@ -64,7 +65,6 @@ def create_probabilities_textfile_testing(instance_id_list):
             prob_tb.at[i, "a2c"] = 1 
     
     df_3 = prob_tb.fillna(0)
-    df_3 = df_3.at[:, "study"] = '/home/ubuntu/data/01_raw/dcm_sample_labelled'
     
     # 5. Writes the probabilities textfile to data/d04_segmentation folder
     project_dir = os.path.dirname(os.getcwd())
