@@ -4,7 +4,7 @@ import numpy as np
 from d00_utils.db_utils import dbReadWriteViews
 
 
-def downsample_df(df, ratio=0.1):
+def downsample_df(df, ratio):
     """ Downsample any dataframe by a given ratio """
 
     msk = np.random.rand(len(df)) < ratio
@@ -12,7 +12,7 @@ def downsample_df(df, ratio=0.1):
     return df[msk]
 
 
-def downsample_train_test():
+def downsample_train_test(ratio=0.1):
 
     io_views = dbReadWriteViews()
 
@@ -20,7 +20,6 @@ def downsample_train_test():
     df_train = io_views.get_table("instances_w_labels_train")
     df_test = io_views.get_table("instances_w_labels_test")
 
-    ratio = 0.1
     inv_ratio = int(1 / ratio)
 
     df_train_downsampled = downsample_df(df_train, ratio)
