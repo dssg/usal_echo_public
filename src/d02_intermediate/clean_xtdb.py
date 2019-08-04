@@ -16,6 +16,7 @@ import pandas as pd
 
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 
+
 def clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
     
@@ -24,16 +25,15 @@ def clean_measurement_abstract_rpt(df):
     
     """
     df.rename(columns={"studyid": "studyidk"}, inplace=True)
-    
-    for column in ["row_id", "studyidk", "measabstractnumber"]:
+
+    for column in ["studyidk", "measabstractnumber"]:
         df[column] = df[column].astype(int)
-    
+
     for column in ["name", "unitname"]:
         df[column] = df[column].str.strip()
     print("Cleaned measurement_abstract_rpt table.")
 
     return df
-
 
 
 def clean_measgraphref(df):
@@ -43,15 +43,14 @@ def clean_measgraphref(df):
     :return: cleaned table as dataframe
     
     """
-    df['instanceidk'] = df['instanceidk'].replace('', -1)
-    
-    for column in ["row_id", "studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
-        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
-    
+    df["instanceidk"] = df["instanceidk"].replace("", -1)
+
+    for column in ["studyidk", "measabstractnumber", "instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
+
     print("Cleaned measgraphref table.")
 
     return df
-
 
 
 def clean_measgraphic(df):
@@ -61,13 +60,12 @@ def clean_measgraphic(df):
     :return: cleaned table as dataframe
     
     """
-    for column in ["row_id", "instanceidk", "indexinmglist"]:
-        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
-    
+    for column in ["instanceidk", "indexinmglist"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
+
     print("Cleaned measgraphic table.")
 
     return df
-
 
 
 def clean_study_summary(df):
@@ -84,55 +82,97 @@ def clean_study_summary(df):
     
     """
     # clean age, patientweight, patientheight columns
-    for column in ['age', 'patientweight', 'patientheight']:
-        df[column] = df[column].replace('', -1)
-    
-    for column in ["row_id", "studyidk", "age"]:
-        df[column] = pd.to_numeric(df[column], errors='coerce').astype(int)
-        
+    for column in ["age", "patientweight", "patientheight"]:
+        df[column] = df[column].replace("", -1)
+
+    for column in ["studyidk", "age"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
+
     for column in ["patientweight", "patientheight"]:
-        df[column] = pd.to_numeric(df[column], errors='coerce')
-    
+        df[column] = pd.to_numeric(df[column], errors="coerce")
+
     # remove outliers
-    for column in ['age', 'patientweight', 'patientheight']:
+    for column in ["age", "patientweight", "patientheight"]:
         boxplot = plt.boxplot(df[column])
-        outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot['caps']]
+        outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot["caps"]]
         df[column] = df[column].apply(lambda x: 1 if x > outlier_max else x)
         df[column] = df[column].apply(lambda x: 1 if x < outlier_min else x)
 
     # create BMI column and clean outliers
     # (formula from https://www.cdc.gov/nccdphp/dnpao/growthcharts/training/bmiage/page5_1.html)
-    df['bmi'] = df.apply(lambda x: ((x.patientweight/x.patientheight/x.patientheight)*10000), axis=1)
-    boxplot = plt.boxplot(df['bmi']);
-    outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot['caps']]
-    df['bmi'] = df['bmi'].apply(lambda x: 1 if x > outlier_max else x)
-    df['bmi'] = df['bmi'].apply(lambda x: 1 if x < outlier_min else x)
-    
+    df["bmi"] = df.apply(
+        lambda x: ((x.patientweight / x.patientheight / x.patientheight) * 10000),
+        axis=1,
+    )
+    boxplot = plt.boxplot(df["bmi"])
+    outlier_min, outlier_max = [item.get_ydata()[0] for item in boxplot["caps"]]
+    df["bmi"] = df["bmi"].apply(lambda x: 1 if x > outlier_max else x)
+    df["bmi"] = df["bmi"].apply(lambda x: 1 if x < outlier_min else x)
+
     # clean gender column
-    df['gender'] = df['gender'].replace('', 'U')
-    
+    df["gender"] = df["gender"].replace("", "U")
+
     # clean findingcode column
-    df['findingcode'] = df['findingcode'].apply(lambda x: x.split(","))
-    
+    df["findingcode"] = df["findingcode"].apply(lambda x: x.split(","))
+
     return df
 
+
+def clean_modvolume(df):
+    """Clean modvolume table.
+    
+    :param df: modvolume table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    for column in ["instanceidk", "indexinmglist", "chordsequence"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
+
+    for column in ["chordtype"]:
+        df[column] = df[column].str.strip()
+
+    return df
+
+
+def clean_instance_filename(df):
+    """Clean instance_filename table.
+    
+    :param df: instance_filename table as dataframe
+    :return: cleaned table as dataframe
+    
+    """
+    # TODO: Is "seriesdbkey" the same as "studyseriesidk"?
+    df.rename(columns={"instancedbkey": "instanceidk"}, inplace=True)
+
+    for column in ["instanceidk", "seriesdbkey"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
+
+    # TODO: strip "sopinstanceuid" in all tables
+    for column in ["instancefilename"]:
+        df[column] = df[column].str.strip()
+
+    return df
 
 
 def clean_tables():
     """Transforms raw tables and writes them to database schema 'clean'.
     
-    """    
+    """
     io_raw = dbReadWriteRaw()
     io_clean = dbReadWriteClean()
-    
-    tables_to_clean = {'measurement_abstract_rpt' : 'clean_measurement_abstract_rpt(tbl)', 
-                       'a_measgraphref' : 'clean_measgraphref(tbl)', 
-                       'a_measgraphic' : 'clean_measgraphic(tbl)', 
-                       'dm_spain_view_study_summary' : 'clean_study_summary(tbl)'}
+
+    tables_to_clean = {
+        "measurement_abstract_rpt": "clean_measurement_abstract_rpt(tbl)",
+        "a_measgraphref": "clean_measgraphref(tbl)",
+        "a_measgraphic": "clean_measgraphic(tbl)",
+        "dm_spain_view_study_summary": "clean_study_summary(tbl)",
+        "a_modvolume": "clean_modvolume(tbl)",
+        "instance_filename": "clean_instance_filename(tbl)",
+    }
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
         clean_tbl = eval(val)
-        
+
         io_clean.save_to_db(clean_tbl, key)
-        print('Created table `'+key+'` in schema '+io_clean.schema) 
+        print("Created table `" + key + "` in schema " + io_clean.schema)
