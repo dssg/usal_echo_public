@@ -256,10 +256,7 @@ def extractmetadata(dicomDir, videofile):
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
 
-
-def main():
-    # Populate dictionary of view name to index in probabilities file.
-    model = "view_23_e5_class_11-Mar-2018"
+def get_viewdict(model):
     infile = open(f"d03_classification/viewclasses_{model}.txt")
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
@@ -268,17 +265,19 @@ def main():
 
     for i in range(len(infile)):
         viewdict[infile[i]] = i + 2
+        
+    return viewdict
 
-    # Get view probabilities for each instance in study.
-    dicomdir = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
-    dicomdir_basename = os.path.basename(dicomdir)
+def get_viewprobs(model, dicomdir_basename):
     viewfile = f"/home/ubuntu/data/03_classification/probabilities/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
     infile = [i.split("\t") for i in infile]
+    
+    return infile
 
-    # Populate list of instances with specified views.
+def get_viewlists(infile, viewdict):
     viewlist_a2c = []
     viewlist_a4c = []
     probthresh = 0.5 # arbitrary choice for view classification
@@ -293,6 +292,17 @@ def main():
             viewlist_a2c.append(filename)
     print(viewlist_a2c, viewlist_a4c)
     
+    return viewlist_a2c, viewlist_a4c
+    
+
+def main():
+    model = "view_23_e5_class_11-Mar-2018"
+    dicomdir = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
+    dicomdir_basename = os.path.basename(dicomdir)
+    viewdict = get_viewdict(model)
+    viewprobs = get_viewprobs(model, dicomdir_basename)
+    viewlist_a2c, viewlist_a4c = get_viewlists(viewprobs, viewdict)
+
     
     measuredict = {}
     lvlengthlist = []
