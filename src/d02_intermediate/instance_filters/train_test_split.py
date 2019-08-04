@@ -5,14 +5,14 @@ import numpy as np
 from d00_utils.db_utils import dbReadWriteViews
 
 
-def split_train_test():
+def split_train_test(ratio=0.5):
     """ Split dataset into train/test from db table views.instances_with_labels """
 
     io_views = dbReadWriteViews()
 
     df = io_views.get_table("instances_with_labels")
 
-    msk = np.random.rand(len(df)) < 0.5
+    msk = np.random.rand(len(df)) < ratio
 
     df_train = df[msk]
     df_test = df[~msk]
