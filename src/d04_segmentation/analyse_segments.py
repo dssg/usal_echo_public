@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import time
 from optparse import OptionParser
 
@@ -54,83 +55,6 @@ def extract_areas(segs):
         area = len(np.where(seg > 0)[0])
         areas.append(area)
     return areas
-
-
-def extract_area_psax(
-    video, study, outer_segs, inner_segs, psax_areas, x_scale, y_scale, nrow, ncol
-):
-    x_area_scale, y_area_scale = x_scale, y_scale
-    area_rows, area_cols = nrow, ncol
-    outer_seg = outer_segs[np.argsort(psax_areas)[int(0.9 * len(outer_segs))]]
-    inner_seg = inner_segs[np.argsort(psax_areas)[int(0.9 * len(inner_segs))]]
-    outer_seg = imresize(outer_seg.copy(), (area_rows, area_cols), interp="nearest")
-    inner_seg = imresize(inner_seg.copy(), (area_rows, area_cols), interp="nearest")
-    x_outer, y_outer = np.where(outer_seg > 0)
-    x_inner, y_inner = np.where(inner_seg > 0)
-    return len(x_outer) * x_area_scale ** 2, len(x_inner) * x_area_scale ** 2
-
-
-def compute_lvmi(
-    dicomDir, videofile, lvlength, hr, ft, window, x_scale, y_scale, nrow, ncol
-):
-    l = lvlength
-    npydir = "./segment/psax/"
-    psax_outer_segs = np.load(npydir + "/" + videofile + "_lvo.npy")
-    psax_outer_segs = remove_periphery(psax_outer_segs)
-    psax_inner_segs = np.load(npydir + "/" + videofile + "_lv.npy")
-    psax_inner_segs = remove_periphery(psax_inner_segs)
-    psax_outer_areas = extract_areas(psax_outer_segs)
-    psax_inner_areas = extract_areas(psax_inner_segs)
-    outer_area = (
-        pd.DataFrame(psax_outer_areas)[0]
-        .rolling(window=4, center=True)
-        .median()
-        .fillna(method="bfill")
-        .fillna(method="ffill")
-        .tolist()
-    )
-    inner_area = (
-        pd.DataFrame(psax_inner_areas)[0]
-        .rolling(window=4, center=True)
-        .median()
-        .fillna(method="bfill")
-        .fillna(method="ffill")
-        .tolist()
-    )
-    massmin = 25
-    massmax = 500
-    masslist = []
-    for i in range(0, len(psax_outer_areas), int(window / 2)):
-        start = i
-        end = np.min((i + int(0.9 * window), len(psax_outer_areas)))
-        if (end - start) > int(0.8 * window):
-            psax_outer_segs_window = psax_outer_segs[start:end]
-            psax_inner_segs_window = psax_inner_segs[start:end]
-            inner_area_window = inner_area[start:end]
-            outer_area_final, inner_area_final = extract_area_psax(
-                videofile,
-                dicomDir,
-                psax_outer_segs_window,
-                psax_inner_segs_window,
-                inner_area_window,
-                x_scale,
-                y_scale,
-                nrow,
-                ncol,
-            )
-            t = np.sqrt((outer_area_final + inner_area_final) / np.pi) - np.sqrt(
-                (inner_area_final) / np.pi
-            )
-            mass = 1.05 * (
-                (5 / 6) * (outer_area_final + inner_area_final) * (l + t)
-                - (5 / 6) * (inner_area_final) * (l)
-            )
-            masslist.append(mass)
-    if not masslist == []:
-        massfinal = np.nanpercentile(masslist, 50)
-    else:
-        massfinal = np.nan
-    return massfinal
 
 
 def extract_area_l_scaled(
@@ -334,13 +258,9 @@ def extractmetadata(dicomDir, videofile):
 
 
 def main():
-    viewfile = "view_23_e5_class_11-Mar-2018_dicomsample_probabilities.txt"
-    dicomdir = "dicomsample"
-    viewlist_a2c = []
-    viewlist_a4c = []
-    viewlist_psax = []
-
-    infile = open("viewclasses_view_23_e5_class_11-Mar-2018.txt")
+    # Populate dictionary of view name to index in probabilities file.
+    model = "view_23_e5_class_11-Mar-2018"
+    infile = open(f"d03_classification/viewclasses_{model}.txt")
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
 
@@ -349,34 +269,45 @@ def main():
     for i in range(len(infile)):
         viewdict[infile[i]] = i + 2
 
-    probthresh = (
-        0.5
-    )  # arbitrary choice of "probability" threshold for view classification
-
+    # Get view probabilities for each instance in study.
+    dicomdir = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
+    dicomdir_basename = os.path.basename(dicomdir)
+    viewfile = f"/home/ubuntu/data/03_classification/probabilities/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
     infile = [i.split("\t") for i in infile]
 
+    # Populate list of instances with specified views.
+    viewlist_a2c = []
+    viewlist_a4c = []
+    probthresh = 0.5 # arbitrary choice for view classification
+
+
     for i in infile[1:]:
         dicomdir = i[0]
         filename = i[1]
-        if eval(i[viewdict["psax_pap"]]) > probthresh:
-            viewlist_psax.append(filename)
-        elif eval(i[viewdict["a4c"]]) > probthresh:
+        if eval(i[viewdict["a4c"]]) > probthresh:
             viewlist_a4c.append(filename)
         elif eval(i[viewdict["a2c"]]) > probthresh:
             viewlist_a2c.append(filename)
-    print(viewlist_a2c, viewlist_a4c, viewlist_psax)
+    print(viewlist_a2c, viewlist_a4c)
+    
+    
     measuredict = {}
     lvlengthlist = []
+    
     for videofile in viewlist_a4c + viewlist_a2c:
         if videofile in viewlist_a4c:
             view = "a4c"
         elif videofile in viewlist_a2c:
             view = "a2c"
         measuredict[videofile] = {}
+        # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
+        # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
+        # Note: if heart_rate < 40, problem, sets heart_rate to 70
         ft, hr, nrow, ncol, x_scale, y_scale = extractmetadata(dicomdir, videofile)
+        # window = frames/beat = (seconds/beat) / (seconds/frame)
         window = int(((60 / hr) / (ft / 1000)))
         lavol, lvedv, lvesv, ef, diasttime, lveda_l = compute_la_lv_volume(
             dicomdir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
@@ -389,16 +320,8 @@ def main():
         measuredict[videofile]["diasttime"] = diasttime
         measuredict[videofile]["lveda_l"] = lveda_l
     lvlength = np.median(lvlengthlist)
-    for videofile in viewlist_psax:
-        measuredict[videofile] = {}
-        ft, hr, nrow, ncol, x_scale, y_scale = extractmetadata(dicomdir, videofile)
-        window = int(((60 / hr) / (ft / 1000)))
-        lvmass = compute_lvmi(
-            dicomdir, videofile, lvlength, hr, ft, window, x_scale, y_scale, nrow, ncol
-        )
-        measuredict[videofile]["lvmass"] = lvmass
     print(list(measuredict.items()))
-    out = open(dicomdir + "_measurements_dict.txt", "w")
+    out = open("/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.txt", "w")
     pickle.dump(measuredict, out)
     out.close()
 
