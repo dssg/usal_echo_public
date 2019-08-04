@@ -11,7 +11,7 @@ from d00_utils.db_utils import dbReadWriteData
 from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
 from d02_intermediate.clean_xtdb import clean_tables
-
+from d02_intermediate.clean_dcm import clean_dcm
 
 def get_postgres_credentials():
     """
@@ -26,7 +26,7 @@ def get_postgres_credentials():
 class S3Bucket(luigi.ExternalTask):  # ensure connection to S3 bucket
     def output(self):
         return luigi.S3Target("s3://cibercv/")
-        # e.g. https://stackoverflow.com/questions/33332058/luigi-pipeline-beginning-in-s3
+        # Reference: https://stackoverflow.com/questions/33332058/luigi-pipeline-beginning-in-s3
 
 
 class IngestDCM(luigi.Task):
@@ -64,6 +64,10 @@ class CleanDCM(luigi.Task):
         return PostgresTarget(host, database, user, password, table, update_id)
         # https://luigi.readthedocs.io/en/stable/api/luigi.contrib.postgres.html
         # e.g. https://vsupalov.com/luigi-query-postgresql/
+
+    # TODO: figure out default args for clean_dcm()
+    #def run(self):
+        #return clean_dcm(metadata_path, ...)
 
 
 class IngestXTDB(luigi.Task):
@@ -111,9 +115,7 @@ class CleanXTDB(luigi.Task):
 
 class Pipeline(luigi.WrapperTask):
     """
-    Dummy task to trigger entire dependency chain for project
-    This class is the only that should be actioned upon
-    Question for Lily: do we need to include each class? Or only the individual chains?
+    Dummy task which triggers entire dependency chain for project
     """
 
     def requires(self):
