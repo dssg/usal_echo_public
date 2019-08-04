@@ -6,7 +6,12 @@ from d00_utils.db_utils import dbReadWriteViews
 
 
 def split_train_test(ratio=0.5):
-    """ Split dataset into train/test from db table views.instances_with_labels """
+    """ 
+    Split dataset into train/test from db table views.instances_with_labels 
+    
+    :param ratio: ratio for splitting into train/test
+                 e.g. if 0.8, will take 80% as train set and 20% as test set
+    """
 
     io_views = dbReadWriteViews()
 

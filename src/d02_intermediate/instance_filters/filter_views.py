@@ -7,25 +7,6 @@ import psycopg2
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
 
-def get_connection():
-    """
-    Currently this function is unused
-    Establish connection to psql database
-    Requirement: .psql_credentials.json in root directory
-    """
-    filename = os.path.expanduser("~") + "/.psql_credentials.json"
-    with open(filename) as f:
-        conf = json.load(f)
-
-        connection_string = "postgresql://{}:{}@{}/{}".format(
-            conf["user"], conf["psswd"], conf["host"], conf["database"]
-        )
-
-        conn = sqlalchemy.create_engine(connection_string, pool_pre_ping=True)
-
-        return conn
-
-
 def filter_by_views():
     """
     Input: from postgres db schema 'clean', the following tables:
@@ -205,7 +186,7 @@ def filter_by_views():
     # Remove unlabeled instances, save to database
     # df2 = frames_without_conflicts_df
     # labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
-    io_views.save_to_db(labels_by_frame_df, "frames_with_labels")
+    io_views.save_to_db(labels_by_frame_df, "frames_w_labels")
 
     # Group all frames of same instance, drop frame-specific columns
     agg_functions = {"view": "first", "studyidk": "first"}
@@ -219,7 +200,7 @@ def filter_by_views():
         labels_by_inst_df["instanceidk"].isin(inst_fair_game)
     ]
 
-    # io_views.save_to_db(labels_by_inst_df, 'instances_with_labels')
+    # io_views.save_to_db(labels_by_inst_df, 'instances_w_labels')
 
     # Filter out instances from old machines
     new_machines_df = io_views.get_table("machines_new_bmi")
@@ -228,7 +209,7 @@ def filter_by_views():
         labels_by_inst_df["studyidk"].isin(studies_new_machines)
     ]
 
-    # io_views.save_to_db(lab_inst_new_df, 'instances_with_labels')
+    # io_views.save_to_db(lab_inst_new_df, 'instances_w_labels')
 
     # Merge with views.instances_unique_master_list table to get the following columns:
     # sopinstanceuid, instancefilename
@@ -238,4 +219,4 @@ def filter_by_views():
     merge_df["studyidk"] = merge_df["studyidk_x"]
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
 
-    io_views.save_to_db(merge_df, "instances_with_labels")
+    io_views.save_to_db(merge_df, "instances_w_labels")

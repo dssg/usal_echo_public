@@ -19,8 +19,8 @@ def create_unlabeled_instances():
     io_views = dbReadWriteViews()
 
     all_inst_df = io_views.get_table("instances_unique_master_list")
-    label_inst_df = io_views.get_table("instances_with_labels")
-    confl_inst_df = io_views.get_table("instances_with_conflicts")
+    label_inst_df = io_views.get_table("instances_w_labels")
+    confl_inst_df = io_views.get_table("instances_w_conflicts")
 
     # get studies for which labels exist
     studies_w_labels = list(set(label_inst_df["studyidk"].tolist()))
