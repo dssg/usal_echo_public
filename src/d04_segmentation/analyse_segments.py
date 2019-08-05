@@ -6,6 +6,9 @@ import numpy as np
 import pandas as pd
 from d00_utils.dcm_utils import *
 from d00_utils.output_utils import *
+from src.d00_utils.log_utils import *
+
+logger = setup_logging(__name__, "analyse_segments")
 
 
 def get_window(hr, ft):
@@ -94,7 +97,7 @@ def compute_la_lv_volume(
                     eflist.append(ef)
                 lveda_l_list.append(lveda_l)
             except Exception as e:
-                print(e, "la, lv calculation")
+                logger.error(e, "la, lv calculation")
 
             # TODO: what's going on here/is it necessary?
             diasttime = compute_diastole(lv_areas_window, ft)
@@ -293,9 +296,8 @@ def calculate_measurements():
     views_to_indices = get_views_to_indices(model)
     viewprob_lists = get_viewprob_lists(model, dicomdir_basename)
     viewlist_a2c, viewlist_a4c = get_viewlists(viewprob_lists, views_to_indices)
-    # TODO: log info/delete?
-    print(f"Apical 2 Chamber video files: {viewlist_a2c}")
-    print(f"Apical 4 Chamber video files: {viewlist_a4c}")
+    logger.info(f"Apical 2 Chamber video files: {viewlist_a2c}")
+    logger.info(f"Apical 4 Chamber video files: {viewlist_a4c}")
 
     study_measure_dict = {}
     for videofile in viewlist_a4c + viewlist_a2c:
@@ -313,8 +315,7 @@ def calculate_measurements():
 
         study_measure_dict[videofile] = video_measure_dict
 
-    # TODO: log info/delete
-    print(f"Results: {study_measure_dict}")
+    logger.info(f"Results: {study_measure_dict}")
 
     # TODO: aggregate measurements across multiple videos in a study?
     # Exclude measurements from videos where LAVOL/LVEDV < 30% (?)
