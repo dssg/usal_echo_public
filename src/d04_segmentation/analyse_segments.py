@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 import matplotlib as mpl
-from subprocess import Popen, PIPE
 
 mpl.use("Agg")
 
@@ -92,12 +91,12 @@ def extract_area_l_scaled(
     )
 
 
-def computevolume_AL(area, length):
+def compute_volume_AL(area, length):
     volume = 0.85 * area ** 2 / length
     return volume
 
 
-def computediastole(lv_areas_window, ft):
+def compute_diastole(lv_areas_window, ft):
     windowlength = len(lv_areas_window)
     minarea = np.min(lv_areas_window[: int(0.6 * windowlength)])
     maxarea = np.max(lv_areas_window)
@@ -224,10 +223,10 @@ def compute_la_lv_volume(
                     hr,
                 )
 
-                lavol = computevolume_AL(la_a, la_l)
+                lavol = compute_volume_AL(la_a, la_l)
                 # Derived LVEDV and LVESV using the area-length formula.
-                lvedv = computevolume_AL(lveda_a, lveda_l)
-                lvesv = computevolume_AL(lvesa_a, lvesa_l)
+                lvedv = compute_volume_AL(lveda_a, lveda_l)
+                lvesv = compute_volume_AL(lvesa_a, lvesa_l)
                 # Used LVEDV and LVESV to compute an EF for cycle.
                 ef = (lvedv - lvesv) / lvedv
 
@@ -243,7 +242,7 @@ def compute_la_lv_volume(
             except Exception as e:
                 print(e, "la, lv calculation")
 
-            diasttime = computediastole(lv_areas_window, ft)
+            diasttime = compute_diastole(lv_areas_window, ft)
             if diasttime < diastmax and diasttime > diastmin:
                 diastlist.append(diasttime)
 
@@ -270,25 +269,6 @@ def get_window(hr, ft):
     """
     window = int(((60 / hr) / (ft / 1000)))
     return window
-
-
-def extract_metadata(dicomDir, videofile):
-    command = "gdcmdump " + dicomDir + "/" + videofile
-    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
-    text = pipe.communicate()[0]
-    data = text.split("\n")
-    # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
-    a = computedeltaxy_gdcm(data)
-    x_scale, y_scale = (None, None) if a == None else a
-    hr = computehr_gdcm(data)
-    b = computexy_gdcm(data)
-    nrow, ncol = (None, None) if b == None else b
-    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-    ft = computeft_gdcm(data)
-    if hr < 40:
-        print(hr, "problem heart rate")
-        hr = 70
-    return ft, hr, nrow, ncol, x_scale, y_scale
 
 
 def get_views_to_indices(model):
@@ -355,7 +335,9 @@ def calculate_measurements():
     for videofile in viewlist_a4c + viewlist_a2c:
         measuredict[videofile] = {}
 
-        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata(dicomdir, videofile)
+        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurments(
+            dicomdir, videofile
+        )
         window = get_window(hr, ft)
         view = APICAL_4_CHAMBER if videofile in viewlist_a4c else APICAL_2_CHAMBER
 

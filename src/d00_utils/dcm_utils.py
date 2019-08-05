@@ -10,6 +10,7 @@ from scipy.misc import imresize
 import cv2
 import pydicom
 from skimage.color import rgb2gray
+from subprocess import Popen, PIPE
 
 
 def _ybr2gray(y, u, v):
@@ -218,7 +219,26 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         print("Could not return dict for {}".format(filename))
 
 
-def computehr_gdcm(data):
+def extract_metadata_for_measurments(dicomDir, videofile):
+    command = "gdcmdump " + dicomDir + "/" + videofile
+    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
+    text = pipe.communicate()[0]
+    data = text.split("\n")
+    # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
+    a = extract_deltaxy_from_gdcm_str(data)
+    x_scale, y_scale = (None, None) if a == None else a
+    hr = extract_hr_from_gdcm_str(data)
+    b = extract_xy_from_gdcm_str(data)
+    nrow, ncol = (None, None) if b == None else b
+    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
+    ft = extract_ft_from_gdcm_str(data)
+    if hr < 40:
+        print(hr, "problem heart rate")
+        hr = 70
+    return ft, hr, nrow, ncol, x_scale, y_scale
+
+
+def extract_hr_from_gdcm_str(data):
     """
     
     """
@@ -227,11 +247,10 @@ def computehr_gdcm(data):
         i = i.lstrip()
         if i.split(" ")[0] == "(0018,1088)":
             hr = int(i.split("[")[1].split("]")[0])
-            print("heart rate found")
     return hr
 
 
-def computexy_gdcm(data):
+def extract_xy_from_gdcm_str(data):
     """
     
     """
@@ -244,7 +263,7 @@ def computexy_gdcm(data):
     return int(rows), int(cols)
 
 
-def computedeltaxy_gdcm(data):
+def extract_deltaxy_from_gdcm_str(data):
     """
     the unit is the number of cm per pixel 
     
@@ -264,25 +283,25 @@ def computedeltaxy_gdcm(data):
     return np.min(xlist), np.min(ylist)
 
 
-def computeft_gdcm(data):
+def extract_ft_from_gdcm_str(data):
     """
     
     """
     defaultframerate = None
-    counter = 0
+    is_framerate = False
     for i in data:
         if i.split(" ")[0] == "(0018,1063)":
             frametime = i.split(" ")[2][1:-1]
-            counter = 1
+            is_framerate = True
         elif i.split(" ")[0] == "(0018,0040)":
             framerate = i.split("[")[1].split(" ")[0][:-1]
             frametime = str(1000 / float(framerate))
-            counter = 1
+            is_framerate = True
         elif i.split(" ")[0] == "(7fdf,1074)":
             framerate = i.split(" ")[3]
             frametime = str(1000 / float(framerate))
-            counter = 1
-    if not counter == 1:
+            is_framerate = True
+    if not is_framerate:
         print("missing framerate")
         framerate = defaultframerate
         frametime = str(1000 / framerate)
