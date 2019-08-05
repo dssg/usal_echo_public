@@ -12,7 +12,8 @@ from skimage.color import rgb2gray
 from subprocess import Popen, PIPE
 
 from src.d00_utils.log_utils import *
-logger = setup_logging(__name__, 'download_decompress_dcm')
+
+logger = setup_logging(__name__, "download_decompress_dcm")
 
 
 def _ybr2gray(y, u, v):
@@ -28,10 +29,10 @@ def _decompress_dcm(dcm_filepath, dcmraw_filepath):
 
     dcm_dir = os.path.dirname(dcmraw_filepath)
     os.makedirs(dcm_dir, exist_ok=True)
-    
+
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
     subprocess.Popen(command, shell=True)
-    logger.info('{} decompressed'.format(os.path.basename(dcm_filepath)))
+    logger.info("{} decompressed".format(os.path.basename(dcm_filepath)))
 
     return
 
@@ -148,7 +149,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
                 [cv2.IMWRITE_JPEG_QUALITY, 95],
             )
 
-    logger.info('{} 10 random frames extracted'.format(filename))
+    logger.info("{} 10 random frames extracted".format(filename))
 
     return
 
@@ -178,7 +179,7 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 dcmraw_to_10_jpgs(dcm_filepath, img_dir)
             except AttributeError:
-                logger.error('{} could not save images'.format(filename))
+                logger.error("{} could not save images".format(filename))
 
     return
 
@@ -221,7 +222,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         return images, orig_images
 
     except AttributeError:
-        logger.error('{} could not return dict'.format(filename))
+        logger.error("{} could not return dict".format(filename))
 
 
 def extract_metadata_for_measurments(dicomdir, videofile):
@@ -240,6 +241,29 @@ def extract_metadata_for_measurments(dicomdir, videofile):
         print(hr, "problem heart rate")
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
+
+
+def _extract_delta_xy_from_gdcm_str(lines):
+    """
+    the unit is the number of cm per pixel 
+    
+    """
+    xlist = []
+    ylist = []
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == "(0018,602c)":
+            deltax = line.split(" ")[2]
+            deltax = np.abs(float(deltax))
+            if deltax > 0.012:
+                xlist.append(deltax)
+        if tag == "(0018,602e)":
+            deltay = line.split(" ")[2]
+            deltay = np.abs(float(deltay))
+            if deltay > 0.012:
+                ylist.append(deltay)
+    return np.min(xlist), np.min(ylist)
 
 
 def _extract_hr_from_gdcm_str(lines):
@@ -267,29 +291,6 @@ def _extract_xy_from_gdcm_str(lines):
         elif tag == "(0028,0011)":
             cols = line.split(" ")[2]
     return int(rows), int(cols)
-
-
-def _extract_delta_xy_from_gdcm_str(lines):
-    """
-    the unit is the number of cm per pixel 
-    
-    """
-    xlist = []
-    ylist = []
-    for line in lines:
-        line = line.lstrip()
-        tag = line.split(" ")[0]
-        if tag == "(0018,602c)":
-            deltax = line.split(" ")[2]
-            deltax = np.abs(float(deltax))
-            if deltax > 0.012:
-                xlist.append(deltax)
-        if tag == "(0018,602e)":
-            deltay = line.split(" ")[2]
-            deltay = np.abs(float(deltay))
-            if deltay > 0.012:
-                ylist.append(deltay)
-    return np.min(xlist), np.min(ylist)
 
 
 def _extract_ft_from_gdcm_str(lines):
