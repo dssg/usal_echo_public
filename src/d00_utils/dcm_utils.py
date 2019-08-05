@@ -53,7 +53,7 @@ def _dcmraw_to_np(dcmraw_obj):
         nframes = pxl_array.shape[1]
         maxframes = nframes * 3
     elif len(pxl_array.shape) == 3:  # format nframes, nrow, ncol
-        nframes = pxl_array.shape[1]
+        nframes = pxl_array.shape[0]
         maxframes = nframes * 1
 
     nrow = int(dcmraw_obj.Rows)
@@ -73,16 +73,16 @@ def _dcmraw_to_np(dcmraw_obj):
             a = pxl_array[j, k, :, :]
             b = pxl_array[l, m, :, :]
             c = pxl_array[n, o, :, :]
-            d = np.vstack((a, b))
-            e = np.vstack((d, c))
-            g = e.reshape(3 * nrow * ncol, 1)
-            y = g[::3]
-            u = g[1::3]
-            v = g[2::3]
-            y = y.reshape(nrow, ncol)
-            u = u.reshape(nrow, ncol)
-            v = v.reshape(nrow, ncol)
-            ArrayDicom[:, :] = _ybr2gray(y, u, v)
+            # d = np.vstack((a, b))
+            # e = np.vstack((d, c))
+            # g = e.reshape(3 * nrow * ncol, 1)
+            # y = g[::3]
+            # u = g[1::3]
+            # v = g[2::3]
+            # y = y.reshape(nrow, ncol)
+            # u = u.reshape(nrow, ncol)
+            # v = v.reshape(nrow, ncol)
+            ArrayDicom[:, :] = _ybr2gray(a, b, c)
             ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
             counter = counter + 1
             ArrayDicom.clip(0)
