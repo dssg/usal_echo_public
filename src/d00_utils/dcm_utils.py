@@ -62,7 +62,7 @@ def _dcmraw_to_np(dcmraw_obj):
         nframes = pxl_array.shape[1]
         maxframes = nframes * 3
     elif len(pxl_array.shape) == 3:  # format nframes, nrow, ncol
-        nframes = pxl_array.shape[1]
+        nframes = pxl_array.shape[0]
         maxframes = nframes * 1
 
     nrow = int(dcmraw_obj.Rows)
