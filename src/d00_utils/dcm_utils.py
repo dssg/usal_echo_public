@@ -224,7 +224,7 @@ def extract_metadata_for_measurments(dicomdir, videofile):
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     data = text.split("\n")
-    # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
+    # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
     a = _extract_deltaxy_from_gdcm_str(data)
     x_scale, y_scale = (None, None) if a == None else a
     hr = _extract_hr_from_gdcm_str(data)
