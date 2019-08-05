@@ -1,20 +1,13 @@
 # coding: utf-8
 import os
 import time
-
+import pickle
 import numpy as np
 import pandas as pd
-
-import matplotlib as mpl
-
-mpl.use("Agg")
-
-import pickle
+from d00_utils.dcm_utils import *
 
 APICAL_4_CHAMBER = "a4c"
 APICAL_2_CHAMBER = "a2c"
-
-from d00_utils.dcm_utils import *
 
 
 def point_distance(point1, point2):
@@ -135,7 +128,7 @@ def extract_areas(segs):
 
 def remove_periphery(imgs):
     """
-    
+
     """
     imgs_ret = []
     for img in imgs:
@@ -263,9 +256,9 @@ def compute_la_lv_volume(
 def get_window(hr, ft):
     """
     Estimate duration of cardiac cycle with heart rate and frame time.
-    
+
     (seconds/beat) / (seconds/frame) = frames/beat
-    
+
     """
     window = int(((60 / hr) / (ft / 1000)))
     return window
@@ -309,7 +302,7 @@ def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
 
 def calculate_measurements():
     """
-    
+
     We compute chamber dimensions and ejection fraction from segmentations.
     We rely on variation in ventricular area to identify end-systole/diastole.
     We emphasize averaging over many cardiac cycles, within/across video(s).
@@ -317,7 +310,7 @@ def calculate_measurements():
     We selected two percentiles/metric, from multiple cycles within/across videos.
     We selected first percentile based on how humans choose images, avoiding min/max.
     We selected second percentile to minimize auto/manual difference, default median.
-    
+
     """
 
     model = "view_23_e5_class_11-Mar-2018"
