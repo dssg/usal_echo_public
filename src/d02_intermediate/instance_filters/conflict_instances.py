@@ -22,3 +22,5 @@ def find_table_conflicts():
     conflict_inst_df.reset_index(inplace=True)
 
     io_views.save_to_db(conflict_inst_df, "instances_w_conflicts")
+    print("New table created: views.instances_w_conflicts")
+

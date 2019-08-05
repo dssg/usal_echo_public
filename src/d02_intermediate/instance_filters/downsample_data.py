@@ -31,3 +31,5 @@ def downsample_train_test(ratio=0.1):
     io_views.save_to_db(
         df_test_downsampled, "instances_w_labels_test_downsamp{0}".format(inv_ratio)
     )
+    print("Dataset downsampled by a factor of {0}".format(inv_ratio))
+

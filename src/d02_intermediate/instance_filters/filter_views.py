@@ -170,7 +170,6 @@ def filter_by_views():
 
     # Intermediate dataframe saved to db for use by other script
     io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
-
     # Remove unlabeled instances
     df2 = frames_with_views_df
     labeled_df = df2.drop(df2[(df2["view"] == "")].index)
@@ -188,6 +187,7 @@ def filter_by_views():
     # df2 = frames_without_conflicts_df
     # labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
     io_views.save_to_db(labels_by_frame_df, "frames_w_labels")
+    print("New table created: views.frames_w_labels")
 
     # Group all frames of same instance, drop frame-specific columns
     agg_functions = {"view": "first", "studyidk": "first"}
@@ -217,3 +217,5 @@ def filter_by_views():
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
 
     io_views.save_to_db(merge_df, "instances_w_labels")
+    print("New table created: views.instances_w_labels")
+

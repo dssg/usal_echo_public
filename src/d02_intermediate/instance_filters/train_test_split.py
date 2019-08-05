@@ -24,3 +24,8 @@ def split_train_test(ratio=0.5):
 
     io_views.save_to_db(df_train, "instances_w_labels_train")
     io_views.save_to_db(df_test, "instances_w_labels_test")
+
+    perc_trn = int(100*ratio)
+    perc_tst = 100 - perc_train
+    print("Dataset split into {0}% train, {1}% test".format(perc_trn, perc_tst))
+

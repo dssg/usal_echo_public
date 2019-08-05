@@ -56,3 +56,5 @@ def create_master_instance_list():
 
     final_df = merge2_df
     io_views.save_to_db(final_df, "instances_unique_master_list")
+    print("New table created: views.instances_unique_master_list")
+
