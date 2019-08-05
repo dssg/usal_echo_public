@@ -5,9 +5,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from d00_utils.dcm_utils import *
-
-APICAL_4_CHAMBER = "a4c"
-APICAL_2_CHAMBER = "a2c"
+from d00_utils.output_utils import *
 
 
 def point_distance(point1, point2):
@@ -249,7 +247,14 @@ def compute_la_lv_volume(
     lveda_l = np.nan if lveda_l_list == [] else np.nanpercentile(lveda_l_list, 50)
     diasttime = np.nan if diastlist == [] else np.nanpercentile(diastlist, 50)
 
-    return lavol, lvedv, lvesv, ef, diasttime, lveda_l
+    return {
+        "lavol": lavol,
+        "lvedv": lvedv,
+        "lvesv": lvesv,
+        "ef": ef,
+        "diasttime": diasttime,
+        "lveda_l": lveda_l,
+    }
 
 
 def get_window(hr, ft):
@@ -263,42 +268,6 @@ def get_window(hr, ft):
     return window
 
 
-def get_views_to_indices(model):
-    infile = open(f"d03_classification/viewclasses_{model}.txt")
-    views = [i.rstrip() for i in infile.readlines()]
-
-    views_to_indices = {}
-    for i, view in enumerate(views):
-        # Skip two indices for "study" and "image" in probabilities file.
-        views_to_indices[view] = i + 2
-
-    return views_to_indices
-
-
-def get_viewprob_lists(model, dicomdir_basename):
-    viewfile = f"/home/ubuntu/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
-    infile = open(viewfile)
-    viewprob_lists = [i.rstrip().split("\t") for i in infile.readlines()]
-
-    return viewprob_lists
-
-
-def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
-    viewlist_a2c = []
-    viewlist_a4c = []
-
-    # Skip header row
-    for viewprobs in viewprob_lists[1:]:
-        dicomdir = viewprobs[0]
-        filename = viewprobs[1]
-        if float(viewprobs[views_to_indices[APICAL_4_CHAMBER]]) > probthresh:
-            viewlist_a4c.append(filename)
-        elif float(viewprobs[views_to_indices[APICAL_2_CHAMBER]]) > probthresh:
-            viewlist_a2c.append(filename)
-
-    return viewlist_a2c, viewlist_a4c
-
-
 def calculate_measurements():
     """
     Write pickle of dictionary with calculated measurements.
@@ -306,10 +275,10 @@ def calculate_measurements():
     We compute chamber dimensions and ejection fraction from segmentations.
     We rely on variation in ventricular area to identify end-systole/diastole.
     We emphasize averaging over many cardiac cycles, within/across video(s).
-    We used all videos with the unoccluded chambers of interest.
-    We selected two percentiles/metric, from multiple cycles within/across videos.
-    We selected first percentile based on how humans choose images, avoiding min/max.
-    We selected second percentile to minimize auto/manual difference, default median.
+    We use all videos with the unoccluded chambers of interest.
+    We selected two percentiles/measurement, for multiple cycles within/across videos.
+    We selected first percentile based on how humans choose images: avoid min/max.
+    We selected second percentile to minimize auto/manual difference: default median.
 
     """
 
@@ -321,39 +290,38 @@ def calculate_measurements():
     views_to_indices = get_views_to_indices(model)
     viewprob_lists = get_viewprob_lists(model, dicomdir_basename)
     viewlist_a2c, viewlist_a4c = get_viewlists(viewprob_lists, views_to_indices)
+    # TODO: log info/delete?
     print(f"Apical 2 Chamber video files: {viewlist_a2c}")
     print(f"Apical 4 Chamber video files: {viewlist_a4c}")
 
-    measuredict = {}
+    study_measure_dict = {}
     for videofile in viewlist_a4c + viewlist_a2c:
-        measuredict[videofile] = {}
+        study_measure_dict[videofile] = {}
 
         ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurments(
             dicomdir, videofile
         )
         window = get_window(hr, ft)
-        view = APICAL_4_CHAMBER if videofile in viewlist_a4c else APICAL_2_CHAMBER
+        view = "a4c" if videofile in viewlist_a4c else "a2c"
 
-        lavol, lvedv, lvesv, ef, diasttime, lveda_l = compute_la_lv_volume(
+        video_measure_dict = compute_la_lv_volume(
             dicomdir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
         )
 
-        measuredict[videofile]["lavol"] = lavol
-        measuredict[videofile]["lvedv"] = lvedv
-        measuredict[videofile]["lvesv"] = lvesv
-        measuredict[videofile]["ef"] = ef
-        measuredict[videofile]["diasttime"] = diasttime
-        measuredict[videofile]["lveda_l"] = lveda_l
+        study_measure_dict[videofile] = video_measure_dict
 
+    # TODO: log info/delete
     print(f"Results: {measuredict}")
 
-    # TODO: second cutoff (across multiple videos in a study)?
-    # 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
-    # Exclude measurements from videos where LAVOL/LVEDV < 30%
+    # TODO: aggregate measurements across multiple videos in a study?
+    # Exclude measurements from videos where LAVOL/LVEDV < 30% (?)
+    # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
 
     # TODO: write to database
     out = open(
-        "/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.pickel",
+        "/home/ubuntu/data/04_segmentation/"
+        + dicomdir_basename
+        + "_measurements_dict.pickle",
         "wb",
     )
     pickle.dump(measuredict, out)
