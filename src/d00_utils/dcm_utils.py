@@ -231,6 +231,7 @@ def extract_metadata_for_measurments(dicomdir, videofile):
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
     ft = _extract_ft_from_gdcm_str(lines)
     if hr < 40:
+        # TODO: log info
         print(hr, "problem heart rate")
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
@@ -256,11 +257,10 @@ def _extract_xy_from_gdcm_str(lines):
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
-        val = line.split(" ")[2]
         if tag == "(0028,0010)":
-            rows = val
+            rows = line.split(" ")[2]
         elif tag == "(0028,0011)":
-            cols = val
+            cols = line.split(" ")[2]
     return int(rows), int(cols)
 
 
@@ -274,13 +274,14 @@ def _extract_delta_xy_from_gdcm_str(lines):
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
-        val = line.split(" ")[2]
         if tag == "(0018,602c)":
-            deltax = np.abs(float(val))
+            deltax = line.split(" ")[2]
+            deltax = np.abs(float(deltax))
             if deltax > 0.012:
                 xlist.append(deltax)
         if tag == "(0018,602e)":
-            deltay = np.abs(float(val))
+            deltay = line.split(" ")[2]
+            deltay = np.abs(float(deltay))
             if deltay > 0.012:
                 ylist.append(deltay)
     return np.min(xlist), np.min(ylist)
@@ -295,19 +296,21 @@ def _extract_ft_from_gdcm_str(lines):
     for line in lines:
         tag = line.split(" ")[0]
         if tag == "(0018,1063)":
-            frametime = line.split(" ")[2][1:-1]
+            frametime = line.split("[")[1].split("]")[0]
             is_framerate = True
         elif tag == "(0018,0040)":
-            framerate = line.split("[")[1].split(" ")[0][:-1]
-            frametime = str(1000 / float(framerate))
+            framerate = line.split("[")[1].split("]")[0]
+            frametime = 1000 / float(framerate)
             is_framerate = True
         elif tag == "(7fdf,1074)":
+            # TODO: check this
             framerate = line.split(" ")[3]
-            frametime = str(1000 / float(framerate))
+            frametime = 1000 / float(framerate)
             is_framerate = True
     if not is_framerate:
+        # TODO: log info
         print("missing framerate")
         framerate = defaultframerate
-        frametime = str(1000 / framerate)
+        frametime = 1000 / framerate
     ft = float(frametime)
     return ft
