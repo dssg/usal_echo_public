@@ -216,3 +216,75 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
 
     except AttributeError:
         print("Could not return dict for {}".format(filename))
+
+
+def computehr_gdcm(data):
+    """
+    
+    """
+    hr = "None"
+    for i in data:
+        i = i.lstrip()
+        if i.split(" ")[0] == "(0018,1088)":
+            hr = int(i.split("[")[1].split("]")[0])
+            print("heart rate found")
+    return hr
+
+
+def computexy_gdcm(data):
+    """
+    
+    """
+    for i in data:
+        i = i.lstrip()
+        if i.split(" ")[0] == "(0028,0010)":
+            rows = i.split(" ")[2]
+        elif i.split(" ")[0] == "(0028,0011)":
+            cols = i.split(" ")[2]
+    return int(rows), int(cols)
+
+
+def computedeltaxy_gdcm(data):
+    """
+    the unit is the number of cm per pixel 
+    
+    """
+    xlist = []
+    ylist = []
+    for i in data:
+        i = i.lstrip()
+        if i.split(" ")[0] == "(0018,602c)":
+            deltax = i.split(" ")[2]
+            if np.abs(float(deltax)) > 0.012:
+                xlist.append(np.abs(float(deltax)))
+        if i.split(" ")[0] == "(0018,602e)":
+            deltay = i.split(" ")[2]
+            if np.abs(float(deltax)) > 0.012:
+                ylist.append(np.abs(float(deltay)))
+    return np.min(xlist), np.min(ylist)
+
+
+def computeft_gdcm(data):
+    """
+    
+    """
+    defaultframerate = None
+    counter = 0
+    for i in data:
+        if i.split(" ")[0] == "(0018,1063)":
+            frametime = i.split(" ")[2][1:-1]
+            counter = 1
+        elif i.split(" ")[0] == "(0018,0040)":
+            framerate = i.split("[")[1].split(" ")[0][:-1]
+            frametime = str(1000 / float(framerate))
+            counter = 1
+        elif i.split(" ")[0] == "(7fdf,1074)":
+            framerate = i.split(" ")[3]
+            frametime = str(1000 / float(framerate))
+            counter = 1
+    if not counter == 1:
+        print("missing framerate")
+        framerate = defaultframerate
+        frametime = str(1000 / framerate)
+    ft = float(frametime)
+    return ft

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib as mpl
+from subprocess import Popen, PIPE
 
 mpl.use("Agg")
 
@@ -13,6 +14,8 @@ import pickle
 
 APICAL_4_CHAMBER = "a4c"
 APICAL_2_CHAMBER = "a2c"
+
+from d00_utils.dcm_utils import *
 
 
 def point_distance(point1, point2):
@@ -167,7 +170,7 @@ def remove_periphery(imgs):
 def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
-    npydir = "/home/ubuntu/data/d04_segmentation/" + view
+    npydir = "/home/ubuntu/data/04_segmentation/results/" + view
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
 
@@ -269,9 +272,9 @@ def get_window(hr, ft):
     return window
 
 
-def extractmetadata(dicomDir, videofile):
+def extract_metadata(dicomDir, videofile):
     command = "gdcmdump " + dicomDir + "/" + videofile
-    pipe = subprocess.Popen(command, stdout=PIPE, stderr=None, shell=True)
+    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     data = text.split("\n")
     # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
@@ -281,7 +284,7 @@ def extractmetadata(dicomDir, videofile):
     b = computexy_gdcm(data)
     nrow, ncol = (None, None) if b == None else b
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-    ft = computeft_gdcm_strain(data)
+    ft = computeft_gdcm(data)
     if hr < 40:
         print(hr, "problem heart rate")
         hr = 70
@@ -301,7 +304,7 @@ def get_views_to_indices(model):
 
 
 def get_viewprob_lists(model, dicomdir_basename):
-    viewfile = f"/home/ubuntu/data/03_classification/probabilities/{model}_{dicomdir_basename}_probabilities.txt"
+    viewfile = f"/home/ubuntu/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     viewprob_lists = [i.rstrip().split("\t") for i in infile.readlines()]
 
@@ -352,7 +355,7 @@ def main():
     for videofile in viewlist_a4c + viewlist_a2c:
         measuredict[videofile] = {}
 
-        ft, hr, nrow, ncol, x_scale, y_scale = extractmetadata(dicomdir, videofile)
+        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata(dicomdir, videofile)
         window = get_window(hr, ft)
         view = APICAL_4_CHAMBER if videofile in viewlist_a4c else APICAL_2_CHAMBER
 
@@ -367,7 +370,7 @@ def main():
         measuredict[videofile]["diasttime"] = diasttime
         measuredict[videofile]["lveda_l"] = lveda_l
 
-    print(f"Video files: {list(measuredict.items())}")
+    print(f"Results: {measuredict}")
 
     # TODO: second cutoff (across multiple videos in a study)?
     # 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
@@ -375,10 +378,8 @@ def main():
 
     # TODO: write to database
     out = open(
-        "/home/ubuntu/data/04_segmentation/"
-        + dicomdir_basename
-        + "_measurements_dict.txt",
-        "w",
+        "/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict",
+        "wb",
     )
     pickle.dump(measuredict, out)
     out.close()
