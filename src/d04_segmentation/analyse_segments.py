@@ -295,7 +295,7 @@ def get_views_to_indices(model):
     views_to_indices = {}
     for i, view in enumerate(views):
         # Skip two indices for "study" and "image" in probabilities file.
-        viewdict[view] = i + 2
+        views_to_indices[view] = i + 2
 
     return views_to_indices
 
@@ -308,7 +308,7 @@ def get_viewprob_lists(model, dicomdir_basename):
     return viewprob_lists
 
 
-def get_viewlists(viewprob_lists, viewdict, probthresh=0.5):
+def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
     viewlist_a2c = []
     viewlist_a4c = []
 
@@ -316,9 +316,9 @@ def get_viewlists(viewprob_lists, viewdict, probthresh=0.5):
     for viewprobs in viewprob_lists[1:]:
         dicomdir = viewprobs[0]
         filename = viewprobs[1]
-        if float(viewprobs[viewdict[APICAL_4_CHAMBER]]) > probthresh:
+        if float(viewprobs[views_to_indices[APICAL_4_CHAMBER]]) > probthresh:
             viewlist_a4c.append(filename)
-        elif float(viewprobs[viewdict[APICAL_2_CHAMBER]]) > probthresh:
+        elif float(viewprobs[views_to_indices[APICAL_2_CHAMBER]]) > probthresh:
             viewlist_a2c.append(filename)
 
     return viewlist_a2c, viewlist_a4c
