@@ -223,82 +223,86 @@ def extract_metadata_for_measurments(dicomdir, videofile):
     command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
-    data = text.split("\n")
+    lines = text.split("\n")
     # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
-    a = _extract_deltaxy_from_gdcm_str(data)
-    x_scale, y_scale = (None, None) if a == None else a
-    hr = _extract_hr_from_gdcm_str(data)
-    b = extract_xy_from_gdcm_str(data)
-    nrow, ncol = (None, None) if b == None else b
+    x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines) or (None, None)
+    hr = _extract_hr_from_gdcm_str(lines)
+    nrow, ncol = _extract_xy_from_gdcm_str(lines) or (None, None)
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-    ft = _extract_ft_from_gdcm_str(data)
+    ft = _extract_ft_from_gdcm_str(lines)
     if hr < 40:
         print(hr, "problem heart rate")
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
 
 
-def _extract_hr_from_gdcm_str(data):
+def _extract_hr_from_gdcm_str(lines):
     """
     
     """
     hr = "None"
-    for i in data:
-        i = i.lstrip()
-        if i.split(" ")[0] == "(0018,1088)":
-            hr = int(i.split("[")[1].split("]")[0])
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == "(0018,1088)":
+            hr = int(line.split("[")[1].split("]")[0])
     return hr
 
 
-def extract_xy_from_gdcm_str(data):
+def _extract_xy_from_gdcm_str(lines):
     """
     
     """
-    for i in data:
-        i = i.lstrip()
-        if i.split(" ")[0] == "(0028,0010)":
-            rows = i.split(" ")[2]
-        elif i.split(" ")[0] == "(0028,0011)":
-            cols = i.split(" ")[2]
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        val = line.split(" ")[2]
+        if tag == "(0028,0010)":
+            rows = val
+        elif tag == "(0028,0011)":
+            cols = val
     return int(rows), int(cols)
 
 
-def _extract_deltaxy_from_gdcm_str(data):
+def _extract_delta_xy_from_gdcm_str(lines):
     """
     the unit is the number of cm per pixel 
     
     """
     xlist = []
     ylist = []
-    for i in data:
-        i = i.lstrip()
-        if i.split(" ")[0] == "(0018,602c)":
-            deltax = i.split(" ")[2]
-            if np.abs(float(deltax)) > 0.012:
-                xlist.append(np.abs(float(deltax)))
-        if i.split(" ")[0] == "(0018,602e)":
-            deltay = i.split(" ")[2]
-            if np.abs(float(deltax)) > 0.012:
-                ylist.append(np.abs(float(deltay)))
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        val = line.split(" ")[2]
+        if tag == "(0018,602c)":
+            deltax = np.abs(float(val))
+            if deltax > 0.012:
+                xlist.append(deltax)
+        if tag == "(0018,602e)":
+            deltay = np.abs(float(val))
+            if deltay > 0.012:
+                ylist.append(deltay)
     return np.min(xlist), np.min(ylist)
 
 
-def _extract_ft_from_gdcm_str(data):
+def _extract_ft_from_gdcm_str(lines):
     """
     
     """
-    defaultframerate = None
+    default_framerate = 30
     is_framerate = False
-    for i in data:
-        if i.split(" ")[0] == "(0018,1063)":
-            frametime = i.split(" ")[2][1:-1]
+    for line in lines:
+        tag = line.split(" ")[0]
+        if tag == "(0018,1063)":
+            frametime = line.split(" ")[2][1:-1]
             is_framerate = True
-        elif i.split(" ")[0] == "(0018,0040)":
-            framerate = i.split("[")[1].split(" ")[0][:-1]
+        elif tag == "(0018,0040)":
+            framerate = line.split("[")[1].split(" ")[0][:-1]
             frametime = str(1000 / float(framerate))
             is_framerate = True
-        elif i.split(" ")[0] == "(7fdf,1074)":
-            framerate = i.split(" ")[3]
+        elif tag == "(7fdf,1074)":
+            framerate = line.split(" ")[3]
             frametime = str(1000 / float(framerate))
             is_framerate = True
     if not is_framerate:
