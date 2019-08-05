@@ -1,9 +1,3 @@
-import pandas
-import os
-import sys
-import json
-import psycopg2
-
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
 def define_measurement_names():
@@ -52,10 +46,8 @@ def define_measurement_names():
         "Vol. AI (MOD-sp2)",
     ]
     meas_dict["ALL_VIEWS"] = (
-        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + MEASUREMENTS_APICAL_4_CHAMBER_VIEW
-        + MEASUREMENTS_APICAL_2_CHAMBER_VIEW
+        meas_dict["PLAX"] + meas_dict["POTENTIAL_PLAX"] + \
+        meas_dict["A4C"] + meas_dict["A2C"]
     )
 
     meas_dict["END_DIASTOLIC"] = [

@@ -1,6 +1,3 @@
-import pandas
-import sys
-
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
 """

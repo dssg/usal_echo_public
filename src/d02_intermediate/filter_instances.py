@@ -49,15 +49,16 @@ def run_all():
 	conflict_instances.find_table_conflicts()
 
 	'''
-	Creates views.instances_labeled_other: all instances which are fair game for classifying as 
+	Creates views.instances_unlabeled: all instances which are fair game for classifying as 
     others, i.e. instances which are from studies that contain labels + no conflicts. 
     The true views of these instances are not known; we only know that they haven't been 
     explicitly labeled plax, a4c, a2c
 	'''
 	unlabeled_instances.create_unlabeled_instances()
 
-
-	'''
+    ##########################################################################
+	##TO DO, WIEBKE: integrate below scripts further down pipe, delete here
+    '''
 	Creates views.instances_w_labels_{train/test} from views.instances_with_labels 
     based on a hard-coded split ratio
     
