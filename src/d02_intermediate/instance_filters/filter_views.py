@@ -211,3 +211,4 @@ def filter_by_views():
     io_views.save_to_db(merge_df, "instances_w_labels")
     print("New table created: views.instances_w_labels")
 
+    ## TO DO: add code from nb for filtering by dicom metadata values
