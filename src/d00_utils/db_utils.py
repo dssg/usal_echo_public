@@ -175,3 +175,13 @@ class dbReadWriteViews(dbReadWriteData):
         super().__init__(schema="views")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+
+class dbReadWriteSegmentation(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'segmentation' schema
+    """
+
+    def __init__(self):
+        super().__init__(schema="segmentation")
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
