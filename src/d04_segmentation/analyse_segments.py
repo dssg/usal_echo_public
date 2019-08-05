@@ -37,11 +37,10 @@ def extract_area_l_scaled(
     lv_areas,
     x_scale,
     y_scale,
-    nrow,
-    ncol,
+    rows,
+    cols,
     hr,
 ):
-    rows, cols = nrow, ncol
     # left atrium analysis
     la_seg = la_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
     lv_seg = lv_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
@@ -353,7 +352,7 @@ def calculate_measurements():
 
     # TODO: write to database
     out = open(
-        "/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict",
+        "/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.pickel",
         "wb",
     )
     pickle.dump(measuredict, out)
