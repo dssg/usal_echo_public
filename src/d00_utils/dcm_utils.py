@@ -219,26 +219,26 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         print("Could not return dict for {}".format(filename))
 
 
-def extract_metadata_for_measurments(dicomDir, videofile):
-    command = "gdcmdump " + dicomDir + "/" + videofile
+def extract_metadata_for_measurments(dicomdir, videofile):
+    command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     data = text.split("\n")
     # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
-    a = extract_deltaxy_from_gdcm_str(data)
+    a = _extract_deltaxy_from_gdcm_str(data)
     x_scale, y_scale = (None, None) if a == None else a
-    hr = extract_hr_from_gdcm_str(data)
+    hr = _extract_hr_from_gdcm_str(data)
     b = extract_xy_from_gdcm_str(data)
     nrow, ncol = (None, None) if b == None else b
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-    ft = extract_ft_from_gdcm_str(data)
+    ft = _extract_ft_from_gdcm_str(data)
     if hr < 40:
         print(hr, "problem heart rate")
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
 
 
-def extract_hr_from_gdcm_str(data):
+def _extract_hr_from_gdcm_str(data):
     """
     
     """
@@ -263,7 +263,7 @@ def extract_xy_from_gdcm_str(data):
     return int(rows), int(cols)
 
 
-def extract_deltaxy_from_gdcm_str(data):
+def _extract_deltaxy_from_gdcm_str(data):
     """
     the unit is the number of cm per pixel 
     
@@ -283,7 +283,7 @@ def extract_deltaxy_from_gdcm_str(data):
     return np.min(xlist), np.min(ylist)
 
 
-def extract_ft_from_gdcm_str(data):
+def _extract_ft_from_gdcm_str(data):
     """
     
     """
