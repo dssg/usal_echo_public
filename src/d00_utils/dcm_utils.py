@@ -95,7 +95,8 @@ def _dcmraw_to_np(dcmraw_obj):
             y = y.reshape(nrow, ncol)
             u = u.reshape(nrow, ncol)
             v = v.reshape(nrow, ncol)
-            ArrayDicom[:, :] = _ybr2gray(y, u, v)
+            #ArrayDicom[:, :] = _ybr2gray(y, u, v)
+            ArrayDicom[:, :] = _ybr2gray(a, b, c)
             ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
             counter = counter + 1
             ArrayDicom.clip(0)
