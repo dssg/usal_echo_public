@@ -308,8 +308,11 @@ def main():
         measuredict[videofile]["ef"] = ef
         measuredict[videofile]["diasttime"] = diasttime
         measuredict[videofile]["lveda_l"] = lveda_l
+    
     lvlength = np.median(lvlengthlist)
     print(list(measuredict.items()))
+    
+    # TODO: write to database
     out = open("/home/ubuntu/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.txt", "w")
     pickle.dump(measuredict, out)
     out.close()
