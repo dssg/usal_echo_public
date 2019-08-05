@@ -117,6 +117,7 @@ def segmentChamber(videofile, dicomdir, view):
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     framedict = create_imgdict_from_dicom(dicomdir, videofile)
+    print(framedict[0].sum())
     images, orig_images = extract_images(framedict)
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
