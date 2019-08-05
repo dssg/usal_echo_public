@@ -12,7 +12,7 @@ from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
 
 from d00_utils.echocv_utils_v0 import *
-from d00_utils.dcm_utils import create_imgdict_from_dicom, extract_images
+from d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from d04_segmentation.model_unet import Unet
 
 
@@ -113,8 +113,7 @@ def segmentChamber(videofile, dicomdir, view):
     outpath = "./segment/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
-    framedict = create_imgdict_from_dicom(dicomdir, videofile)
-    images, orig_images = extract_images(framedict)
+    images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1
@@ -296,11 +295,7 @@ def main():
     tempdir = os.path.join(dicomdir, "image")
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
-    print(
-        "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
-    )
-    # if os.path.exists(tempdir):
-    #    shutil.rmtree(tempdir)
+    print("time:  " + str(end - start) + " seconds for " +  str(len(viewlist))  + " videos")
 
 
 if __name__ == "__main__":
