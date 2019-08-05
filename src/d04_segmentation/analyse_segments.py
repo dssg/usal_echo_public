@@ -32,23 +32,6 @@ def L(seg, x, y, x_la, y_la):
     return l
 
 
-def smooth_fft(displist, cutoff):
-    x = np.arange(len(displist))
-    N = len(displist)
-    y = np.array(displist)
-
-    w = fft.rfft(y)
-    f = fft.rfftfreq(N, x[1] - x[0])
-    spectrum = w ** 2
-
-    cutoff_idx = spectrum < (spectrum.max() / cutoff)
-    w2 = w.copy()
-    w2[cutoff_idx] = 0
-
-    y2 = fft.irfft(w2)
-    return x, y2
-
-
 def extract_areas(segs):
     areas = []
     for seg in segs:
@@ -133,6 +116,7 @@ def computediastole(lv_areas_window, ft):
 def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
+    # Change "./segment" to "/home/ubuntu/data/d04_segmentation/"
     npydir = "./segment/" + view
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     la_segs = remove_periphery(la_segs)
@@ -239,17 +223,13 @@ def extractmetadata(dicomDir, videofile):
     pipe = subprocess.Popen(command, stdout=PIPE, stderr=None, shell=True)
     text = pipe.communicate()[0]
     data = text.split("\n")
+    # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
     a = computedeltaxy_gdcm(data)
-    if not a == None:
-        x_scale, y_scale = a
-    else:
-        x_scale, y_scale = None, None
+    x_scale, y_scale = (None, None) if a == None else a
     hr = computehr_gdcm(data)
     b = computexy_gdcm(data)
-    if not b == None:
-        nrow, ncol = b
-    else:
-        nrow, ncol = None, None
+    nrow, ncol = (None, None) if b == None else b
+    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
     ft = computeft_gdcm_strain(data)
     if hr < 40:
         print(hr, "problem heart rate")
@@ -298,31 +278,30 @@ def get_viewlists(infile, viewdict):
 def main():
     model = "view_23_e5_class_11-Mar-2018"
     dicomdir = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
+    
     dicomdir_basename = os.path.basename(dicomdir)
     viewdict = get_viewdict(model)
     viewprobs = get_viewprobs(model, dicomdir_basename)
     viewlist_a2c, viewlist_a4c = get_viewlists(viewprobs, viewdict)
 
-    
     measuredict = {}
     lvlengthlist = []
     
     for videofile in viewlist_a4c + viewlist_a2c:
-        if videofile in viewlist_a4c:
-            view = "a4c"
-        elif videofile in viewlist_a2c:
-            view = "a2c"
+        view = "a4c" if videofile in viewlist_a4c else "a2c"
+
         measuredict[videofile] = {}
-        # Note: for *_scale, min([frame.delta for frame in frames if |delta| > 0.012])
-        # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-        # Note: if heart_rate < 40, problem, sets heart_rate to 70
         ft, hr, nrow, ncol, x_scale, y_scale = extractmetadata(dicomdir, videofile)
-        # window = frames/beat = (seconds/beat) / (seconds/frame)
+        
+        # Estimate duration of cardiac cycle
+        # (seconds/beat) / (seconds/frame) = frames/beat
         window = int(((60 / hr) / (ft / 1000)))
+        
         lavol, lvedv, lvesv, ef, diasttime, lveda_l = compute_la_lv_volume(
             dicomdir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
         )
         lvlengthlist.append(lveda_l)
+        
         measuredict[videofile]["lavol"] = lavol
         measuredict[videofile]["lvedv"] = lvedv
         measuredict[videofile]["lvesv"] = lvesv
