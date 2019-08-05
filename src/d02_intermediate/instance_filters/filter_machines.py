@@ -1,5 +1,3 @@
-import pandas
-
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
 """
@@ -38,3 +36,5 @@ def filter_by_machine_type():
     machines_to_keep = ["ECOEPIQ2", "EPIQ7-1", "ECOIE33", "AFFINITI_1", "AFFINITI_2"]
     machine_new_df = machine_df[machine_df["equipment"].isin(machines_to_keep)]
     io_views.save_to_db(machine_new_df, "machines_new_bmi")
+    print("New tables created: views.machines_all_bmi and views.machines_new_bmi")
+
