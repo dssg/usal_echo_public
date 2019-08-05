@@ -237,8 +237,7 @@ def extract_metadata_for_measurments(dicomdir, videofile):
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
     ft = _extract_ft_from_gdcm_str(lines)
     if hr < 40:
-        # TODO: log info
-        print(hr, "problem heart rate")
+        logger.debug(f"problem heart rate: {hr}")
         hr = 70
     return ft, hr, nrow, ncol, x_scale, y_scale
 
@@ -309,13 +308,12 @@ def _extract_ft_from_gdcm_str(lines):
             frametime = 1000 / float(framerate)
             is_framerate = True
         elif tag == "(7fdf,1074)":
-            # TODO: check this
+            # Is this right?
             framerate = line.split(" ")[3]
             frametime = 1000 / float(framerate)
             is_framerate = True
     if not is_framerate:
-        # TODO: log info
-        print("missing framerate")
+        logger.debug("missing framerate")
         framerate = defaultframerate
         frametime = 1000 / framerate
     ft = float(frametime)
