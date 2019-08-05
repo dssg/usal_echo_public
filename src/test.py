@@ -1,3 +1,7 @@
+'''
+Function for prototyping individual scripts
+'''
+
 from d00_utils import db_utils, s3_utils
 from d01_data import ingestion_dcm, ingestion_xtdb#, master_list
 from d02_intermediate import clean_dcm, clean_xtdb
