@@ -26,6 +26,7 @@ def compute_la_lv_volume(
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
 
+    # TODO: check why these functions are called
     la_segs = remove_periphery(la_segs)
     lv_segs = remove_periphery(lv_segs)
 
@@ -35,25 +36,25 @@ def compute_la_lv_volume(
     la_areas = apply_rolling_window(la_areas)
     lv_areas = apply_rolling_window(lv_areas)
 
-    efmax, efmin = 0.8, 0.1
-    lvesvmax = 600
-    lvedvmin, lvedvmax = 20, 600
     lavolmin, lavolmax = 10, 300
+    lvedvmin, lvedvmax = 20, 600
+    lvesvmax = 600
+    efmax, efmin = 0.8, 0.1
     diastmin, diastmax = 100, 400
 
-    eflist = []
-    lvesvlist = []
-    lvedvlist = []
     lavollist = []
+    lvedvlist = []
+    lvesvlist = []
+    eflist = []
     lveda_l_list = []
     diastlist = []
 
     # Sliding window with step size of half a cardiac cycle for multiple measurements.
-    for i in range(0, len(la_areas), int(window / 2)):
-        start = i
+    for start in range(0, len(la_areas), int(window / 2)):
         # Window length of 90% of cardiac cycle to avoid end-systole/diastole twice.
-        end = np.min((i + int(0.9 * window), len(la_areas)))
+        end = np.min((start + int(0.9 * window), len(la_areas)))
 
+        # TODO: why 0.8?
         if (end - start) > int(0.8 * window):
             la_segs_window = la_segs[start:end]
             lv_segs_window = lv_segs[start:end]
@@ -83,18 +84,19 @@ def compute_la_lv_volume(
                 # Used LVEDV and LVESV to compute an EF for cycle.
                 ef = (lvedv - lvesv) / lvedv
 
-                if ef > efmin and ef < efmax:
-                    eflist.append(ef)
-                if lvesv < lvesvmax:
-                    lvesvlist.append(lvesv)
-                if lvedv < lvedvmax and lvedv > lvedvmin:
-                    lvedvlist.append(lvedv)
                 if lavol < lavolmax and lavol > lavolmin:
                     lavollist.append(lavol)
+                if lvedv < lvedvmax and lvedv > lvedvmin:
+                    lvedvlist.append(lvedv)
+                if lvesv < lvesvmax:
+                    lvesvlist.append(lvesv)
+                if ef > efmin and ef < efmax:
+                    eflist.append(ef)
                 lveda_l_list.append(lveda_l)
             except Exception as e:
                 print(e, "la, lv calculation")
 
+            # TODO: what's going on here/is it necessary?
             diasttime = compute_diastole(lv_areas_window, ft)
             if diasttime < diastmax and diasttime > diastmin:
                 diastlist.append(diasttime)
@@ -102,11 +104,10 @@ def compute_la_lv_volume(
     # First percentile cutoff, for multiple measurements within one video.
     # TODO: 25% percentile values for LAVOL?
     lavol = np.nan if lavollist == [] else np.nanpercentile(lavollist, 75)
+    lvedv = np.nan if lvedvlist == [] else np.nanpercentile(lvedvlist, 90)
+    lvesv = np.nan if lvesvlist == [] else np.nanpercentile(lvesvlist, 50)
     # TODO: 50% percentile values for EF?
     ef = np.nan if eflist == [] else np.nanpercentile(eflist, 90)
-    lvedv = np.nan if lvedvlist == [] else np.nanpercentile(lvedvlist, 90)
-
-    lvesv = np.nan if lvesvlist == [] else np.nanpercentile(lvesvlist, 50)
     lveda_l = np.nan if lveda_l_list == [] else np.nanpercentile(lveda_l_list, 50)
     diasttime = np.nan if diastlist == [] else np.nanpercentile(diastlist, 50)
 
@@ -115,8 +116,8 @@ def compute_la_lv_volume(
         "lvedv": lvedv,
         "lvesv": lvesv,
         "ef": ef,
-        "diasttime": diasttime,
         "lveda_l": lveda_l,
+        "diasttime": diasttime
     }
 
 
@@ -187,16 +188,18 @@ def extract_area_l_scaled(
     hr,
 ):
     # left atrium analysis
+    # TODO: why 0.80?
     la_seg = la_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
     lv_seg = lv_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
     seg = lv_seg
     seg = imresize(seg.copy(), (rows, cols), interp="nearest")
     la_seg = imresize(la_seg.copy(), (rows, cols), interp="nearest")
     x, y = np.where(seg > 0)
-    x_la, y_la = np.where(la_seg > 0)
-    l_la = L(la_seg, x, y, x_la, y_la)
+    x_la, _ = np.where(la_seg > 0)
+    l_la = L(x, y, x_la)
 
     # Within window, 90% and 10% of areas as LV end-diastolic/systolic areas.
+    # Why 0.9 and 0.1 in this way?
     lveda_seg = lv_segs[np.argsort(lv_areas)[int(0.90 * len(lv_segs))]]
     lvesa_seg = lv_segs[np.argsort(lv_areas)[int(0.10 * len(lv_segs))]]
     la_seg = la_segs[np.argsort(la_areas)[int(0.90 * len(lv_segs))]]
@@ -206,16 +209,16 @@ def extract_area_l_scaled(
     seg = imresize(seg.copy(), (rows, cols), interp="nearest")
     lveda_seg = imresize(lveda_seg.copy(), (rows, cols), interp="nearest")
     x, y = np.where(seg > 0)
-    x_lveda, y_lveda = np.where(lveda_seg > 0)
-    l_lveda = L(lveda_seg, x, y, x_lveda, y_lveda)
+    x_lveda, _ = np.where(lveda_seg > 0)
+    l_lveda = L(x, y, x_lveda)
 
     # left ventricular systolic volume analysis
     seg = la_seg.copy()
     seg = imresize(seg.copy(), (rows, cols), interp="nearest")
     lvesa_seg = imresize(lvesa_seg.copy(), (rows, cols), interp="nearest")
     x, y = np.where(seg > 0)
-    x_lvesa, y_lvesa = np.where(lvesa_seg > 0)
-    l_lvesa = L(lvesa_seg, x, y, x_lvesa, y_lvesa)
+    x_lvesa, _ = np.where(lvesa_seg > 0)
+    l_lvesa = L(x, y, x_lvesa)
 
     return (
         len(x_la) * x_scale ** 2,
@@ -228,7 +231,7 @@ def extract_area_l_scaled(
     )
 
 
-def L(seg, x, y, x_la, y_la):
+def L(x, y, x_la):
     fit = np.polyfit(x, y, 1)
     fit_fn = np.poly1d(fit)
     line_points = fit_fn(x_la)
@@ -311,7 +314,7 @@ def calculate_measurements():
         study_measure_dict[videofile] = video_measure_dict
 
     # TODO: log info/delete
-    print(f"Results: {measuredict}")
+    print(f"Results: {study_measure_dict}")
 
     # TODO: aggregate measurements across multiple videos in a study?
     # Exclude measurements from videos where LAVOL/LVEDV < 30% (?)
@@ -324,7 +327,7 @@ def calculate_measurements():
         + "_measurements_dict.pickle",
         "wb",
     )
-    pickle.dump(measuredict, out)
+    pickle.dump(study_measure_dict, out)
     out.close()
 
 
