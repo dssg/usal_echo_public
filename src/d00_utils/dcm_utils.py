@@ -3,13 +3,15 @@
 import random
 import os
 import subprocess
-import logging
 
 import numpy as np
 from scipy.misc import imresize
 import cv2
 import pydicom
 from skimage.color import rgb2gray
+
+from src.d00_utils.log_utils import *
+logger = setup_logging(__name__, 'download_decompress_dcm')
 
 
 def _ybr2gray(y, u, v):
@@ -23,9 +25,12 @@ def _ybr2gray(y, u, v):
 
 def _decompress_dcm(dcm_filepath, dcmraw_filepath):
 
+    dcm_dir = os.path.dirname(dcmraw_filepath)
+    os.makedirs(dcm_dir, exist_ok=True)
+    
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
     subprocess.Popen(command, shell=True)
-    print('decompressed', dcm_filepath)  # log this
+    logger.info('{} decompressed'.format(os.path.basename(dcm_filepath)))
 
     return
 
@@ -36,7 +41,7 @@ def _read_dcmraw(dcmraw_filepath):
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
         return ds
     else:
-        print("{} is a single frame".format(dcmraw_filepath))  # log as exception
+        logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
 
 
 def _dcmraw_to_np(dcmraw_obj):
@@ -142,7 +147,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
                 [cv2.IMWRITE_JPEG_QUALITY, 95],
             )
 
-    print('10 random frames extracted for {}'.format(filename))
+    logger.info('{} 10 random frames extracted'.format(filename))
 
     return
 
@@ -172,7 +177,7 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 dcmraw_to_10_jpgs(dcm_filepath, img_dir)
             except AttributeError:
-                print('Could not save images for {}'.format(filename))
+                logger.error('{} could not save images'.format(filename))
 
     return
 
@@ -215,4 +220,4 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         return images, orig_images
 
     except AttributeError:
-        print('Could not return dict for {}'.format(filename))
+        logger.error('{} could not return dict'.format(filename))
