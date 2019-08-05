@@ -6,6 +6,86 @@ import psycopg2
 
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
+def define_measurement_names():
+    
+    ''' Return dict of lists of measurements which define views'''
+
+    meas_dict = {}
+
+    meas_dict["PLAX"] = [
+        "Diám raíz Ao",
+        "Diám. Ao asc.",
+        "Diám TSVI",
+        "Dimensión AI",
+    ]
+    # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
+    #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
+    # Note: Removed 'Diam TSVD' as a measurement which would classify
+    # a view as PLAX as Antonio is unsure of this, 2019_09_07
+    # This change disqualifies 650 frames from being considered PLAX
+    meas_dict["POTENTIAL_PLAX"] = [
+        "DVItd",
+        "DVIts",
+        "SIVtd",
+        "PPVItd",
+    ]
+    meas_dict["A4C"] = [
+        "AVItd ap4",
+        "VTD(el-ps4)",
+        "VTD(MDD-ps4)",
+        "VTD 4C",
+        "AVIts ap4",
+        "VTS(el-ps4)",
+        "VTS(MDD-ps4)",
+        "VTS 4C",
+        "Vol. AI (MOD-sp4)",
+    ]
+    meas_dict["A2C"] = [
+        "AVItd ap2",
+        "VTD(el-ps2)",
+        "VTD(MDD-ps2)",
+        "VTD 2C",
+        "AVIts ap2",
+        "VTS(el-ps2)",
+        "VTS(MDD-ps2)",
+        "VTS 2C",
+        "Vol. AI (MOD-sp2)",
+    ]
+    meas_dict["ALL_VIEWS"] = (
+        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
+        + POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
+        + MEASUREMENTS_APICAL_4_CHAMBER_VIEW
+        + MEASUREMENTS_APICAL_2_CHAMBER_VIEW
+    )
+
+    meas_dict["END_DIASTOLIC"] = [
+        "DVItd",
+        "SIVtd",
+        "PPVItd",
+        "AVItd ap4",
+        "VTD(el-ps4)",
+        "VTD(MDD-ps4)",
+        "VTD 4C",
+        "AVItd ap2",
+        "VTD(el-ps2)",
+        "VTD(MDD-ps2)",
+        "VTD 2C",
+    ]
+    meas_dict["END_SYSTOLIC"] = [
+        "DVIts",
+        "AVIts ap4",
+        "VTS(el-ps4)",
+        "VTS(MDD-ps4)",
+        "VTS 4C",
+        "AVIts ap2",
+        "VTS(el-ps2)",
+        "VTS(MDD-ps2)",
+        "VTS 2C",
+    ]
+
+    return meas_dict
+
+
 
 def filter_by_views():
     """
@@ -46,92 +126,18 @@ def filter_by_views():
         measurement_abstract_rpt_df, on=["studyidk", "measabstractnumber"]
     )
 
-    # Define measurement names
-    MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = [
-        "Diám raíz Ao",
-        "Diám. Ao asc.",
-        "Diám TSVI",
-        "Dimensión AI",
-    ]
-    # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
-    #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
-    # Note: Removed 'Diam TSVD' as a measurement which would classify
-    # a view as PLAX as Antonio is unsure of this, 2019_09_07
-    # This change disqualifies 650 frames from being considered PLAX
-    POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = [
-        "DVItd",
-        "DVIts",
-        "SIVtd",
-        "PPVItd",
-    ]
-    MEASUREMENTS_APICAL_4_CHAMBER_VIEW = [
-        "AVItd ap4",
-        "VTD(el-ps4)",
-        "VTD(MDD-ps4)",
-        "VTD 4C",
-        "AVIts ap4",
-        "VTS(el-ps4)",
-        "VTS(MDD-ps4)",
-        "VTS 4C",
-        "Vol. AI (MOD-sp4)",
-    ]
-    MEASUREMENTS_APICAL_2_CHAMBER_VIEW = [
-        "AVItd ap2",
-        "VTD(el-ps2)",
-        "VTD(MDD-ps2)",
-        "VTD 2C",
-        "AVIts ap2",
-        "VTS(el-ps2)",
-        "VTS(MDD-ps2)",
-        "VTS 2C",
-        "Vol. AI (MOD-sp2)",
-    ]
-    ALL_MEASUREMENTS = (
-        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + MEASUREMENTS_APICAL_4_CHAMBER_VIEW
-        + MEASUREMENTS_APICAL_2_CHAMBER_VIEW
-    )
-
-    MEASUREMENTS_END_DIASTOLIC = [
-        "DVItd",
-        "SIVtd",
-        "PPVItd",
-        "AVItd ap4",
-        "VTD(el-ps4)",
-        "VTD(MDD-ps4)",
-        "VTD 4C",
-        "AVItd ap2",
-        "VTD(el-ps2)",
-        "VTD(MDD-ps2)",
-        "VTD 2C",
-    ]
-    MEASUREMENTS_END_SYSTOLIC = [
-        "DVIts",
-        "AVIts ap4",
-        "VTS(el-ps4)",
-        "VTS(MDD-ps4)",
-        "VTS 4C",
-        "AVIts ap2",
-        "VTS(el-ps2)",
-        "VTS(MDD-ps2)",
-        "VTS 2C",
-    ]
+    meas = define_measurement_names()
 
     # df containing all frames for which we have measurements
-    filter_df = merge_df  # [merge_df.name.isin(ALL_MEASUREMENTS)].copy()
+    filter_df = merge_df  # [merge_df.name.isin(meas["ALL_VIEWS"])].copy()
 
-    filter_df["is_end_diastolic"] = filter_df["name"].isin(MEASUREMENTS_END_DIASTOLIC)
-    filter_df["is_end_systolic"] = filter_df["name"].isin(MEASUREMENTS_END_SYSTOLIC)
+    filter_df["is_end_diastolic"] = filter_df["name"].isin(meas["END_DIASTOLIC"])
+    filter_df["is_end_systolic"] = filter_df["name"].isin(meas["END_SYSTOLIC"])
 
-    filter_df["is_plax"] = filter_df["name"].isin(
-        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-    )
-    filter_df["maybe_plax"] = filter_df["name"].isin(
-        POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-    )
-    filter_df["is_a4c"] = filter_df["name"].isin(MEASUREMENTS_APICAL_4_CHAMBER_VIEW)
-    filter_df["is_a2c"] = filter_df["name"].isin(MEASUREMENTS_APICAL_2_CHAMBER_VIEW)
+    filter_df["is_plax"] = filter_df["name"].isin(meas["PLAX"])
+    filter_df["maybe_plax"] = filter_df["name"].isin(meas["POTENTIAL_PLAX"])
+    filter_df["is_a4c"] = filter_df["name"].isin(meas["A4C"])
+    filter_df["is_a2c"] = filter_df["name"].isin(meas["A2C"])
 
     filter_df["view"] = ""
     filter_df.loc[filter_df["is_plax"] == True, "view"] = "plax"
