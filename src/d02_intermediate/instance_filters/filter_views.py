@@ -89,17 +89,13 @@ def define_measurement_names():
 
 def filter_by_views():
     """
-    Input: from postgres db schema 'clean', the following tables:
-        measurement_abstract_rpt, measgraphref, measgraphic
-    Joins tables and filters out only frames that have view labels
-
-    Output: to postgres db schema 'views', the table 'frames_sorted_by_views'
-    Outputs to db schema 'frames_sorted_by_views table with the following attributes:
-        is_end_diastolic
-        is_end_systolic
-        view
-        is_multiview
-
+    Creates many tables:
+        views.frames_w_labels: all frames with labels plax, a4c, a2c
+        views.instances_w_labels: all instances which are labeled plax, a4c, a2c
+            Assumption: if a frame has a view label, other frames within that instance correspond 
+                        to the same view. This discludes instances which has >1 frames with 
+                        conflicting labels
+        views.frames_sorted_by_views_temp: intermediate table; used by other scripts
     """
 
     io_clean = dbReadWriteClean()
@@ -116,7 +112,7 @@ def filter_by_views():
     measgraphic_df = measgraphic_df[["instanceidk", "indexinmglist", "frame"]]
     measurement_abstract_rpt_df = measurement_abstract_rpt_df[
         ["studyidk", "measabstractnumber", "name"]
-    ]  # here
+    ]  
 
     # Merge individual dataframes into one
     merge_df = measgraphref_df.merge(
@@ -172,8 +168,8 @@ def filter_by_views():
         ["is_plax", "maybe_plax", "is_a4c", "is_a2c"], axis=1
     )
 
-    # Intermediate dataframe; saving to db no longer necessary
-    # io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
+    # Intermediate dataframe saved to db for use by other script
+    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
 
     # Remove unlabeled instances
     df2 = frames_with_views_df
@@ -185,7 +181,6 @@ def filter_by_views():
     conflict_list = []
     for instance in list(conflict_sets.instanceidk):
         conflict_list.append(instance[0])  # get instanceidk for multidimn list
-
     frames_without_conflicts_df = df3[~df3["instanceidk"].isin(conflict_list)]
     labels_by_frame_df = frames_without_conflicts_df.drop("is_multiview", axis=1)
 
@@ -206,16 +201,12 @@ def filter_by_views():
         labels_by_inst_df["instanceidk"].isin(inst_fair_game)
     ]
 
-    # io_views.save_to_db(labels_by_inst_df, 'instances_w_labels')
-
     # Filter out instances from old machines
     new_machines_df = io_views.get_table("machines_new_bmi")
     studies_new_machines = list(set(new_machines_df["studyidk"].tolist()))
     lab_inst_new_df = labels_by_inst_df[
         labels_by_inst_df["studyidk"].isin(studies_new_machines)
     ]
-
-    # io_views.save_to_db(lab_inst_new_df, 'instances_w_labels')
 
     # Merge with views.instances_unique_master_list table to get the following columns:
     # sopinstanceuid, instancefilename
