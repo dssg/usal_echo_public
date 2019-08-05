@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from d00_utils.dcm_utils import *
 from d00_utils.output_utils import *
-from src.d00_utils.log_utils import *
+from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, "analyse_segments")
 
@@ -29,7 +29,6 @@ def compute_la_lv_volume(
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
 
-    # TODO: check why these functions are called
     la_segs = remove_periphery(la_segs)
     lv_segs = remove_periphery(lv_segs)
 
@@ -57,7 +56,7 @@ def compute_la_lv_volume(
         # Window length of 90% of cardiac cycle to avoid end-systole/diastole twice.
         end = np.min((start + int(0.9 * window), len(la_areas)))
 
-        # TODO: why 0.8?
+        # Why 0.8?
         if (end - start) > int(0.8 * window):
             la_segs_window = la_segs[start:end]
             lv_segs_window = lv_segs[start:end]
@@ -84,7 +83,7 @@ def compute_la_lv_volume(
                 # Derived LVEDV and LVESV using the area-length formula.
                 lvedv = compute_volume_AL(lveda_a, lveda_l)
                 lvesv = compute_volume_AL(lvesa_a, lvesa_l)
-                # Used LVEDV and LVESV to compute an EF for cycle.
+                # Used LVEDV and LVESV to compute EF for cycle.
                 ef = (lvedv - lvesv) / lvedv
 
                 if lavol < lavolmax and lavol > lavolmin:
@@ -99,17 +98,16 @@ def compute_la_lv_volume(
             except Exception as e:
                 logger.error(e, "la, lv calculation")
 
-            # TODO: what's going on here/is it necessary?
             diasttime = compute_diastole(lv_areas_window, ft)
             if diasttime < diastmax and diasttime > diastmin:
                 diastlist.append(diasttime)
 
     # First percentile cutoff, for multiple measurements within one video.
-    # TODO: 25% percentile values for LAVOL?
+    # Supplementary materials says 25% percentile values for LAVOL?
     lavol = np.nan if lavollist == [] else np.nanpercentile(lavollist, 75)
     lvedv = np.nan if lvedvlist == [] else np.nanpercentile(lvedvlist, 90)
     lvesv = np.nan if lvesvlist == [] else np.nanpercentile(lvesvlist, 50)
-    # TODO: 50% percentile values for EF?
+    # Supplementary materials says 50% percentile values for EF?
     ef = np.nan if eflist == [] else np.nanpercentile(eflist, 90)
     lveda_l = np.nan if lveda_l_list == [] else np.nanpercentile(lveda_l_list, 50)
     diasttime = np.nan if diastlist == [] else np.nanpercentile(diastlist, 50)
@@ -190,8 +188,8 @@ def extract_area_l_scaled(
     cols,
     hr,
 ):
-    # left atrium analysis
-    # TODO: why 0.80?
+    # Left atrium analysis.
+    # Why 0.80?
     la_seg = la_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
     lv_seg = lv_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
     seg = lv_seg
@@ -202,12 +200,11 @@ def extract_area_l_scaled(
     l_la = L(x, y, x_la)
 
     # Within window, 90% and 10% of areas as LV end-diastolic/systolic areas.
-    # Why 0.9 and 0.1 in this way?
     lveda_seg = lv_segs[np.argsort(lv_areas)[int(0.90 * len(lv_segs))]]
     lvesa_seg = lv_segs[np.argsort(lv_areas)[int(0.10 * len(lv_segs))]]
     la_seg = la_segs[np.argsort(la_areas)[int(0.90 * len(lv_segs))]]
 
-    # left ventricular diastolic volume analysis
+    # Left ventricular diastolic volume analysis.
     seg = la_seg.copy()
     seg = imresize(seg.copy(), (rows, cols), interp="nearest")
     lveda_seg = imresize(lveda_seg.copy(), (rows, cols), interp="nearest")
@@ -215,7 +212,7 @@ def extract_area_l_scaled(
     x_lveda, _ = np.where(lveda_seg > 0)
     l_lveda = L(x, y, x_lveda)
 
-    # left ventricular systolic volume analysis
+    # Left ventricular systolic volume analysis.
     seg = la_seg.copy()
     seg = imresize(seg.copy(), (rows, cols), interp="nearest")
     lvesa_seg = imresize(lvesa_seg.copy(), (rows, cols), interp="nearest")
