@@ -14,5 +14,6 @@
 "photometric_interpretation": ["0028","0004"],
 "acquisition_datetime": ["0008", "002a"],
 "manufacturers_model_name": ["0008", "1090"], 
-"instance_creation_date": ["0008","0012"]
+"instance_creation_date": ["0008","0012"],
+"ultrasound_color": ["0028","0014"]
 }
