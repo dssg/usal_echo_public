@@ -327,7 +327,7 @@ def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
     return viewlist_a2c, viewlist_a4c
 
 
-def main():
+def calculate_measurements():
     """
     
     We compute chamber dimensions and ejection fraction from segmentations.
@@ -386,4 +386,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    calculate_measurements()
