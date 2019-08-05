@@ -78,6 +78,6 @@ def create_probabilities_textfile_testing(instance_id_list):
     file_name = 'view_probabilities_test' + str(time_stamp) + '.txt'
     data_path = os.path.join(data_dir, file_name)
         
-    df_3.to_csv(data_path, index = None, header=True) 
+    df_3.to_csv(data_path, index = None, header=True, sep='\t') 
     
     
