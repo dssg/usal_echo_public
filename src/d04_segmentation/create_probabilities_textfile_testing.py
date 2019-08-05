@@ -61,9 +61,9 @@ def create_probabilities_textfile_testing(instance_id_list):
         prob_tb.at[i, "image"] = ('a_' + str(studyidk).strip() + '_' 
                   + str(instancefilename).strip() + '.dcm')
         if df_2.at[i, 'view_only'] == 'a4c':
-            prob_tb.at[i, "a4c"] = 1
+            prob_tb.at[i, "a4c"] = 0.9898
         elif df_2.at[i, 'view_only'] == 'a2c':
-            prob_tb.at[i, "a2c"] = 1 
+            prob_tb.at[i, "a2c"] = 0.9898 
     
     df_3 = prob_tb.fillna(0)
     
