@@ -301,6 +301,7 @@ def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
 
 def calculate_measurements():
     """
+    Write pickle of dictionary with calculated measurements.
 
     We compute chamber dimensions and ejection fraction from segmentations.
     We rely on variation in ventricular area to identify end-systole/diastole.
