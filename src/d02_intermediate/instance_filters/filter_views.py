@@ -1,44 +1,93 @@
-import pandas
-import os
-import sys
-import json
-import psycopg2
-
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 
+def define_measurement_names():
+    
+    ''' Return dict of lists of measurements which define views'''
 
-def get_connection():
-    """
-    Currently this function is unused
-    Establish connection to psql database
-    Requirement: .psql_credentials.json in root directory
-    """
-    filename = os.path.expanduser("~") + "/.psql_credentials.json"
-    with open(filename) as f:
-        conf = json.load(f)
+    meas_dict = {}
 
-        connection_string = "postgresql://{}:{}@{}/{}".format(
-            conf["user"], conf["psswd"], conf["host"], conf["database"]
-        )
+    meas_dict["PLAX"] = [
+        "Diám raíz Ao",
+        "Diám. Ao asc.",
+        "Diám TSVI",
+        "Dimensión AI",
+    ]
+    # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
+    #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
+    # Note: Removed 'Diam TSVD' as a measurement which would classify
+    # a view as PLAX as Antonio is unsure of this, 2019_09_07
+    # This change disqualifies 650 frames from being considered PLAX
+    meas_dict["POTENTIAL_PLAX"] = [
+        "DVItd",
+        "DVIts",
+        "SIVtd",
+        "PPVItd",
+    ]
+    meas_dict["A4C"] = [
+        "AVItd ap4",
+        "VTD(el-ps4)",
+        "VTD(MDD-ps4)",
+        "VTD 4C",
+        "AVIts ap4",
+        "VTS(el-ps4)",
+        "VTS(MDD-ps4)",
+        "VTS 4C",
+        "Vol. AI (MOD-sp4)",
+    ]
+    meas_dict["A2C"] = [
+        "AVItd ap2",
+        "VTD(el-ps2)",
+        "VTD(MDD-ps2)",
+        "VTD 2C",
+        "AVIts ap2",
+        "VTS(el-ps2)",
+        "VTS(MDD-ps2)",
+        "VTS 2C",
+        "Vol. AI (MOD-sp2)",
+    ]
+    meas_dict["ALL_VIEWS"] = (
+        meas_dict["PLAX"] + meas_dict["POTENTIAL_PLAX"] + \
+        meas_dict["A4C"] + meas_dict["A2C"]
+    )
 
-        conn = sqlalchemy.create_engine(connection_string, pool_pre_ping=True)
+    meas_dict["END_DIASTOLIC"] = [
+        "DVItd",
+        "SIVtd",
+        "PPVItd",
+        "AVItd ap4",
+        "VTD(el-ps4)",
+        "VTD(MDD-ps4)",
+        "VTD 4C",
+        "AVItd ap2",
+        "VTD(el-ps2)",
+        "VTD(MDD-ps2)",
+        "VTD 2C",
+    ]
+    meas_dict["END_SYSTOLIC"] = [
+        "DVIts",
+        "AVIts ap4",
+        "VTS(el-ps4)",
+        "VTS(MDD-ps4)",
+        "VTS 4C",
+        "AVIts ap2",
+        "VTS(el-ps2)",
+        "VTS(MDD-ps2)",
+        "VTS 2C",
+    ]
 
-        return conn
+    return meas_dict
+
 
 
 def filter_by_views():
     """
-    Input: from postgres db schema 'clean', the following tables:
-        measurement_abstract_rpt, measgraphref, measgraphic
-    Joins tables and filters out only frames that have view labels
-
-    Output: to postgres db schema 'views', the table 'frames_sorted_by_views'
-    Outputs to db schema 'frames_sorted_by_views table with the following attributes:
-        is_end_diastolic
-        is_end_systolic
-        view
-        is_multiview
-
+    Creates many tables:
+        views.frames_w_labels: all frames with labels plax, a4c, a2c
+        views.instances_w_labels: all instances which are labeled plax, a4c, a2c
+            Assumption: if a frame has a view label, other frames within that instance correspond 
+                        to the same view. This discludes instances which has >1 frames with 
+                        conflicting labels
+        views.frames_sorted_by_views_temp: intermediate table; used by other scripts
     """
 
     io_clean = dbReadWriteClean()
@@ -55,7 +104,7 @@ def filter_by_views():
     measgraphic_df = measgraphic_df[["instanceidk", "indexinmglist", "frame"]]
     measurement_abstract_rpt_df = measurement_abstract_rpt_df[
         ["studyidk", "measabstractnumber", "name"]
-    ]  # here
+    ]  
 
     # Merge individual dataframes into one
     merge_df = measgraphref_df.merge(
@@ -65,92 +114,18 @@ def filter_by_views():
         measurement_abstract_rpt_df, on=["studyidk", "measabstractnumber"]
     )
 
-    # Define measurement names
-    MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = [
-        "Diám raíz Ao",
-        "Diám. Ao asc.",
-        "Diám TSVI",
-        "Dimensión AI",
-    ]
-    # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
-    #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
-    # Note: Removed 'Diam TSVD' as a measurement which would classify
-    # a view as PLAX as Antonio is unsure of this, 2019_09_07
-    # This change disqualifies 650 frames from being considered PLAX
-    POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = [
-        "DVItd",
-        "DVIts",
-        "SIVtd",
-        "PPVItd",
-    ]
-    MEASUREMENTS_APICAL_4_CHAMBER_VIEW = [
-        "AVItd ap4",
-        "VTD(el-ps4)",
-        "VTD(MDD-ps4)",
-        "VTD 4C",
-        "AVIts ap4",
-        "VTS(el-ps4)",
-        "VTS(MDD-ps4)",
-        "VTS 4C",
-        "Vol. AI (MOD-sp4)",
-    ]
-    MEASUREMENTS_APICAL_2_CHAMBER_VIEW = [
-        "AVItd ap2",
-        "VTD(el-ps2)",
-        "VTD(MDD-ps2)",
-        "VTD 2C",
-        "AVIts ap2",
-        "VTS(el-ps2)",
-        "VTS(MDD-ps2)",
-        "VTS 2C",
-        "Vol. AI (MOD-sp2)",
-    ]
-    ALL_MEASUREMENTS = (
-        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-        + MEASUREMENTS_APICAL_4_CHAMBER_VIEW
-        + MEASUREMENTS_APICAL_2_CHAMBER_VIEW
-    )
-
-    MEASUREMENTS_END_DIASTOLIC = [
-        "DVItd",
-        "SIVtd",
-        "PPVItd",
-        "AVItd ap4",
-        "VTD(el-ps4)",
-        "VTD(MDD-ps4)",
-        "VTD 4C",
-        "AVItd ap2",
-        "VTD(el-ps2)",
-        "VTD(MDD-ps2)",
-        "VTD 2C",
-    ]
-    MEASUREMENTS_END_SYSTOLIC = [
-        "DVIts",
-        "AVIts ap4",
-        "VTS(el-ps4)",
-        "VTS(MDD-ps4)",
-        "VTS 4C",
-        "AVIts ap2",
-        "VTS(el-ps2)",
-        "VTS(MDD-ps2)",
-        "VTS 2C",
-    ]
+    meas = define_measurement_names()
 
     # df containing all frames for which we have measurements
-    filter_df = merge_df  # [merge_df.name.isin(ALL_MEASUREMENTS)].copy()
+    filter_df = merge_df  # [merge_df.name.isin(meas["ALL_VIEWS"])].copy()
 
-    filter_df["is_end_diastolic"] = filter_df["name"].isin(MEASUREMENTS_END_DIASTOLIC)
-    filter_df["is_end_systolic"] = filter_df["name"].isin(MEASUREMENTS_END_SYSTOLIC)
+    filter_df["is_end_diastolic"] = filter_df["name"].isin(meas["END_DIASTOLIC"])
+    filter_df["is_end_systolic"] = filter_df["name"].isin(meas["END_SYSTOLIC"])
 
-    filter_df["is_plax"] = filter_df["name"].isin(
-        MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-    )
-    filter_df["maybe_plax"] = filter_df["name"].isin(
-        POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW
-    )
-    filter_df["is_a4c"] = filter_df["name"].isin(MEASUREMENTS_APICAL_4_CHAMBER_VIEW)
-    filter_df["is_a2c"] = filter_df["name"].isin(MEASUREMENTS_APICAL_2_CHAMBER_VIEW)
+    filter_df["is_plax"] = filter_df["name"].isin(meas["PLAX"])
+    filter_df["maybe_plax"] = filter_df["name"].isin(meas["POTENTIAL_PLAX"])
+    filter_df["is_a4c"] = filter_df["name"].isin(meas["A4C"])
+    filter_df["is_a2c"] = filter_df["name"].isin(meas["A2C"])
 
     filter_df["view"] = ""
     filter_df.loc[filter_df["is_plax"] == True, "view"] = "plax"
@@ -185,9 +160,8 @@ def filter_by_views():
         ["is_plax", "maybe_plax", "is_a4c", "is_a2c"], axis=1
     )
 
-    # Intermediate dataframe; saving to db no longer necessary
-    # io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
-
+    # Intermediate dataframe saved to db for use by other script
+    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
     # Remove unlabeled instances
     df2 = frames_with_views_df
     labeled_df = df2.drop(df2[(df2["view"] == "")].index)
@@ -198,14 +172,14 @@ def filter_by_views():
     conflict_list = []
     for instance in list(conflict_sets.instanceidk):
         conflict_list.append(instance[0])  # get instanceidk for multidimn list
-
     frames_without_conflicts_df = df3[~df3["instanceidk"].isin(conflict_list)]
     labels_by_frame_df = frames_without_conflicts_df.drop("is_multiview", axis=1)
 
     # Remove unlabeled instances, save to database
     # df2 = frames_without_conflicts_df
     # labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
-    io_views.save_to_db(labels_by_frame_df, "frames_with_labels")
+    io_views.save_to_db(labels_by_frame_df, "frames_w_labels")
+    print("New table created: views.frames_w_labels")
 
     # Group all frames of same instance, drop frame-specific columns
     agg_functions = {"view": "first", "studyidk": "first"}
@@ -219,16 +193,12 @@ def filter_by_views():
         labels_by_inst_df["instanceidk"].isin(inst_fair_game)
     ]
 
-    # io_views.save_to_db(labels_by_inst_df, 'instances_with_labels')
-
     # Filter out instances from old machines
     new_machines_df = io_views.get_table("machines_new_bmi")
     studies_new_machines = list(set(new_machines_df["studyidk"].tolist()))
     lab_inst_new_df = labels_by_inst_df[
         labels_by_inst_df["studyidk"].isin(studies_new_machines)
     ]
-
-    # io_views.save_to_db(lab_inst_new_df, 'instances_with_labels')
 
     # Merge with views.instances_unique_master_list table to get the following columns:
     # sopinstanceuid, instancefilename
@@ -238,4 +208,6 @@ def filter_by_views():
     merge_df["studyidk"] = merge_df["studyidk_x"]
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
 
-    io_views.save_to_db(merge_df, "instances_with_labels")
+    io_views.save_to_db(merge_df, "instances_w_labels")
+    print("New table created: views.instances_w_labels")
+
