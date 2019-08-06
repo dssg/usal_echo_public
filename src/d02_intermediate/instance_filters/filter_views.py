@@ -1,28 +1,20 @@
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
+from d00_utils.log_utils import *
+
 
 def define_measurement_names():
-    
-    ''' Return dict of lists of measurements which define views'''
+
+    """ Return dict of lists of measurements which define views"""
 
     meas_dict = {}
 
-    meas_dict["PLAX"] = [
-        "Diám raíz Ao",
-        "Diám. Ao asc.",
-        "Diám TSVI",
-        "Dimensión AI",
-    ]
+    meas_dict["PLAX"] = ["Diám raíz Ao", "Diám. Ao asc.", "Diám TSVI", "Dimensión AI"]
     # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
     #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
     # Note: Removed 'Diam TSVD' as a measurement which would classify
     # a view as PLAX as Antonio is unsure of this, 2019_09_07
     # This change disqualifies 650 frames from being considered PLAX
-    meas_dict["POTENTIAL_PLAX"] = [
-        "DVItd",
-        "DVIts",
-        "SIVtd",
-        "PPVItd",
-    ]
+    meas_dict["POTENTIAL_PLAX"] = ["DVItd", "DVIts", "SIVtd", "PPVItd"]
     meas_dict["A4C"] = [
         "AVItd ap4",
         "VTD(el-ps4)",
@@ -46,8 +38,10 @@ def define_measurement_names():
         "Vol. AI (MOD-sp2)",
     ]
     meas_dict["ALL_VIEWS"] = (
-        meas_dict["PLAX"] + meas_dict["POTENTIAL_PLAX"] + \
-        meas_dict["A4C"] + meas_dict["A2C"]
+        meas_dict["PLAX"]
+        + meas_dict["POTENTIAL_PLAX"]
+        + meas_dict["A4C"]
+        + meas_dict["A2C"]
     )
 
     meas_dict["END_DIASTOLIC"] = [
@@ -78,7 +72,6 @@ def define_measurement_names():
     return meas_dict
 
 
-
 def filter_by_views():
     """
     Creates many tables:
@@ -89,6 +82,8 @@ def filter_by_views():
                         conflicting labels
         views.frames_sorted_by_views_temp: intermediate table; used by other scripts
     """
+
+    logger = setup_logging(__name__, "filter_views.py")
 
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
@@ -104,7 +99,7 @@ def filter_by_views():
     measgraphic_df = measgraphic_df[["instanceidk", "indexinmglist", "frame"]]
     measurement_abstract_rpt_df = measurement_abstract_rpt_df[
         ["studyidk", "measabstractnumber", "name"]
-    ]  
+    ]
 
     # Merge individual dataframes into one
     merge_df = measgraphref_df.merge(
@@ -161,7 +156,7 @@ def filter_by_views():
     )
 
     # Intermediate dataframe saved to db for use by other script
-    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
+    io_views.save_to_db(frames_with_views_df, "frames_sorted_by_views_temp")
     # Remove unlabeled instances
     df2 = frames_with_views_df
     labeled_df = df2.drop(df2[(df2["view"] == "")].index)
@@ -179,7 +174,7 @@ def filter_by_views():
     # df2 = frames_without_conflicts_df
     # labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
     io_views.save_to_db(labels_by_frame_df, "frames_w_labels")
-    print("New table created: views.frames_w_labels")
+    logger.info("New table created: views.frames_w_labels")
 
     # Group all frames of same instance, drop frame-specific columns
     agg_functions = {"view": "first", "studyidk": "first"}
@@ -208,6 +203,59 @@ def filter_by_views():
     merge_df["studyidk"] = merge_df["studyidk_x"]
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
 
-    io_views.save_to_db(merge_df, "instances_w_labels")
-    print("New table created: views.instances_w_labels")
+    # The next stage in this script is to filter by dicom metadata attributes
+    df_dcm = io_clean.get_table('meta_lite')
 
+    # Rename df filtered thus far; save a copy; process to be consistent with df_dcm
+    df_inst_all = merge_df
+    df_inst = df_inst_all 
+    df_inst.rename(columns={"instancefilename": "filename"}, inplace=True)
+    df_inst["filename"] = df_inst['filename'].str.rstrip()
+    df_inst["filename"] = df_inst['filename'].str.slice_replace(stop=0,repl='a_')
+         
+    merge_df = df_inst.merge(df_dcm, on ='filename')
+    merge_df.drop(columns=['sopinstanceuid', 'dirname', 'tags'], inplace=True)
+
+    # Get only tags that we care about
+    df = merge_df
+    df['tag1'] = df['tag1'].astype(str) # consistency with tag2
+    df_region_sfa = df.loc[(df['tag1'] == '18') & (df['tag2'] == '6012')] 
+    df_num_frames = df.loc[(df['tag1'] == '28') & (df['tag2'] == '0008')] 
+    df_ultra_color = df.loc[(df['tag1'] == '28') & (df['tag2'] == '0014')]
+
+
+    # Remove instances with less than ten frames, i.e. tag (0028,0008) should be 1
+    frame_nums_str = df_num_frames['value'].tolist()
+    frame_nums_int = list(map(int, frame_nums_str))
+    frame_nums_int = sorted(list(set(frame_nums_int)))
+
+    frame_nums_final = []
+    for elem in frame_nums_int:
+        if elem >= 10:
+            frame_nums_final.append(elem)
+    frame_nums_final = list(map(str, frame_nums_final))
+
+    df = df_num_frames
+    df_num_frames_filt = df[df['value'].isin(frame_nums_final)] 
+
+    # Remove instances with ultrasound color, i.e. tag (0028,0014) should be 0
+    df_ultra_color_filt = df_ultra_color[df_ultra_color['value'] == '0']
+
+    # Remove instances with m-mode, i.e. tag (0018,6012) should be 1
+    df_region_sfa_filt = df_region_sfa[df_region_sfa['value'] == '1']
+
+    # Get instances that passed each filtering step
+    inst_1 = df_region_sfa_filt['instanceidk'].tolist()
+    inst_2 = df_num_frames_filt['instanceidk'].tolist()
+    inst_3 = df_ultra_color_filt['instanceidk'].tolist()
+
+    # Get instances that passed all filtering steps
+    inst_final = list(set(inst_1) & set(inst_2) & set(inst_3))
+
+    # Filter out instances that do not meet the dicom metadata criteria
+    df = df_inst_all
+    df = df[df['instanceidk'].isin(inst_final)]
+    df['filename'] = df['filename'].str.lstrip('a_')
+
+    io_views.save_to_db(df, "instances_w_labels")
+    logger.info("New table created: views.instances_w_labels")

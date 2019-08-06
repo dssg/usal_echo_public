@@ -1,9 +1,12 @@
 from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.log_utils import *
 
 
 def find_table_conflicts():
     """ Creates table with instances that contain conflicts
 	    i.e. these instances should not be used """
+
+    logger = setup_logging(__name__, "conflict_instances.py")
 
     io_views = dbReadWriteViews()
 
@@ -20,5 +23,4 @@ def find_table_conflicts():
     conflict_inst_df.reset_index(inplace=True)
 
     io_views.save_to_db(conflict_inst_df, "instances_w_conflicts")
-    print("New table created: views.instances_w_conflicts")
-
+    logger.info("New table created: views.instances_w_conflicts")

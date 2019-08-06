@@ -1,6 +1,7 @@
 import numpy as np
 
 from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.log_utils import *
 
 
 def split_train_test(ratio=0.5):
@@ -10,6 +11,8 @@ def split_train_test(ratio=0.5):
     :param ratio: ratio for splitting into train/test
                  e.g. if 0.8, will take 80% as train set and 20% as test set
     """
+
+    logger = setup_loggin(__name__, "train_test_split.py")
 
     io_views = dbReadWriteViews()
 
@@ -23,7 +26,6 @@ def split_train_test(ratio=0.5):
     io_views.save_to_db(df_train, "instances_w_labels_train")
     io_views.save_to_db(df_test, "instances_w_labels_test")
 
-    perc_trn = int(100*ratio)
+    perc_trn = int(100 * ratio)
     perc_tst = 100 - perc_trn
-    print("Dataset split into {0}% train, {1}% test".format(perc_trn, perc_tst))
-
+    logger.info("Dataset split into {0}% train, {1}% test".format(perc_trn, perc_tst))

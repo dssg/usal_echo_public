@@ -1,0 +1,19 @@
+{
+    "data" : "hcm",
+    "feature_dim" : 1,
+    "label_dim" : 2,
+
+    "mean" : 24,
+    "dropout" : 0.5,
+    "weight_decay" : 1e-8,
+    "learning_rate" : 1e-5,
+    "crop_max" : 20,
+
+    "image_size" : 224,
+    "epochs" : 20,
+    "epoch_save_interval" : 10,
+    "batch_size" : 32,
+
+    "summary_interval" : 5,
+    "loss_smoothing" : 20
+}
