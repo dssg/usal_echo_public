@@ -127,20 +127,20 @@ def segmentChamber(videofile, dicomdir, view):
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1)
         #np.save(outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a4c_lv_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a4c_la_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a4c_lvo_segs).astype("uint8"))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1)
         #np.save(outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a2c_lv_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a2c_la_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8"))
-        np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
+        np_arrays_x3 = np_arrays_x3 + (np.array(a2c_lvo_segs).astype("uint8"))
     '''
     elif view == "psax":
         psax_lv_segs, psax_lvo_segs, psax_rv_segs, preds = extract_segs(
@@ -184,13 +184,13 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png"))
+    images_uuid_x3 = images_uuid_x3 + (hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png"))
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"))
+    images_uuid_x3 = images_uuid_x3 + (hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"))
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
@@ -202,7 +202,7 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png"))
+    images_uuid_x3 = images_uuid_x3 + (hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png"))
     #return 1
     return np_arrays_x3, images_uuid_x3
 
