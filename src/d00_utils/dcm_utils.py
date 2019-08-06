@@ -307,11 +307,6 @@ def _extract_ft_from_gdcm_str(lines):
             framerate = line.split("[")[1].split("]")[0]
             frametime = 1000 / float(framerate)
             is_framerate = True
-        elif tag == "(7fdf,1074)":
-            # Is this right?
-            framerate = line.split(" ")[3]
-            frametime = 1000 / float(framerate)
-            is_framerate = True
     if not is_framerate:
         logger.debug("missing framerate")
         framerate = defaultframerate
