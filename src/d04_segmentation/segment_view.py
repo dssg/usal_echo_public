@@ -208,7 +208,7 @@ def segmentChamber(videofile, dicomdir, view):
     return np_arrays_x3, images_uuid_x3
 
 
-def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
+def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax, dicomdir):
     #set up for writing to segmentation schema
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
@@ -340,7 +340,7 @@ def main():
         elif eval(i[viewdict["plax_plax"]]) > probthresh:
             viewlist_plax.append(filename)
     #print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
-    segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir)
+    segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax, dicomdir)
     tempdir = os.path.join(dicomdir, "image")
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
