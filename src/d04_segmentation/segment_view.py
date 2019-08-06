@@ -41,9 +41,9 @@ def segmentChamber(videofile, dicomdir, view):
     sesses = []
     models = []
     global modeldir
-    
+
     print(videofile, dicomdir)
-    
+
     if view == "a4c":
         g_1 = tf.Graph()
         with g_1.as_default():
@@ -251,16 +251,18 @@ def main():
     # To use dicomdir option set in global scope.
     global dicomdir
     # In case dicomdir is path with more than one part.
-    #dicomdir_basename = os.path.basename(dicomdir)
+    # dicomdir_basename = os.path.basename(dicomdir)
     viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-05.txt"
-    #viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
+    # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
     viewlist_a2c = []
     viewlist_a3c = []
     viewlist_a4c = []
     viewlist_plax = []
     viewlist_psax = []
 
-    infile = open("/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt")
+    infile = open(
+        "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
+    )
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
 
@@ -299,7 +301,9 @@ def main():
     tempdir = os.path.join(dicomdir, "image")
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
-    print("time:  " + str(end - start) + " seconds for " +  str(len(viewlist))  + " videos")
+    print(
+        "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
+    )
 
 
 if __name__ == "__main__":

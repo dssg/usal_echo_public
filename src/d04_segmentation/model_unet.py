@@ -1,6 +1,7 @@
 import tensorflow as tf
 from d00_utils.echocv_utils_v0 import *
 
+
 class Unet(object):
     def __init__(self, mean, weight_decay, learning_rate, label_dim, maxout=False):
         self.x_train = tf.placeholder(tf.float32, [None, 384, 384, 1])

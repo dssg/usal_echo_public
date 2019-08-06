@@ -176,6 +176,7 @@ class dbReadWriteViews(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
+
 class dbReadWriteSegmentation(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'segmentation' schema
