@@ -184,13 +184,13 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png").encode()))
+    images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png").encode()))
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png").encode()))
+    images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png").encode()))
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
