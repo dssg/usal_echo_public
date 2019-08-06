@@ -12,6 +12,7 @@ from PIL import Image
 from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
 from datetime import datetime
+import pandas as pd
 import hashlib
 
 from d00_utils.echocv_utils_v0 import *
@@ -226,14 +227,16 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
                                    video), 'predictions')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
-        io_segmentation.save_to_db((pd.Dataframe(instance_id_dict.get(video), 
+        io_segmentation.save_to_db(pd.Dataframe(instance_id_dict.get(video), 
                                    study_id_dict.get(video), 
                                    "a2c",
                                    np_arrays_x3,
                                    images_uuid_x3,
                                    datetime.now(),
                                    video), 'predictions')
-    '''
+    return 1
+    
+'''
     for video in viewlist_psax:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "psax")
         io_segmentation.save_to_db(instance_id_dict.get(video), 
@@ -252,8 +255,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
                                    images_uuid_x3,
                                    datetime.now(),
                                    video)
-    '''
-    return 1
+    
+'''
 
 def create_seg(output, label):
     output = output.copy()
