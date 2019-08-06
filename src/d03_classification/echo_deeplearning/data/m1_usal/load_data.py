@@ -32,6 +32,10 @@ def load_data(config, val_split):
     # REPLACE WITH YOUR OWN PREPROCESSING METHODS THAT RETURN SAME FORMAT #
     #######################################################################
 
+    # config.data = 'm1_usal', config.label_dim = 2, config.feature_dim = 1, config.image_size=224
+    
+    # Get one directory of images; Question: are these direcs below their preprocessed data?
+    # i.e. do we need to run pre-processing on ours first, or can we download + use directly from db
     directories = [
         "/media/deoraid03/deeplearning/hcm_case_control_pklfiles/a4c/ctl/systdiastpairs/",
         "/media/deoraid03/deeplearning/hcm_case_control_pklfiles/a4c/case/systdiastpairs/",
@@ -41,6 +45,7 @@ def load_data(config, val_split):
     labels = []
     filenames = []
 
+    # Delete outer for loop assuming one directory
     for i, directory in enumerate(directories):
         for filename in os.listdir(directory):
             if filename not in filenames:
@@ -51,6 +56,7 @@ def load_data(config, val_split):
                 labels.append(label)
     images = np.array(images)
     labels = np.array(labels)
+    
     train_lst = np.load(
         "data/" + config.data + "/splits/train_lst_" + str(val_split) + ".npy"
     )
