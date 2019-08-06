@@ -92,14 +92,14 @@ def generate_masks():
 
     io_views = dbReadWriteViews()
 
-    modvolume_df = io_views.get_table("frames_by_volume_mask")
+    frames_by_volume_mask_df = io_views.get_table("frames_by_volume_mask")
 
-    modvolume_df["chamber"] = "lv"
-    modvolume_df.loc[modvolume_df["a4c_atr_es"], "chamber"] = "la"
-    modvolume_df.loc[modvolume_df["a2c_atr_es"], "chamber"] = "la"
+    frames_by_volume_mask_df.loc[frames_by_volume_mask_df["ventricle_only"]=='ven', "chamber"] = "la"
+    frames_by_volume_mask_df.loc[frames_by_volume_mask_df["ventricle_only"]=='atr', "chamber"] = "la"
 
     start = time()
-    group_df = modvolume_df.groupby(["instanceidk", "indexinmglist"]).agg(
+    # TODO: need x/y coordinates
+    group_df = frames_by_volume_mask_df.groupby(["instanceidk", "indexinmglist"]).agg(
         {
             "x1coordinate": list,
             "y1coordinate": list,
@@ -110,7 +110,7 @@ def generate_masks():
         }
     )
     end = time()
-    print(f"{int(end-start)} seconds to group {len(modvolume_df)} rows")
+    print(f"{int(end-start)} seconds to group {len(frames_by_volume_mask_df)} rows")
 
     start = time()
     group_df["lines"] = group_df.apply(get_lines, axis=1)
