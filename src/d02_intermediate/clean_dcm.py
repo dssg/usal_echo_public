@@ -8,18 +8,24 @@ Created on Thu Jul 4 14:32:40 2019
 
 import pandas as pd
 from json import load
+import os
+from pathlib import Path
 
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 from d00_utils.log_utils import *
-
 logger = setup_logging(__name__, "d02_intermediate")
 
+dcm_tags = os.path.join(Path(__file__).parents[0], "dicom_tags.json")
 
 def clean_dcm_meta():
     """Selects a subset of dicom metadata tags and saves them to postgres.
     
+    **Requirements:
+    json formatted config file with dicom tag descriptions and values 
+    in d02_intermediate/dicom_tags.json
+
     """
-    with open("../conf/base/dicom_tags.json") as f:
+    with open(dcm_tags) as f:
         dicom_tags = load(f)
     for k, v in dicom_tags.items():
         dicom_tags[k] = tuple(v)
@@ -39,10 +45,7 @@ def clean_dcm(metadata_path, to_db=False, credentials_file=None, db_table=None):
     """Select subset of dicom tags and save to database.
     
     This function selects a subset of dicom metadata tags and saves it.
-    
-    **Requirements:
-    json formatted config file with dicom tag descriptions and values in dicom_tags.json
-    
+        
     :param metadata_path (str): path to dicom metadata file
     :param save_to_db (bool): if True saves tag subset to postgres database; default=False
     :param credentials_file (str): path to credentials file; required if save_to_db=True
