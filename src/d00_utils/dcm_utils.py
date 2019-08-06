@@ -11,7 +11,8 @@ import pydicom
 from skimage.color import rgb2gray
 
 from d00_utils.log_utils import *
-logger = setup_logging(__name__, 'download_decompress_dcm')
+
+logger = setup_logging(__name__, "download_decompress_dcm")
 
 
 def _ybr2gray(y, u, v):
@@ -27,10 +28,10 @@ def _decompress_dcm(dcm_filepath, dcmraw_filepath):
 
     dcm_dir = os.path.dirname(dcmraw_filepath)
     os.makedirs(dcm_dir, exist_ok=True)
-    
+
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
     subprocess.Popen(command, shell=True)
-    logger.info('{} decompressed'.format(os.path.basename(dcm_filepath)))
+    logger.info("{} decompressed".format(os.path.basename(dcm_filepath)))
 
     return
 
@@ -132,7 +133,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
 
     """
     os.makedirs(img_dir, exist_ok=True)
-    filename = dcmraw_filepath.split("/")[-1].split('.')[0]
+    filename = dcmraw_filepath.split("/")[-1].split(".")[0]
     framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
 
     y = len(list(framedict.keys())) - 1
@@ -147,7 +148,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
                 [cv2.IMWRITE_JPEG_QUALITY, 95],
             )
 
-    logger.info('{} 10 random frames extracted'.format(filename))
+    logger.info("{} 10 random frames extracted".format(filename))
 
     return
 
@@ -163,21 +164,21 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
     :param img_dir: directory for storing image files
 
     """
-    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+    dcmraw_dir = os.path.join(dcm_dir, "raw")
 
     for filename in os.listdir(dcm_dir):
-        
+
         if filename.endswith(".dcm"):
             dcm_filepath = os.path.join(dcm_dir, filename)
             dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
-            
+
             if not os.path.isfile(dcmraw_filepath):
                 _decompress_dcm(dcm_filepath, dcmraw_filepath)
             try:
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 dcmraw_to_10_jpgs(dcm_filepath, img_dir)
             except AttributeError:
-                logger.error('{} could not save images'.format(filename))
+                logger.error("{} could not save images".format(filename))
 
     return
 
@@ -197,7 +198,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
 
     """
 
-    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+    dcmraw_dir = os.path.join(dcm_dir, "raw")
     dcm_filepath = os.path.join(dcm_dir, filename)
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
@@ -220,4 +221,4 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         return images, orig_images
 
     except AttributeError:
-        logger.error('{} could not return dict'.format(filename))
+        logger.error("{} could not return dict".format(filename))

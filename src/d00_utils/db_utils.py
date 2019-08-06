@@ -16,7 +16,8 @@ import tempfile
 import gc
 
 from d00_utils.log_utils import *
-logger = setup_logging(__name__, 'save_to_db')
+
+logger = setup_logging(__name__, "save_to_db")
 
 
 def _load_json_credentials(filepath):
