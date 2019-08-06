@@ -1,6 +1,7 @@
 import pandas
 
 from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.log_utils import *
 
 """
 This script contains create_unlabeled_instances(), which creates
@@ -16,6 +17,9 @@ That is, these instances meet the following criteria:
 
 
 def create_unlabeled_instances():
+
+    logger = setup_logging(__name__, "unlabeled_instances.py")
+
     io_views = dbReadWriteViews()
 
     all_inst_df = io_views.get_table("instances_unique_master_list")
@@ -51,5 +55,4 @@ def create_unlabeled_instances():
     ] = "other"  # add 'other' column for consistency with view table
 
     io_views.save_to_db(oth_inst_new_df, "instances_unlabeled")
-    print("New table created: views.instances_unlabeled")
-
+    logger.info("New table created: views.instances_unlabeled")
