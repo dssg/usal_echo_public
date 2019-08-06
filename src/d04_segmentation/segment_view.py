@@ -127,20 +127,20 @@ def segmentChamber(videofile, dicomdir, view):
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1)
         #np.save(outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1)
         #np.save(outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
         #np.save(outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8"))
-        np_arrays_x3 = np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
     '''
     elif view == "psax":
         psax_lv_segs, psax_lvo_segs, psax_rv_segs, preds = extract_segs(
