@@ -10,9 +10,12 @@ import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
+from datetime import datetime
+import psycopg2
 
 from d00_utils.echocv_utils_v0 import *
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
+from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
 from d04_segmentation.model_unet import Unet
 
 
@@ -204,8 +207,26 @@ def segmentChamber(videofile, dicomdir, view):
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
+    #set up for writing to segmentation schema
+    io_views = dbReadWriteViews()
+    io_segmentation = dbReadWriteSegmentation()
+    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
+    instance_id_dict = instances_unique_master_list.set_index('instancefilename')['instanceidk'].to_dict()
+    study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
+    
     for video in viewlist_a4c:
         segmentChamber(video, dicomdir, "a4c")
+        #prediction_id	instance_id	study_id	view_name	output_np	output_image	date_run	file_name
+        #how to save prediction id?
+        output_np = 1
+        output_image = 1
+        io_segmentation.save_to_db(instance_id_dict.get(video), 
+                                   study_id_dict.get(video), 
+                                   "a4c",
+                                   output_np,
+                                   output_image,
+                                   datetime.now(),
+                                   video)
     for video in viewlist_a2c:
         segmentChamber(video, dicomdir, "a2c")
     for video in viewlist_psax:
@@ -213,6 +234,21 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     for video in viewlist_plax:
         segmentChamber(video, dicomdir, "plax")
     return 1
+
+def write_to_segmentation_schema(instance_id):
+    '''
+        
+    #write to segmentation schema
+    io_segmentation = dbReadWriteSegmentation()
+    predictions_df = pd.Dataframe(columns=['prediction_id', 'instance_id'
+                                           , 'frame', 'chamber', 'study_id'
+                                           , ' view_name', 'output_np'
+                                           , 'output_image', 'date_run'])
+    
+   
+    '''
+    prediction_id = 0 #is this auto generated?
+    instance_id = instance_id
 
 
 def create_seg(output, label):
@@ -296,7 +332,7 @@ def main():
             viewlist_a3c.append(filename)
         elif eval(i[viewdict["plax_plax"]]) > probthresh:
             viewlist_plax.append(filename)
-    print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
+    #print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
     segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir)
     tempdir = os.path.join(dicomdir, "image")
     end = time.time()
@@ -304,7 +340,7 @@ def main():
     print(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
-
+ 
 
 if __name__ == "__main__":
     main()

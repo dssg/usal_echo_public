@@ -14,6 +14,7 @@ from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
 import tempfile
 import gc
+import psycopg2
 
 
 def _load_json_credentials(filepath):
@@ -58,6 +59,8 @@ class dbReadWriteData:
             self.credentials["database"],
         )
         self.engine = create_engine(self.connection_str, encoding="utf-8")
+        self.raw_conn = self.engine.raw_connection()
+        self.cursor = self.raw_conn.cursor()
 
     def save_to_db(self, df, db_table, if_exists="replace"):
         """Write dataframe to table in database.
@@ -186,3 +189,20 @@ class dbReadWriteSegmentation(dbReadWriteData):
         super().__init__(schema="segmentation")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+        
+            
+    def save_numpy_array_to_db(self, np_array, table_name):
+        binary_data = psycopg2.Binary(np_array)
+        sql = "insert into {} values({})".format(table_name, binary_data)
+        self.cursor.execute(sql)
+        self.raw_conn.commit()
+    
+    def get_numpy_array_from_db(self, column_name, table_name):
+        sql = 'select {} from {}'.format(column_name, table_name)
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()[0] #TODO we need to actually retrieve all of them and iterate
+        
+        return np.reshape(np.frombuffer(results, dtype='Int8'),(384,384))
+
+    
+    
