@@ -6,12 +6,12 @@ import matplotlib as mpl
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 
+import numpy as np
 import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
 from datetime import datetime
-import psycopg2
 
 from d00_utils.echocv_utils_v0 import *
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
@@ -120,32 +120,26 @@ def segmentChamber(videofile, dicomdir, view):
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
+    np_arrays_x3 = ();
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 4, 1
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8")
-        )
+            images, orig_images, model, sess, 2, 4, 1)
+        #np.save(outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
+        #np.save(outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
+        #np.save(outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 3, 1
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8")
-        )
+            images, orig_images, model, sess, 2, 3, 1)
+        #np.save(outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
+        #np.save(outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
+        #np.save(outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
+    '''
     elif view == "psax":
         psax_lv_segs, psax_lvo_segs, psax_rv_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 1, 3
@@ -179,6 +173,7 @@ def segmentChamber(videofile, dicomdir, view):
         np.save(
             outpath + "/" + videofile + "_la", np.array(plax_la_segs).astype("uint8")
         )
+    '''
     j = 0
     nrow = orig_images[0].shape[0]
     ncol = orig_images[0].shape[1]
@@ -203,7 +198,8 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
-    return 1
+    #return 1
+    return np_arrays_x3
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
@@ -215,11 +211,11 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
     
     for video in viewlist_a4c:
-        segmentChamber(video, dicomdir, "a4c")
+        np_arrays_x3 = segmentChamber(video, dicomdir, "a4c")
         #prediction_id	instance_id	study_id	view_name	output_np	output_image	date_run	file_name
         #how to save prediction id?
-        output_np = 1
-        output_image = 1
+        output_np = np_arrays_x3
+        output_image = None 
         io_segmentation.save_to_db(instance_id_dict.get(video), 
                                    study_id_dict.get(video), 
                                    "a4c",
