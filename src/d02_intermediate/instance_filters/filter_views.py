@@ -208,7 +208,60 @@ def filter_by_views():
     merge_df["studyidk"] = merge_df["studyidk_x"]
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
 
-    io_views.save_to_db(merge_df, "instances_w_labels")
-    print("New table created: views.instances_w_labels")
 
-    ## TO DO: add code from nb for filtering by dicom metadata values
+    # The next stage in this script is to filter by dicom metadata attributes
+    df_dcm = io_clean.get_table('meta_lite')
+
+    # Rename df filtered thus far; save a copy; process to be consistent with df_dcm
+    df_inst_all = merge_df
+    df_inst = df_inst_all 
+    df_inst.rename(columns={"instancefilename": "filename"}, inplace=True)
+    df_inst["filename"] = df_inst['filename'].str.rstrip()
+    df_inst["filename"] = df_inst['filename'].str.slice_replace(stop=0,repl='a_')
+         
+    merge_df = df_inst.merge(df_dcm, on ='filename')
+    merge_df.drop(columns=['sopinstanceuid', 'dirname', 'tags'], inplace=True)
+
+    # Get only tags that we care about
+    df = merge_df
+    df['tag1'] = df['tag1'].astype(str) # consistency with tag2
+    df_region_sfa = df.loc[(df['tag1'] == '18') & (df['tag2'] == '6012')] 
+    df_num_frames = df.loc[(df['tag1'] == '28') & (df['tag2'] == '0008')] 
+    df_ultra_color = df.loc[(df['tag1'] == '28') & (df['tag2'] == '0014')]
+
+
+    # Remove instances with less than ten frames, i.e. tag (0028,0008) should be 1
+    frame_nums_str = df_num_frames['value'].tolist()
+    frame_nums_int = list(map(int, frame_nums_str))
+    frame_nums_int = sorted(list(set(frame_nums_int)))
+
+    frame_nums_final = []
+    for elem in frame_nums_int:
+        if elem >= 10:
+            frame_nums_final.append(elem)
+    frame_nums_final = list(map(str, frame_nums_final))
+
+    df = df_num_frames
+    df_num_frames_filt = df[df['value'].isin(frame_nums_final)] 
+
+    # Remove instances with ultrasound color, i.e. tag (0028,0014) should be 0
+    df_ultra_color_filt = df_ultra_color[df_ultra_color['value'] == '0']
+
+    # Remove instances with m-mode, i.e. tag (0018,6012) should be 1
+    df_region_sfa_filt = df_region_sfa[df_region_sfa['value'] == '1']
+
+    # Get instances that passed each filtering step
+    inst_1 = df_region_sfa_filt['instanceidk'].tolist()
+    inst_2 = df_num_frames_filt['instanceidk'].tolist()
+    inst_3 = df_ultra_color_filt['instanceidk'].tolist()
+
+    # Get instances that passed all filtering steps
+    inst_final = list(set(inst_1) & set(inst_2) & set(inst_3))
+
+    # Filter out instances that do not meet the dicom metadata criteria
+    df = df_inst_all
+    df = df[df['instanceidk'].isin(inst_final)]
+    df['filename'] = df['filename'].str.lstrip('a_')
+
+    io_views.save_to_db(df, "instances_w_labels")
+    print("New table created: views.instances_w_labels")
