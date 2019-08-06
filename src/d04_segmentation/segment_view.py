@@ -226,6 +226,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              'date_run': datetime.now(),
              'file_name': video}
         df = pd.DataFrame(data=d)
+        print(df)
         io_segmentation.save_to_db(df, 'predictions')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
@@ -237,6 +238,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              'date_run': datetime.now(),
              'file_name': video}
         df = pd.DataFrame(data=d)
+        print(df)
         io_segmentation.save_to_db(df, 'predictions')
     return 1
     
