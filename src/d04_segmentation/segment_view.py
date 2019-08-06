@@ -12,6 +12,7 @@ from PIL import Image
 from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
 from datetime import datetime
+import hashlib
 
 from d00_utils.echocv_utils_v0 import *
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
@@ -96,7 +97,7 @@ def segmentChamber(videofile, dicomdir, view):
             model4 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
             sess4.run(tf.local_variables_initializer())
             sess = sess4
-        odel = model4
+        model = model4
         with g_4.as_default():
             saver = tf.train.Saver()
             saver.restore(
@@ -121,6 +122,7 @@ def segmentChamber(videofile, dicomdir, view):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
     np_arrays_x3 = ();
+    images_uuid_x3 = ();
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1)
@@ -182,11 +184,13 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png"))
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"))
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
@@ -198,8 +202,9 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png"))
     #return 1
-    return np_arrays_x3
+    return np_arrays_x3, images_uuid_x3
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
@@ -211,41 +216,44 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
     
     for video in viewlist_a4c:
-        np_arrays_x3 = segmentChamber(video, dicomdir, "a4c")
-        #prediction_id	instance_id	study_id	view_name	output_np	output_image	date_run	file_name
-        #how to save prediction id?
-        output_np = np_arrays_x3
-        output_image = None 
+        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a4c")
         io_segmentation.save_to_db(instance_id_dict.get(video), 
                                    study_id_dict.get(video), 
                                    "a4c",
-                                   output_np,
-                                   output_image,
+                                   np_arrays_x3,
+                                   images_uuid_x3,
                                    datetime.now(),
                                    video)
     for video in viewlist_a2c:
-        segmentChamber(video, dicomdir, "a2c")
+        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
+        io_segmentation.save_to_db(instance_id_dict.get(video), 
+                                   study_id_dict.get(video), 
+                                   "a2c",
+                                   np_arrays_x3,
+                                   images_uuid_x3,
+                                   datetime.now(),
+                                   video)
+    '''
     for video in viewlist_psax:
-        segmentChamber(video, dicomdir, "psax")
+        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "psax")
+        io_segmentation.save_to_db(instance_id_dict.get(video), 
+                                   study_id_dict.get(video), 
+                                   "psax",
+                                   np_arrays_x3,
+                                   images_uuid_x3,
+                                   datetime.now(),
+                                   video)
     for video in viewlist_plax:
-        segmentChamber(video, dicomdir, "plax")
+        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "plax")
+        io_segmentation.save_to_db(instance_id_dict.get(video), 
+                                   study_id_dict.get(video), 
+                                   "plax",
+                                   np_arrays_x3,
+                                   images_uuid_x3,
+                                   datetime.now(),
+                                   video)
+    '''
     return 1
-
-def write_to_segmentation_schema(instance_id):
-    '''
-        
-    #write to segmentation schema
-    io_segmentation = dbReadWriteSegmentation()
-    predictions_df = pd.Dataframe(columns=['prediction_id', 'instance_id'
-                                           , 'frame', 'chamber', 'study_id'
-                                           , ' view_name', 'output_np'
-                                           , 'output_image', 'date_run'])
-    
-   
-    '''
-    prediction_id = 0 #is this auto generated?
-    instance_id = instance_id
-
 
 def create_seg(output, label):
     output = output.copy()
