@@ -198,7 +198,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
     
     """
 
-    dcmraw_dir = os.path.join(dcm_dir) #, "raw")
+    dcmraw_dir = os.path.join(dcm_dir), "raw")
     dcm_filepath = os.path.join(dcm_dir, filename)
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
