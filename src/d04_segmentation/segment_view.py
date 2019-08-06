@@ -218,7 +218,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     
     for video in viewlist_a4c:
         [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
-        d = {'instance_id': instance_id_dict.get(str(video).split('_')[2].split('.')[0]),
+        instance_id = instance_id_dict.get(str(video).split('_')[2].split('.')[0])
+        d = {'instance_id': instance_id,
              'study_id': study_id_dict.get(str(video).split('_')[2].split('.')[0]),
              'view_name': "a4c",
              'output_np':np_arrays_x3,
