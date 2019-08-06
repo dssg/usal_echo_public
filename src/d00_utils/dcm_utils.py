@@ -3,13 +3,16 @@
 import random
 import os
 import subprocess
-import logging
 
 import numpy as np
 from scipy.misc import imresize
 import cv2
 import pydicom
 from skimage.color import rgb2gray
+
+from d00_utils.log_utils import *
+
+logger = setup_logging(__name__, "download_decompress_dcm")
 
 
 def _ybr2gray(y, u, v):
@@ -23,9 +26,12 @@ def _ybr2gray(y, u, v):
 
 def _decompress_dcm(dcm_filepath, dcmraw_filepath):
 
+    dcm_dir = os.path.dirname(dcmraw_filepath)
+    os.makedirs(dcm_dir, exist_ok=True)
+
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
     subprocess.Popen(command, shell=True)
-    print('decompressed', dcm_filepath)  # log this
+    logger.info("{} decompressed".format(os.path.basename(dcm_filepath)))
 
     return
 
@@ -36,7 +42,7 @@ def _read_dcmraw(dcmraw_filepath):
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
         return ds
     else:
-        print("{} is a single frame".format(dcmraw_filepath))  # log as exception
+        logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
 
 
 def _dcmraw_to_np(dcmraw_obj):
@@ -53,7 +59,7 @@ def _dcmraw_to_np(dcmraw_obj):
         nframes = pxl_array.shape[1]
         maxframes = nframes * 3
     elif len(pxl_array.shape) == 3:  # format nframes, nrow, ncol
-        nframes = pxl_array.shape[1]
+        nframes = pxl_array.shape[0]
         maxframes = nframes * 1
 
     nrow = int(dcmraw_obj.Rows)
@@ -73,16 +79,16 @@ def _dcmraw_to_np(dcmraw_obj):
             a = pxl_array[j, k, :, :]
             b = pxl_array[l, m, :, :]
             c = pxl_array[n, o, :, :]
-            d = np.vstack((a, b))
-            e = np.vstack((d, c))
-            g = e.reshape(3 * nrow * ncol, 1)
-            y = g[::3]
-            u = g[1::3]
-            v = g[2::3]
-            y = y.reshape(nrow, ncol)
-            u = u.reshape(nrow, ncol)
-            v = v.reshape(nrow, ncol)
-            ArrayDicom[:, :] = _ybr2gray(y, u, v)
+            # d = np.vstack((a, b))
+            # e = np.vstack((d, c))
+            # g = e.reshape(3 * nrow * ncol, 1)
+            # y = g[::3]
+            # u = g[1::3]
+            # v = g[2::3]
+            # y = y.reshape(nrow, ncol)
+            # u = u.reshape(nrow, ncol)
+            # v = v.reshape(nrow, ncol)
+            ArrayDicom[:, :] = _ybr2gray(a, b, c)
             ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
             counter = counter + 1
             ArrayDicom.clip(0)
@@ -127,7 +133,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
 
     """
     os.makedirs(img_dir, exist_ok=True)
-    filename = dcmraw_filepath.split("/")[-1].split('.')[0]
+    filename = dcmraw_filepath.split("/")[-1].split(".")[0]
     framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
 
     y = len(list(framedict.keys())) - 1
@@ -142,7 +148,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
                 [cv2.IMWRITE_JPEG_QUALITY, 95],
             )
 
-    print('10 random frames extracted for {}'.format(filename))
+    logger.info("{} 10 random frames extracted".format(filename))
 
     return
 
@@ -158,21 +164,21 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
     :param img_dir: directory for storing image files
 
     """
-    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+    dcmraw_dir = os.path.join(dcm_dir, "raw")
 
     for filename in os.listdir(dcm_dir):
-        
+
         if filename.endswith(".dcm"):
             dcm_filepath = os.path.join(dcm_dir, filename)
             dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
-            
+
             if not os.path.isfile(dcmraw_filepath):
                 _decompress_dcm(dcm_filepath, dcmraw_filepath)
             try:
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 dcmraw_to_10_jpgs(dcm_filepath, img_dir)
             except AttributeError:
-                print('Could not save images for {}'.format(filename))
+                logger.error("{} could not save images".format(filename))
 
     return
 
@@ -192,7 +198,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
 
     """
 
-    dcmraw_dir = os.path.join(dcm_dir, 'raw')
+    dcmraw_dir = os.path.join(dcm_dir, "raw")
     dcm_filepath = os.path.join(dcm_dir, filename)
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
@@ -215,4 +221,4 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         return images, orig_images
 
     except AttributeError:
-        print('Could not return dict for {}'.format(filename))
+        logger.error("{} could not return dict".format(filename))

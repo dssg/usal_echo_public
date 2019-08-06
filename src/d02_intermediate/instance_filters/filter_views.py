@@ -1,28 +1,20 @@
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
+from d00_utils.log_utils import *
+
 
 def define_measurement_names():
-    
-    ''' Return dict of lists of measurements which define views'''
+
+    """ Return dict of lists of measurements which define views"""
 
     meas_dict = {}
 
-    meas_dict["PLAX"] = [
-        "Diám raíz Ao",
-        "Diám. Ao asc.",
-        "Diám TSVI",
-        "Dimensión AI",
-    ]
+    meas_dict["PLAX"] = ["Diám raíz Ao", "Diám. Ao asc.", "Diám TSVI", "Dimensión AI"]
     # POTENTIAL_MEASUREMENTS_PARASTERNAL_LONG_AXIS_VIEW = ['Diám TSVD', \
     #      'DVItd', 'DVIts', 'SIVtd', 'PPVItd']
     # Note: Removed 'Diam TSVD' as a measurement which would classify
     # a view as PLAX as Antonio is unsure of this, 2019_09_07
     # This change disqualifies 650 frames from being considered PLAX
-    meas_dict["POTENTIAL_PLAX"] = [
-        "DVItd",
-        "DVIts",
-        "SIVtd",
-        "PPVItd",
-    ]
+    meas_dict["POTENTIAL_PLAX"] = ["DVItd", "DVIts", "SIVtd", "PPVItd"]
     meas_dict["A4C"] = [
         "AVItd ap4",
         "VTD(el-ps4)",
@@ -46,8 +38,10 @@ def define_measurement_names():
         "Vol. AI (MOD-sp2)",
     ]
     meas_dict["ALL_VIEWS"] = (
-        meas_dict["PLAX"] + meas_dict["POTENTIAL_PLAX"] + \
-        meas_dict["A4C"] + meas_dict["A2C"]
+        meas_dict["PLAX"]
+        + meas_dict["POTENTIAL_PLAX"]
+        + meas_dict["A4C"]
+        + meas_dict["A2C"]
     )
 
     meas_dict["END_DIASTOLIC"] = [
@@ -78,7 +72,6 @@ def define_measurement_names():
     return meas_dict
 
 
-
 def filter_by_views():
     """
     Creates many tables:
@@ -89,6 +82,8 @@ def filter_by_views():
                         conflicting labels
         views.frames_sorted_by_views_temp: intermediate table; used by other scripts
     """
+
+    logger = setup_logging(__name__, "filter_views.py")
 
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
@@ -104,7 +99,7 @@ def filter_by_views():
     measgraphic_df = measgraphic_df[["instanceidk", "indexinmglist", "frame"]]
     measurement_abstract_rpt_df = measurement_abstract_rpt_df[
         ["studyidk", "measabstractnumber", "name"]
-    ]  
+    ]
 
     # Merge individual dataframes into one
     merge_df = measgraphref_df.merge(
@@ -161,7 +156,7 @@ def filter_by_views():
     )
 
     # Intermediate dataframe saved to db for use by other script
-    io_views.save_to_db(frames_with_views_df, 'frames_sorted_by_views_temp')
+    io_views.save_to_db(frames_with_views_df, "frames_sorted_by_views_temp")
     # Remove unlabeled instances
     df2 = frames_with_views_df
     labeled_df = df2.drop(df2[(df2["view"] == "")].index)
@@ -179,7 +174,7 @@ def filter_by_views():
     # df2 = frames_without_conflicts_df
     # labels_by_frame_df = df2.drop(df2[(df2['view']=='')].index)
     io_views.save_to_db(labels_by_frame_df, "frames_w_labels")
-    print("New table created: views.frames_w_labels")
+    logger.info("New table created: views.frames_w_labels")
 
     # Group all frames of same instance, drop frame-specific columns
     agg_functions = {"view": "first", "studyidk": "first"}
@@ -207,7 +202,6 @@ def filter_by_views():
     merge_df = merge_df[merge_df["studyidk_x"] == merge_df["studyidk_y"]]
     merge_df["studyidk"] = merge_df["studyidk_x"]
     merge_df.drop(labels=["studyidk_x", "studyidk_y"], axis=1, inplace=True)
-
 
     # The next stage in this script is to filter by dicom metadata attributes
     df_dcm = io_clean.get_table('meta_lite')
@@ -264,4 +258,4 @@ def filter_by_views():
     df['filename'] = df['filename'].str.lstrip('a_')
 
     io_views.save_to_db(df, "instances_w_labels")
-    print("New table created: views.instances_w_labels")
+    logger.info("New table created: views.instances_w_labels")
