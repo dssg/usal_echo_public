@@ -121,8 +121,8 @@ def segmentChamber(videofile, dicomdir, view):
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
-    np_arrays_x3 = [None];
-    images_uuid_x3 = [None];
+    np_arrays_x3 = [];
+    images_uuid_x3 = [];
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1)
