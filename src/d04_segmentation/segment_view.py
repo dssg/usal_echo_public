@@ -205,7 +205,7 @@ def segmentChamber(videofile, dicomdir, view):
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
     images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()))
     #return 1
-    return np_arrays_x3, images_uuid_x3
+    return [np_arrays_x3, images_uuid_x3]
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
@@ -217,7 +217,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
     
     for video in viewlist_a4c:
-        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a4c")
+        [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
         d = {'instance_id': instance_id_dict.get(video),
              'study_id': study_id_dict.get(video),
              'view_name': "a4c",
