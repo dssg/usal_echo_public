@@ -10,7 +10,7 @@ import cv2
 import pydicom
 from skimage.color import rgb2gray
 
-from src.d00_utils.log_utils import *
+from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, "download_decompress_dcm")
 
