@@ -224,8 +224,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
                                    np_arrays_x3,
                                    images_uuid_x3,
                                    datetime.now(),
-                                   str(video)}
-                    , columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
+                                   video}, columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
         io_segmentation.save_to_db(df, 'predictions')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
@@ -235,8 +234,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
                                    np_arrays_x3,
                                    images_uuid_x3,
                                    datetime.now(),
-                                   str(video)}
-                    , columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
+                                   video}, columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
         io_segmentation.save_to_db(df, 'predictions')
     return 1
     
