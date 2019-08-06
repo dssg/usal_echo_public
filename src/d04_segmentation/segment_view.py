@@ -218,23 +218,25 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     
     for video in viewlist_a4c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a4c")
-        df = pd.DataFrame({instance_id_dict.get(video), 
-                                   study_id_dict.get(video), 
-                                   "a4c",
-                                   np_arrays_x3,
-                                   images_uuid_x3,
-                                   datetime.now(),
-                                   video}, columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
+        d = {'instance_id': instance_id_dict.get(video),
+             'study_id': study_id_dict.get(video),
+             'view_name': "a4c",
+             'output_np':np_arrays_x3,
+             'output_image': images_uuid_x3,
+             'date_run': datetime.now(),
+             'file_name': video}
+        df = pd.DataFrame(data=d)
         io_segmentation.save_to_db(df, 'predictions')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
-        df = pd.DataFrame({instance_id_dict.get(video), 
-                                   study_id_dict.get(video), 
-                                   "a2c",
-                                   np_arrays_x3,
-                                   images_uuid_x3,
-                                   datetime.now(),
-                                   video}, columns=['prediction_id', 'instance_id', 'study_id', 'view_name', 'output_np', 'output_image', 'date_run', 'file_name'])
+        d = {'instance_id': instance_id_dict.get(video),
+             'study_id': study_id_dict.get(video),
+             'view_name': "a2c",
+             'output_np':np_arrays_x3,
+             'output_image': images_uuid_x3,
+             'date_run': datetime.now(),
+             'file_name': video}
+        df = pd.DataFrame(data=d)
         io_segmentation.save_to_db(df, 'predictions')
     return 1
     
