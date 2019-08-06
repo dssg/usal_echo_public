@@ -15,6 +15,10 @@ from sqlalchemy import inspect
 import tempfile
 import gc
 
+from d00_utils.log_utils import *
+
+logger = setup_logging(__name__, "save_to_db")
+
 
 def _load_json_credentials(filepath):
     """Load json formatted credentials.
@@ -91,7 +95,7 @@ class dbReadWriteData:
 
         gc.collect()
 
-        print(
+        logger.info(
             "Saved table {} to schema {} (mode={})".format(
                 db_table, self.schema, if_exists
             )
@@ -130,18 +134,6 @@ class dbReadWriteData:
         """
         inspector = inspect(self.engine)
         print(inspector.get_table_names(self.schema))
-
-
-class dbReadWritePublic(dbReadWriteData):
-    """
-    TODO: delete this class when other schemas properly populated
-    Instantiates class for postres I/O to 'public' schema 
-    """
-
-    def __init__(self):
-        super().__init__(schema="public")
-        if not self.engine.dialect.has_schema(self.engine, self.schema):
-            self.engine.execute(CreateSchema(self.schema))
 
 
 class dbReadWriteRaw(dbReadWriteData):
