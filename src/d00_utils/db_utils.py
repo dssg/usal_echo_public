@@ -7,6 +7,7 @@ Created on Thu Jul 3 2019
 """
 
 import pandas as pd
+import numpy as np
 import os
 from json import load
 from sqlalchemy import create_engine
@@ -189,6 +190,24 @@ class dbReadWriteSegmentation(dbReadWriteData):
         super().__init__(schema="segmentation")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+    
+    def save_to_db(self, df, db_table, if_exists="replace"):
+        """Write dataframe to table in database.
+        
+        :param df (pandas.DataFrame): dataframe to save to database
+        :param db_table (str): name of database table to write to
+        :param if_exists (str): write action if table exists, default='replace'
+        
+        """
+        gc.collect()
+        # Create new database table from empty dataframe
+        df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
+
+        print(
+            "Saved table {} to schema {} (mode={})".format(
+                db_table, self.schema, if_exists
+            )
+        )
         
             
     def save_numpy_array_to_db(self, np_array, table_name):
