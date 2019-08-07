@@ -8,6 +8,27 @@ from util import * ## e.g. from echocv/utils. do we have this in our repo?
                     # may not need it, as they only import 1 function (I think), i.e. split_data()
 from scipy.misc import imread
 
+from d00_utils.db_utils import dbReadWriteViews
+
+io_views = dbReadWriteViews()
+df = io_views.get_table('instances_w_labels')
+
+def get_onehot_vector(filename_str):
+    ''' 
+    Returns a one-hot vector corresponding to 
+    '''
+    filename = filename_str.split('_')[2].split('.')[0]
+    #filename = '8Z0BWX0M' # TO DO: delete this line!
+    df_row = df[df['filename']==filename]
+    label = df_row['view'].tolist()[0]
+
+    vec = [0] * 23
+    mapping = {'plax': 1, 'a2c': 8, 'a4c': 14}
+    idx = mapping[label]
+    vec[idx] = 1
+    
+    return vec
+
 ## TO DO:
 # Use this file as a template for getting data in the same format
 # Look at d00_utils/dcm_utils, which has preprocessing scripts improved from Zhang
