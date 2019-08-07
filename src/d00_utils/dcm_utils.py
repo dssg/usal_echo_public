@@ -10,7 +10,7 @@ import cv2
 import pydicom
 from skimage.color import rgb2gray
 
-from d00_utils.log_utils import *
+from d00_utils.log_utils import setup_logging
 logger = setup_logging(__name__, "download_decompress_dcm")
 
 
@@ -36,11 +36,6 @@ def decompress_dcm(dcm_filepath, dcmraw_filepath):
 
     except subprocess.CalledProcessError as e:
         logger.error("{} FAILED to decompress - {}".format(os.path.basename(dcmraw_filepath).split('.')[0], e))
-    
-#    if os.path.exists(dcmraw_filepath):
-#        logger.info("{} decompressed".format(os.path.basename(dcmraw_filepath).split('.')[0]))
-#    else:
-#        logger.error("{} FAILED to decompress".format(os.path.basename(dcmraw_filepath).split('.')[0]))
 
     return
 
