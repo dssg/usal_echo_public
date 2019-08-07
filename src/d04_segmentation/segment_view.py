@@ -213,14 +213,21 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
     instances_unique_master_list = io_views.get_table('instances_unique_master_list')
-    instance_id_dict = instances_unique_master_list.set_index('instancefilename')['instanceidk'].to_dict()
-    study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
+    #below cleans the filename field
+    instances_unique_master_list['instancefilename'] = instances_unique_master_list['instancefilename'].apply(lambda x: str(x).strip())
+    #instance_id_dict = instances_unique_master_list.set_index('instancefilename')['instanceidk'].to_dict()
+    #study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
     
     for video in viewlist_a4c:
         [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
-        instance_id = instance_id_dict.get(str(video).split('_')[2].split('.')[0])
+        instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split('_')[1])
+        #below filters to just the record of interest
+        df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
+        df = df.reset_index()
+        instance_id = df.at[0, 'instanceidk']
         d = {'instance_id': instance_id,
-             'study_id': study_id_dict.get(str(video).split('_')[2].split('.')[0]),
+             'study_id': studyidk,
              'view_name': "a4c",
              'output_np':np_arrays_x3,
              'output_image': images_uuid_x3,
@@ -231,8 +238,14 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         io_segmentation.save_to_db(df, 'predictions')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
-        d = {'instance_id': instance_id_dict.get(str(video).split('_')[2].split('.')[0]),
-             'study_id': study_id_dict.get(str(video).split('_')[2].split('.')[0]),
+        instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split('_')[1])
+        #below filters to just the record of interest
+        df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
+        df = df.reset_index()
+        instance_id = df.at[0, 'instanceidk']
+        d = {'instance_id': instance_id,
+             'study_id': studyidk,
              'view_name': "a2c",
              'output_np':np_arrays_x3,
              'output_image': images_uuid_x3,
