@@ -34,9 +34,9 @@ def create_probabilities_textfile_testing(instance_id_list):
     # 1. Gets frames_by_volume_mask view
     io_views = dbReadWriteViews()
     frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
-    frames_by_volume_mask = frames_by_volume_mask[
-        frames_by_volume_mask["view_exists"] == True
-    ]
+    #frames_by_volume_mask = frames_by_volume_mask[
+    #    frames_by_volume_mask["view_exists"] == True
+    #]
     instances_unique_master_list = io_views.get_table("instances_w_labels_test_downsampleby5")
     print('instance_list size: {}'.format(instances_unique_master_list.shape))
 
@@ -86,10 +86,10 @@ def create_probabilities_textfile_testing(instance_id_list):
 
     for i in df_2.index:
         prob_tb.at[i, "study"] = "/home/ubuntu/data/01_raw/test_downsampleby5"
-        instancefilename = df_2.at[i, "instancefilename"]
+        filename = df_2.at[i, "filename"]
         studyidk = df_2.at[i, "studyidk"]
         prob_tb.at[i, "image"] = (
-            "a_" + str(studyidk).strip() + "_" + str(instancefilename).strip() + ".dcm"
+            "a_" + str(studyidk).strip() + "_" + str(filename).strip() + ".dcm"
         )
         if df_2.at[i, "view_only"] == "a4c":
             prob_tb.at[i, "a4c"] = 0.9898
