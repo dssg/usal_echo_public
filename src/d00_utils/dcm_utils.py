@@ -11,7 +11,6 @@ import pydicom
 from skimage.color import rgb2gray
 
 from d00_utils.log_utils import *
-
 logger = setup_logging(__name__, "download_decompress_dcm")
 
 
@@ -24,14 +23,24 @@ def _ybr2gray(y, u, v):
     return np.array(gray, dtype="int8")
 
 
-def _decompress_dcm(dcm_filepath, dcmraw_filepath):
+def decompress_dcm(dcm_filepath, dcmraw_filepath):
 
     dcm_dir = os.path.dirname(dcmraw_filepath)
     os.makedirs(dcm_dir, exist_ok=True)
 
     command = "gdcmconv -w " + dcm_filepath + " " + dcmraw_filepath
-    subprocess.Popen(command, shell=True)
-    logger.info("{} decompressed".format(os.path.basename(dcm_filepath)))
+
+    try:
+        subprocess.run(command, shell=True, check=True)    
+        logger.info("{} decompressed".format(os.path.basename(dcmraw_filepath).split('.')[0]))
+
+    except subprocess.CalledProcessError as e:
+        logger.error("{} FAILED to decompress - {}".format(os.path.basename(dcmraw_filepath).split('.')[0], e))
+    
+#    if os.path.exists(dcmraw_filepath):
+#        logger.info("{} decompressed".format(os.path.basename(dcmraw_filepath).split('.')[0]))
+#    else:
+#        logger.error("{} FAILED to decompress".format(os.path.basename(dcmraw_filepath).split('.')[0]))
 
     return
 
@@ -141,7 +150,7 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
         m = random.sample(list(range(0, y)), 10)
         for n in m:
             targetimage = framedict[n][:]
-            outfile = os.path.join(img_dir, filename) + str(n) + ".jpg"
+            outfile = os.path.join(img_dir, filename) +'_'+ str(n) + ".jpg"
             cv2.imwrite(
                 outfile,
                 cv2.resize(targetimage, (224, 224)),
@@ -173,7 +182,7 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
             dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
             if not os.path.isfile(dcmraw_filepath):
-                _decompress_dcm(dcm_filepath, dcmraw_filepath)
+                decompress_dcm(dcm_filepath, dcmraw_filepath)
             try:
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 dcmraw_to_10_jpgs(dcm_filepath, img_dir)
@@ -203,7 +212,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
     if not os.path.isfile(dcmraw_filepath):
-        _decompress_dcm(dcm_filepath, dcmraw_filepath)
+        decompress_dcm(dcm_filepath, dcmraw_filepath)
 
     try:
         framedict = extract_framedict_from_dcmraw(dcmraw_filepath)

@@ -15,7 +15,7 @@ Summaries of each filtering steps are included below. Further details in each or
 """
 
 
-def run_all():
+def filter_all():
 
     """ 
     Creates two tables:

@@ -16,19 +16,19 @@ import numpy as np
 from scipy.misc import imread
 
 from d00_utils.dcm_utils import dcmdir_to_jpgs_for_classification
+from d00_utils.log_utils import *
+logger = setup_logging(__name__, "d03_classification")
 
 sys.path.append("./funcs/")
 sys.path.append("./nets/")
 
-# # Hyperparams
+# Hyperparams --DELETE
 parser = OptionParser()
 parser.add_option(
-    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
-)
+    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir")
 parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
 parser.add_option(
-    "-M", "--modeldir", dest="modeldir", default="models", help="modeldir"
-)
+    "-M", "--modeldir", dest="modeldir", default="models", help="modeldir")
 parser.add_option("-m", "--model", dest="model")
 params, args = parser.parse_args()
 dicomdir = params.dicomdir
@@ -77,9 +77,9 @@ def run_classify(model):
     results_dir = (
         "/home/ubuntu/data/03_classification/results"
     )  # TODO this shouldn't be hardcoded
-    os.makedirs(results_dir, exist_ok=True)
-    temp_image_dir = os.path.join(dicomdir, 'image/')
-    model_name = os.path.join(modeldir, model)
+#    os.makedirs(results_dir, exist_ok=True)
+#    temp_image_dir = os.path.join(dicomdir, 'image/')
+#    model_name = os.path.join(modeldir, model)
 
     infile = open("d03_classification/viewclasses_" + model + ".txt")
     infile = infile.readlines()
@@ -113,7 +113,6 @@ def run_classify(model):
     for prefix in list(predictprobdict.keys()):
         predictprobmean = np.mean(predictprobdict[prefix], axis=0)
         out.write(dicomdir + "\t" + prefix)
-
 
         for i in predictprobmean:
             out.write("\t" + str(i))
