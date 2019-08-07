@@ -261,6 +261,9 @@ def create_seg_view():
         value_name="view_exists",
     )
     del df_6
+    # write output to db
+    io_views.save_to_db(df_7, "chords_by_volume_mask")
+
 
     # 12. drop chord sequence and remove duplicates
     df_8 = df_7.drop(
