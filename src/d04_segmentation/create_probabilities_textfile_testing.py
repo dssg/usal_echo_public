@@ -38,6 +38,7 @@ def create_probabilities_textfile_testing(instance_id_list):
         frames_by_volume_mask["view_exists"] == True
     ]
     instances_unique_master_list = io_views.get_table("instances_w_labels_test_downsampleby5")
+    print('instance_list size: {}'.format(instances_unique_master_list.shape))
 
     # 2. Merges tables
     df_1 = pd.merge(
@@ -49,6 +50,7 @@ def create_probabilities_textfile_testing(instance_id_list):
 
     # 3. Filters the dataframe by the param: instanceid
     df_2 = df_1[df_1["instanceidk"].isin(instance_id_list)]
+    print('df_2: {}'.format(df_2.shape))
     del df_1
 
     # 4. Create the probabilities table
