@@ -47,6 +47,7 @@ def create_probabilities_textfile_testing(instance_id_list):
         how="left",
         on=["instanceidk", "studyidk"],
     )
+    print('df_1: {}'.format(df_1.shape))
 
     # 3. Filters the dataframe by the param: instanceid
     df_2 = df_1[df_1["instanceidk"].isin(instance_id_list)]
