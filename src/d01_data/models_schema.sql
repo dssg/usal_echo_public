@@ -51,3 +51,49 @@ create table segmentation.ground_truths(
     numpy_array bytea[],
     primary key(ground_truth_id)
 );
+
+
+--MEASUREMENTS SCHEMA
+--tables for persisting the outputs of the measurement process
+DROP SCHEMA IF EXISTS measurement CASCADE;
+
+CREATE SCHEMA measurement;
+
+--table calculations:
+drop table if exists measurement.calculations;
+
+create table measurement.calculations(
+    calculation_id serial,
+    instance_id integer,
+    study_id integer,
+    measurement_name varchar,
+    measurement_unit varchar,
+    measurement_value float,
+    date_run timestamp with time zone,
+    primary key(calculation_id)
+);
+
+--table evaluations:
+drop table if exists measurement.evaluations;
+
+create table if exists measurement.evaluations(
+    evaluation_id serial,
+    instance_id integer,
+    study_id integer,
+    score_type varchar,
+    score_value float,
+    primary key(evaluation_id)
+);
+
+--table ground_truths:
+drop table if exists measurement.ground_truths;
+
+create table measurement.ground_truths(
+    ground_truth_id serial,
+    instance_id varchar,
+    study_id varchar,
+    measurement_name varchar,
+    measurement_unit varchar,
+    measurement_value float,
+    primary key(ground_truth_id)
+);
