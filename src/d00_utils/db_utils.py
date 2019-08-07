@@ -201,7 +201,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         """
         gc.collect()
         # Create new database table from empty dataframe
-        df[:0].to_sql(db_table, self.engine, self.schema, if_exists="replace" , index=False)
+        #df[:0].to_sql(db_table, self.engine, self.schema, if_exists="replace" , index=False)
         df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
 
         print(
@@ -211,7 +211,8 @@ class dbReadWriteSegmentation(dbReadWriteData):
         )
         
     def save_numpy_array_to_db(self, np_array, table_name, column_name):
-        binary_data = psycopg2.Binary(np_array)
+        #saving only the first in the list
+        binary_data = psycopg2.Binary(np_array[0])
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
         sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, column_name, binary_data)
         self.cursor.execute(sql)
