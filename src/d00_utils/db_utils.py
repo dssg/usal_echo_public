@@ -226,7 +226,17 @@ class dbReadWriteSegmentation(dbReadWriteData):
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
         sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, 
                            ",".join(column_names), 
-                           ".".join(binary_data_array))
+                           binary_data_array[0],
+                           binary_data_array[1],
+                           binary_data_array[2],
+                           binary_data_array[3],
+                           binary_data_array[4],
+                           binary_data_array[5],
+                           binary_data_array[6],
+                           binary_data_array[7],
+                           binary_data_array[8],
+                           binary_data_array[9],
+                           binary_data_array[10])
         self.cursor.execute(sql)
         self.raw_conn.commit()
         
