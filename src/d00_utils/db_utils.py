@@ -224,8 +224,6 @@ class dbReadWriteSegmentation(dbReadWriteData):
         binary_data_array[3] = psycopg2.Binary(np_array[3]) #converting output_np_lv
         binary_data_array[4] = psycopg2.Binary(np_array[4]) #converting output_np_la
         binary_data_array[5] = psycopg2.Binary(np_array[5]) #converting output_np_lvo
-        sql_1 = "SELECT MD5('{}');".format(binary_data_array[6])
-        md5_6 = self.cursor.execute(sql_1)
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
         sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values('{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(self.schema, table_name, 
                            'instance_id', 'study_id', 'view_name', 
@@ -238,9 +236,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
                            binary_data_array[3],
                            binary_data_array[4],
                            binary_data_array[5],
-                           md5_6,
-                           str(binary_data_array[7]),
-                           '8',
+                           binary_data_array[6],
+                           binary_data_array[7],
+                           binary_data_array[8],
                            binary_data_array[9],
                            binary_data_array[10])
         self.cursor.execute(sql)
