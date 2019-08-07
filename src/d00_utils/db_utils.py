@@ -236,9 +236,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
                            binary_data_array[3],
                            binary_data_array[4],
                            binary_data_array[5],
-                           str(binary_data_array[6]),
-                           str(binary_data_array[7]),
-                           str(binary_data_array[8]),
+                           binary_data_array[6],
+                           binary_data_array[7],
+                           binary_data_array[8],
                            binary_data_array[9],
                            binary_data_array[10])
         self.cursor.execute(sql)
