@@ -212,7 +212,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
     def save_numpy_array_to_db(self, np_array, table_name, column_name):
         binary_data = psycopg2.Binary(np_array)
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
-        sql = "insert into {} ({}) values({})".format(self.schema.table_name, column_name, binary_data)
+        sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, column_name, binary_data)
         self.cursor.execute(sql)
         self.raw_conn.commit()
         
