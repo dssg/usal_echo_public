@@ -215,6 +215,12 @@ class dbReadWriteSegmentation(dbReadWriteData):
         sql = "insert into {} ({}) values({})".format(table_name, column_name, binary_data)
         self.cursor.execute(sql)
         self.raw_conn.commit()
+        
+        print(
+            "Saved column {} in table {} to schema {} (mode={})".format(
+                column_name, table_name, self.schema
+            )
+        )
     
     def get_numpy_array_from_db(self, column_name, table_name):
         sql = 'select {} from {}'.format(column_name, table_name)
