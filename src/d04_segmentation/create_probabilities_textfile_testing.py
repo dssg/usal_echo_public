@@ -37,7 +37,7 @@ def create_probabilities_textfile_testing(instance_id_list):
     frames_by_volume_mask = frames_by_volume_mask[
         frames_by_volume_mask["view_exists"] == True
     ]
-    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    instances_unique_master_list = io_views.get_table("instances_w_labels_test_downsampleby5")
 
     # 2. Merges tables
     df_1 = pd.merge(
@@ -83,7 +83,7 @@ def create_probabilities_textfile_testing(instance_id_list):
     )
 
     for i in df_2.index:
-        prob_tb.at[i, "study"] = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
+        prob_tb.at[i, "study"] = "/home/ubuntu/data/01_raw/test_downsampleby5"
         instancefilename = df_2.at[i, "instancefilename"]
         studyidk = df_2.at[i, "studyidk"]
         prob_tb.at[i, "image"] = (

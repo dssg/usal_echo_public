@@ -39,6 +39,7 @@ def segmentChamber(videofile, dicomdir, view):
     """
     
     """
+    # TODO: Need to put some error handling in here for when the file is not found 
     mean = 24
     weight_decay = 1e-12
     learning_rate = 1e-4
