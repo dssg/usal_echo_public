@@ -227,7 +227,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         sql_1 = "SELECT MD5('{}');".format(binary_data_array[6])
         md5_6 = self.cursor.execute(sql_1)
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
-        sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(self.schema, table_name, 
+        sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(self.schema, table_name, 
                            'instance_id', 'study_id', 'view_name', 
                            'output_np_lv', 'output_np_la', 'output_np_lvo', 
                            'output_image_seg', 'output_image_orig', 
