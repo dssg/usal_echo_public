@@ -186,13 +186,13 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png").hexdigest())
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png").encode().hexdigest())
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png").hexdigest())
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png").encode().hexdigest())
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
@@ -204,7 +204,7 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
-    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").hexdigest())
+    images_uuid_x3.append(hashlib.md5(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode().hexdigest())
     #return 1
     return [np_arrays_x3, images_uuid_x3]
 
