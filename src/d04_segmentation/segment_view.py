@@ -230,7 +230,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              'study_id': studyidk,
              'view_name': "a4c",
              #'output_np':np_arrays_x3,
-             'output_image': images_uuid_x3,
+             #'output_image': images_uuid_x3,
              'date_run': datetime.now(),
              'file_name': video}
         df = pd.DataFrame(data=d)
@@ -248,7 +248,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              'study_id': studyidk,
              'view_name': "a2c",
              #'output_np':np_arrays_x3,
-             'output_image': images_uuid_x3,
+             #'output_image': images_uuid_x3,
              'date_run': datetime.now(),
              'file_name': video}
         df = pd.DataFrame(data=d).to_numpy()
