@@ -253,7 +253,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              'file_name': video}
         df = pd.DataFrame(data=d)
         print(df)
-        io_segmentation.save_to_db(df, 'predictions')
+        #io_segmentation.save_to_db(df, 'predictions')
+        io_segmentation.save_numpy_array_to_db(df.to_numpy(), 'predictions')
     return 1
     
 '''
