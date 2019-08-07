@@ -12,5 +12,5 @@ from d02_intermediate.instance_filters import filter_views
 
 if __name__ == "__main__":
     #predict_view_v0.main()
-	#filter_instances.run_all()
-    filter_views.filter_by_views()
+	filter_instances.run_all()
+    #filter_views.filter_by_views()
