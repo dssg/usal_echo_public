@@ -201,6 +201,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         """
         gc.collect()
         # Create new database table from empty dataframe
+        df[:0].to_sql(db_table, self.engine, self.schema, if_exists="replace" , index=False)
         df.to_sql(db_table, self.engine, self.schema, if_exists, index=False)
 
         print(
