@@ -236,9 +236,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
                            binary_data_array[3],
                            binary_data_array[4],
                            binary_data_array[5],
-                           MD5(binary_data_array[6]),
-                           MD5(binary_data_array[7]),
-                           MD5(binary_data_array[8]),
+                           psycopg2.Binary(binary_data_array[6]),
+                           psycopg2.Binary(binary_data_array[7]),
+                           psycopg2.Binary(binary_data_array[8]),
                            binary_data_array[9],
                            binary_data_array[10])
         self.cursor.execute(sql)
