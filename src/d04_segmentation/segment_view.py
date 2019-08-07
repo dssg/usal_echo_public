@@ -226,6 +226,11 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
         df = df.reset_index()
         instance_id = df.at[0, 'instanceidk']
+        d = [instance_id, studyidk, "a4c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
+             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], datetime.now(), 
+             video]
+        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        '''
         d = {'instance_id': instance_id,
              'study_id': studyidk,
              'view_name': "a4c",
@@ -239,6 +244,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         df_np = pd.DataFrame(data=d_np).to_numpy()
         io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
         io_segmentation.save_to_db(df, 'predictions')
+        '''
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
         instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -247,6 +253,11 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
         df = df.reset_index()
         instance_id = df.at[0, 'instanceidk']
+        d = [instance_id, studyidk, "a2c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
+             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], datetime.now(), 
+             video]
+        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        '''
         d = {'instance_id': instance_id,
              'study_id': studyidk,
              'view_name': "a2c",
@@ -261,6 +272,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
         io_segmentation.save_to_db(df, 'predictions')
         #io_segmentation.save_numpy_array_to_db(df.to_numpy(), 'predictions')
+        '''
     return 1
     
 '''
