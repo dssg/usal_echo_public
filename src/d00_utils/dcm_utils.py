@@ -187,13 +187,6 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
     return
 
 
-def s3_to_jpgs_for_classification():
-
-    # TODO
-
-    return
-
-
 def dcm_to_segmentation_arrays(dcm_dir, filename):
     """Creates a numpy array of all frames for filename in dcm_dir.
     

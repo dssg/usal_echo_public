@@ -9,7 +9,7 @@ Created on Thu Jul 3 2019
 import boto3
 import os
 from d00_utils.log_utils import setup_logging
-logger = setup_logging(__name__, "d00_data")
+logger = setup_logging(__name__, "d01_data")
 
 
 # TODO specify aws s3 credentials
