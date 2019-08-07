@@ -76,7 +76,7 @@ create table measurement.calculations(
 --table evaluations:
 drop table if exists measurement.evaluations;
 
-create table if exists measurement.evaluations(
+create table measurement.evaluations(
     evaluation_id serial,
     instance_id integer,
     study_id integer,
