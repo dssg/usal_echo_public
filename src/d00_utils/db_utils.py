@@ -219,7 +219,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         self.raw_conn.commit()
         
         print(
-            "Saved column {} in table {} to schema {} (mode={})".format(
+            "Saved column {} in table {} to schema {} ".format(
                 column_name, table_name, self.schema
             )
         )
