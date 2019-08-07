@@ -237,8 +237,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         print(df)
         d_np = {'output_np':np_arrays_x3}
         df_np = pd.DataFrame(data=d_np).to_numpy()
-        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
         io_segmentation.save_to_db(df, 'predictions')
+        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
         instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -258,8 +258,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         print(df)
         d_np = {'output_np':np_arrays_x3}
         df_np = pd.DataFrame(data=d_np).to_numpy()
-        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
         io_segmentation.save_to_db(df, 'predictions')
+        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
         #io_segmentation.save_numpy_array_to_db(df.to_numpy(), 'predictions')
     return 1
     
