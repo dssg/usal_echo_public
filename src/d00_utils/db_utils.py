@@ -210,17 +210,28 @@ class dbReadWriteSegmentation(dbReadWriteData):
             )
         )
         
-    def save_numpy_array_to_db(self, np_array, table_name, column_name):
+    def save_numpy_array_to_db(self, np_array, table_name):
+        #prediction_id	instance_id	study_id	view_name	output_np_lv	
+        #output_np_la	output_np_lvo	output_image_seg	output_image_orig	
+        #output_image_overlay	date_run	file_name
         #saving only the first in the list
-        binary_data = psycopg2.Binary(np_array[0])
+        column_names = ['instance_id', 'study_id', 'view_name', 
+                       'output_np_lv', 'output_np_la', 'output_np_lvo', 
+                       'output_image_seg', 'output_image_orig', 
+                       'output_image_overlay', 'date_run', 'file_name']
+        binary_data_array = np_array.copy()
+        binary_data_array[3] = psycopg2.Binary(np_array[3]) #converting output_np_lv
+        binary_data_array[4] = psycopg2.Binary(np_array[4]) #converting output_np_la
+        binary_data_array[5] = psycopg2.Binary(np_array[5]) #converting output_np_lvo
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
-        sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, column_name, binary_data)
+        sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, 
+                           ",".join(column_names), 
+                           ".".join(binary_data_array))
         self.cursor.execute(sql)
         self.raw_conn.commit()
         
         print(
-            "Saved column {} in table {} to schema {} ".format(
-                column_name, table_name, self.schema
+            "Saved to table {} to schema {} ".format(table_name, self.schema
             )
         )
     
