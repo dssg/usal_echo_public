@@ -219,6 +219,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
                        'output_np_lv', 'output_np_la', 'output_np_lvo', 
                        'output_image_seg', 'output_image_orig', 
                        'output_image_overlay', 'date_run', 'file_name']
+        print("".format(",".join(column_names)))
         binary_data_array = np_array.copy()
         binary_data_array[3] = psycopg2.Binary(np_array[3]) #converting output_np_lv
         binary_data_array[4] = psycopg2.Binary(np_array[4]) #converting output_np_la
