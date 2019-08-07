@@ -225,8 +225,11 @@ class dbReadWriteSegmentation(dbReadWriteData):
         binary_data_array[4] = psycopg2.Binary(np_array[4]) #converting output_np_la
         binary_data_array[5] = psycopg2.Binary(np_array[5]) #converting output_np_lvo
         #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
-        sql = "insert into {}.{} ({}) values({})".format(self.schema, table_name, 
-                           ",".join(column_names), 
+        sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(self.schema, table_name, 
+                           'instance_id', 'study_id', 'view_name', 
+                           'output_np_lv', 'output_np_la', 'output_np_lvo', 
+                           'output_image_seg', 'output_image_orig', 
+                           'output_image_overlay', 'date_run', 'file_name', 
                            binary_data_array[0],
                            binary_data_array[1],
                            binary_data_array[2],
