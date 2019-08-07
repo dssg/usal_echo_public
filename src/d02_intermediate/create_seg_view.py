@@ -261,7 +261,11 @@ def create_seg_view():
         value_name="view_exists",
     )
     del df_6
-    # write output to db
+    
+    #filter to only views that exist
+    df_7 = df_7[df_7['view_exists'] == True]
+    
+    # write output to db    
     io_views.save_to_db(df_7, "chords_by_volume_mask")
 
 
