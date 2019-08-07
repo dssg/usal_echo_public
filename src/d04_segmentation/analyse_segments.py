@@ -314,8 +314,8 @@ def calculate_measurements():
 
     logger.info(f"Results: {study_measure_dict}")
 
-    # TODO: aggregate measurements across multiple videos in a study?
-    # Exclude measurements from videos where LAVOL/LVEDV < 30% (?)
+    # TODO: in future, aggregate measurements across multiple videos in a study
+    # Exclude measurements from videos where LAVOL/LVEDV < 30%, in case occluded
     # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
 
     # TODO: write to database
