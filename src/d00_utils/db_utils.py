@@ -191,7 +191,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
     
-    def save_to_db(self, df, db_table, if_exists="replace"):
+    def save_to_db(self, df, db_table, if_exists="append"):
         """Write dataframe to table in database.
         
         :param df (pandas.DataFrame): dataframe to save to database
