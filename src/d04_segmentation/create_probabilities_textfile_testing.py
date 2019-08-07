@@ -98,6 +98,7 @@ def create_probabilities_textfile_testing(instance_id_list):
             prob_tb.at[i, "a2c"] = 0.9898
 
     df_3 = prob_tb.fillna(0)
+    print('df_3: {}'.format(df_3.shape))
 
     # 5. Writes the probabilities textfile to data/d04_segmentation folder
     project_dir = os.path.dirname(os.getcwd())
