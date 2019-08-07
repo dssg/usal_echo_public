@@ -12,11 +12,11 @@ def split_train_test(ratio=0.5):
                  e.g. if 0.8, will take 80% as train set and 20% as test set
     """
 
-    logger = setup_loggin(__name__, "train_test_split.py")
+    logger = setup_logging(__name__, "train_test_split.py")
 
     io_views = dbReadWriteViews()
 
-    df = io_views.get_table("instances_with_labels")
+    df = io_views.get_table("instances_w_labels")
 
     msk = np.random.rand(len(df)) < ratio
 

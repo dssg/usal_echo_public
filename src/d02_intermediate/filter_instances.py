@@ -45,7 +45,7 @@ def run_all():
     """
     Creates views.instances_w_conflicts, i.e. instances to avoid
     """
-    conflict_instances.find_table_conflicts()
+    #conflict_instances.find_table_conflicts()
 
     """
     Creates views.instances_unlabeled: all instances which are fair game for classifying as 
@@ -53,7 +53,7 @@ def run_all():
     The true views of these instances are not known; we only know that they haven't been 
     explicitly labeled plax, a4c, a2c
     """
-    unlabeled_instances.create_unlabeled_instances()
+    #unlabeled_instances.create_unlabeled_instances()
 
     ##########################################################################
     ##TO DO, WIEBKE: integrate below scripts further down pipe, delete here
@@ -64,7 +64,7 @@ def run_all():
     :param ratio(float): ratio for splitting into train/test
                          e.g. if 0.8, will take 80% as train set and 20% as test set
     """
-    # train_test_split.split_train_test(ratio=0.5)
+    #train_test_split.split_train_test(ratio=0.8)
 
     """
     Creates views.instances_w_labels_{train/test}_downsampX, i.e. versions of 
@@ -73,4 +73,4 @@ def run_all():
     :param ratio(float): percentage by which to downsample dataset
                          e.g. if ratio=0.1, will downsample by a factor of 10
     """
-    # downsample_data.downsample_train_test(ratio=0.1)
+    #downsample_data.downsample_train_test(ratio=0.2)
