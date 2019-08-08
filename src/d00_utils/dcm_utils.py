@@ -248,10 +248,7 @@ def extract_metadata_for_measurements(dicomdir, videofile):
 
 
 def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
-    """
-    the unit is the number of cm per pixel 
-    
-    """
+    """Get x_scale, y_scale from gdcmdump output."""
     xlist = []
     ylist = []
     for line in lines:
@@ -271,9 +268,7 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
 
 
 def _extract_hr_from_gdcm_str(lines, dicom_tags):
-    """
-    
-    """
+    """Get heart rate from gdcmdump output."""
     hr = "None"
     for line in lines:
         line = line.lstrip()
@@ -284,9 +279,7 @@ def _extract_hr_from_gdcm_str(lines, dicom_tags):
 
 
 def _extract_xy_from_gdcm_str(lines, dicom_tags):
-    """
-    
-    """
+    """Get rows, columns from gdcmdump output."""
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
@@ -298,9 +291,7 @@ def _extract_xy_from_gdcm_str(lines, dicom_tags):
 
 
 def _extract_ft_from_gdcm_str(lines, dicom_tags):
-    """
-    
-    """
+    """Get frame time from gdcmdump output."""
     default_framerate = 30
     is_framerate = False
     for line in lines:
