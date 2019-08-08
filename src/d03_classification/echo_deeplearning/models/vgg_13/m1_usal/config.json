@@ -1,7 +1,7 @@
 {
-    "data" : "hcm",
+    "data" : "m1_usal",
     "feature_dim" : 1,
-    "label_dim" : 2,
+    "label_dim" : 23,
 
     "mean" : 24,
     "dropout" : 0.5,
