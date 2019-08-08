@@ -26,7 +26,7 @@ def get_window(hr, ft):
 def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
-    npydir = "/home/ubuntu/data/04_segmentation/results/" + view
+    npydir = "~/data/04_segmentation/results/" + view
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
 
@@ -322,7 +322,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
 
     # TODO: write to database
     out = open(
-        "/home/ubuntu/data/04_segmentation/"
+        "~/data/04_segmentation/"
         + dicomdir_basename
         + "_measurements_dict.pickle",
         "wb",
