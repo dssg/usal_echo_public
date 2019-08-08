@@ -15,7 +15,7 @@ def get_views_to_indices(model):
 def get_viewprob_lists(model, dicomdir_basename):
     """ Get list of values for every instance in study probabilities file.
     """
-    viewfile = f"/home/ubuntu/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
+    viewfile = f"~/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     viewprob_lists = [i.rstrip().split("\t") for i in infile.readlines()]
 
