@@ -187,7 +187,6 @@ class dbReadWriteSegmentation(dbReadWriteData):
         # prediction_id	instance_id	study_id	view_name	output_np_lv
         # output_np_la	output_np_lvo	output_image_seg	output_image_orig
         # output_image_overlay	date_run	file_name
-        # saving only the first in the list
         
         print("".format(",".join(column_names)))
         
@@ -199,7 +198,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
             self.schema,
             table_name,
             ",".join(column_names),
-            values,
+            binary_data_array,
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
