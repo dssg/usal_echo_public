@@ -200,6 +200,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             "instance_id",
             "study_id",
             "view_name",
+            "frame",
             "output_np_lv",
             "output_np_la",
             "output_np_lvo",
