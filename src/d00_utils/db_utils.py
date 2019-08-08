@@ -183,25 +183,23 @@ class dbReadWriteSegmentation(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
-    def save_numpy_array_to_db(self, np_array, table_name, column_names):
+    def save_numpy_array_to_db(self, binary_data_array, table_name, column_names):
         # prediction_id	instance_id	study_id	view_name	output_np_lv
         # output_np_la	output_np_lvo	output_image_seg	output_image_orig
         # output_image_overlay	date_run	file_name
         # saving only the first in the list
         
         print("".format(",".join(column_names)))
-        binary_data_array = np_array.copy()
         
-        #how will i know which ones to convert - need to do them in the other method?
-        #binary_data_array[3] = psycopg2.Binary(np_array[3])  # converting output_np_lv
-        #binary_data_array[4] = psycopg2.Binary(np_array[4])  # converting output_np_la
-        #binary_data_array[5] = psycopg2.Binary(np_array[5])  # converting output_np_lvo
-        # INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
+        values = ''
+        for element in binary_data_array:
+            values = values + ', ' + element
+        
         sql = "insert into {}.{} ({}) values({})".format(
             self.schema,
             table_name,
             ",".join(column_names),
-            ",".join(binary_data_array)
+            ",".join(values)
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
