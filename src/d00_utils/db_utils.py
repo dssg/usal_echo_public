@@ -230,37 +230,6 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
     def convert_to_np(self, x, frame):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
-        
-    '''
-    def get_numpy_array_from_db(self, table_name):        
-        sql = "select * from {}.{}".format(self.schema, table_name)
-        
-        binary_data_array = pd.read_sql(sql, self.engine)
-        
-        numpy_array_df = [];
-         
-        for index, row in binary_data_array.iterrows():
-            array = [row['prediction_id'],
-                     row['instance_id'],
-                     row['study_id'],
-                     row['view_name'],
-                     row['frame'],
-                     #passing number_of_frames (binary_data_array[3]) as an argument
-                     #convert_to_np(row['frame'], row['output_np_lv']), 
-                     #convert_to_np(row['frame'], row['output_np_la']),
-                     #convert_to_np(row['frame'], row['output_np_lvo']),
-                     row['output_image_seg'],
-                     row['output_image_orig'],
-                     row['output_image_overlay'],
-                     row['date_run'],
-                     row['file_name']
-                     ]
-            numpy_array_df.append(array)
-            
-        return numpy_array_df
-        
-        ''''
-    
     
     
     def get_segmentation_table(self, db_table):
