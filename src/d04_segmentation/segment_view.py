@@ -6,6 +6,7 @@ import matplotlib as mpl
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 
+import os
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -41,8 +42,8 @@ def segmentChamber(videofile, dicomdir, view):
     weight_decay = 1e-12
     learning_rate = 1e-4
     maxout = False
-    sesses = []
-    models = []
+#    sesses = []
+#    models = []
     global modeldir
 
     print(videofile, dicomdir)
@@ -338,7 +339,7 @@ def main():
             viewlist_plax.append(filename)
     print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
     segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir)
-    tempdir = os.path.join(dicomdir, "image")
+#    tempdir = os.path.join(dicomdir, "image")
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
     print(
