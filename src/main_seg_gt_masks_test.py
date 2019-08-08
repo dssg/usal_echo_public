@@ -8,4 +8,4 @@ from d04_segmentation import generate_masks
 
 
 if __name__ == "__main__":
-    generate_masks.main()
+    generate_masks.write_masks()
