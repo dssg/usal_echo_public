@@ -25,7 +25,7 @@ def get_window(hr, ft):
 def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
-    """Return all measurements for a video."""
+    """Return measurement dictionary for video."""
     npydir = "~/data/04_segmentation/results/" + view
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
@@ -155,6 +155,7 @@ def remove_periphery(imgs):
 
 
 def extract_areas(segs):
+    """Get area for segmentation (adapted from Zhang et al code)."""
     areas = []
     for seg in segs:
         area = len(np.where(seg > 0)[0])
@@ -188,6 +189,7 @@ def extract_area_l_scaled(
     cols,
     hr,
 ):
+    """Get areas/lengths scaled by metadata (adapted from Zhang et al.)"""
     # Left atrium analysis.
     # Why 0.80?
     la_seg = la_segs[np.argsort(la_areas)[int(0.80 * len(la_segs))]]
@@ -232,6 +234,7 @@ def extract_area_l_scaled(
 
 
 def L(x, y, x_la):
+    """Get Euclidean distance from points fit by function (adapted from Zhang et al.)"""
     fit = np.polyfit(x, y, 1)
     fit_fn = np.poly1d(fit)
     line_points = fit_fn(x_la)
@@ -244,17 +247,20 @@ def L(x, y, x_la):
 
 
 def point_distance(point1, point2):
+    """Get Euclidean distance between two points (adapted from Zhang et al.)"""
     point1 = np.array(point1).astype(float)
     point2 = np.array(point2).astype(float)
     return np.sqrt(np.sum((point1 - point2) ** 2))
 
 
 def compute_volume_AL(area, length):
+    """Calculate volume with area-length formula (adapted from Zhang et al.)"""
     volume = 0.85 * area ** 2 / length
     return volume
 
 
 def compute_diastole(lv_areas_window, ft):
+    """Compute diastole time (adapted from Zhang et al.)"""
     windowlength = len(lv_areas_window)
     minarea = np.min(lv_areas_window[: int(0.6 * windowlength)])
     maxarea = np.max(lv_areas_window)
