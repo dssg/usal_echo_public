@@ -15,7 +15,7 @@ import tensorflow as tf
 import numpy as np
 from scipy.misc import imread
 
-from d00_utils.dcm_utils import dcmdir_to_jpgs_for_classification
+from d02_intermediate.dcm_utils import dcmdir_to_jpgs_for_classification
 from d00_utils.log_utils import *
 logger = setup_logging(__name__, "d03_classification")
 

@@ -29,7 +29,7 @@ def split_train_test(ratio, table_name):
 
     perc_trn = int(100 * ratio)
     perc_tst = 100 - perc_trn
-    logger.info("{} split into {0}% train, {1}% test".format(table_name, perc_trn, perc_tst))
+    logger.info("{} split into {}% train, {}% test".format(table_name, perc_trn, perc_tst))
     
     return df_train, df_test
 
@@ -46,17 +46,19 @@ def downsample_train_test(downsample_ratio, train_test_ratio, table_name):
     df_train, df_test = split_train_test(train_test_ratio, table_name)
     
     np.random.seed(0)
-    msk = np.random.rand(len(df)) < downsample_ratio
-    df_train_downsampled = df_train[msk].reset_index(drop=True)
-    df_test_downsampled = df_test[msk].reset_index(drop=True)
+    msk_train = np.random.rand(len(df_train)) < downsample_ratio
+    msk_test = np.random.rand(len(df_test)) < downsample_ratio
+
+    df_train_downsampled = df_train[msk_train].reset_index(drop=True)
+    df_test_downsampled = df_test[msk_test].reset_index(drop=True)
     
     inv_ratio = int(1/downsample_ratio)
-    logger.info("{} downsampled by a factor of {0}".format(table_name, inv_ratio))
+    logger.info("{} downsampled by a factor of {}".format(table_name, inv_ratio))
 
     return df_train_downsampled, df_test_downsampled
 
 
-def s3_download_decomp_dcm(downsample_ratio=0.1, train_test_ratio=0.5, table_name="instances_with_labels", train=False):
+def s3_download_decomp_dcm(downsample_ratio, train_test_ratio, table_name, train):
     """Downloads and decompresses test/train dicoms from s3.
     
     :param downsample_ratio (float): percentage by which to downsample dataset
@@ -66,14 +68,14 @@ def s3_download_decomp_dcm(downsample_ratio=0.1, train_test_ratio=0.5, table_nam
     :param train (bool): download train set instead of test set, default=False
     
     """
-    train, test = downsample_train_test(downsample_ratio, train_test_ratio, table_name)
+    df_train, df_test = downsample_train_test(downsample_ratio, train_test_ratio, table_name)
     
     if train is True:
-        instances = train
-        dir_name = 'train_split{}_downsampleby{}' + .format(10*train_test_ratio, int(1/downsample_ratio))
+        instances = df_train
+        dir_name = 'train_split{}_downsampleby{}'.format(int(100*train_test_ratio), int(1/downsample_ratio))
     else:
-        instances = test
-        dir_name = 'test_split{}_downsampleby{}' + .format(100-10*train_test_ratio, int(1/downsample_ratio))
+        instances = df_test
+        dir_name = 'test_split{}_downsampleby{}'.format(int(100-100*train_test_ratio), int(1/downsample_ratio))
         
     prefix = instances['studyidk'].astype(str) + '/a_' + instances['filename'].astype(str)
     filenames = 'a_' + instances['studyidk'].astype(str) + '_' + instances['filename'].astype(str) + '.dcm'
@@ -94,4 +96,4 @@ def s3_download_decomp_dcm(downsample_ratio=0.1, train_test_ratio=0.5, table_nam
         if not os.path.isfile(dcm_rawfilepath):
             decompress_dcm(dcm_filepath, dcm_rawfilepath)
             
-    return dirname
+    return dir_name

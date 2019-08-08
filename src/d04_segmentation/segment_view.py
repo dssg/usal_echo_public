@@ -12,7 +12,7 @@ from scipy.misc import imresize
 from skimage.color import rgb2gray, gray2rgb
 
 from d00_utils.echocv_utils_v0 import *
-from d00_utils.dcm_utils import dcm_to_segmentation_arrays
+from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
 from d04_segmentation.model_unet import Unet
 
 
