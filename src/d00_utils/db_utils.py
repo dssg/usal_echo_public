@@ -199,7 +199,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[7],
             binary_data_array[8],
             binary_data_array[9],
-            binary_data_array[10],
+            binary_data_array[10]
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
