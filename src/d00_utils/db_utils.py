@@ -207,12 +207,12 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
         print("Saved to table {} to schema {} ".format('predictions', self.schema))
 
-    
-
-    def get_prediction_numpy_array_from_db(self, table_name):
-        
-        def convert_to_np(x, frame):
+    def convert_to_np(x, frame):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
+
+    def get_numpy_array_from_db(self, table_name):
+        
+        
         
         sql = "select * from {}.{}".format(self.schema, table_name)
         
@@ -227,9 +227,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
                      row['view_name'],
                      row['frame'],
                      #passing number_of_frames (binary_data_array[3]) as an argument
-                     convert_to_np(row['frame'], row['output_np_lv']), 
-                     convert_to_np(row['frame'], row['output_np_la']),
-                     convert_to_np(row['frame'], row['output_np_lvo']),
+                     #convert_to_np(row['frame'], row['output_np_lv']), 
+                     #convert_to_np(row['frame'], row['output_np_la']),
+                     #convert_to_np(row['frame'], row['output_np_lvo']),
                      row['output_image_seg'],
                      row['output_image_orig'],
                      row['output_image_overlay'],
