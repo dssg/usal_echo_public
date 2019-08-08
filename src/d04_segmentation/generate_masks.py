@@ -92,14 +92,15 @@ def generate_masks():
 
     io_views = dbReadWriteViews()
 
-    frames_by_volume_mask_df = io_views.get_table("frames_by_volume_mask")
-
-    frames_by_volume_mask_df.loc[frames_by_volume_mask_df["ventricle_only"]=='ven', "chamber"] = "la"
-    frames_by_volume_mask_df.loc[frames_by_volume_mask_df["ventricle_only"]=='atr', "chamber"] = "la"
+    chords_by_volume_mask_df = io_views.get_table("chords_by_volume_mask")
+    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
+    chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "la"
+    chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
+    
+    merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
 
     start = time()
-    # TODO: need x/y coordinates
-    group_df = frames_by_volume_mask_df.groupby(["instanceidk", "indexinmglist"]).agg(
+    group_df = merge_df.groupby(["instanceidk", "indexinmglist"]).agg(
         {
             "x1coordinate": list,
             "y1coordinate": list,
@@ -107,19 +108,18 @@ def generate_masks():
             "y2coordinate": list,
             "chamber": pd.Series.unique,
             "frame": pd.Series.unique,
+            "filename": pd.Series.unique
         }
     )
     end = time()
-    print(f"{int(end-start)} seconds to group {len(frames_by_volume_mask_df)} rows")
+    print(f"{int(end-start)} seconds to group {len(merge_df)} rows")
 
     start = time()
     group_df["lines"] = group_df.apply(get_lines, axis=1)
     group_df["points"] = group_df.apply(get_points, axis=1)
-    #     group_df["masks"] = group_df.apply(get_mask, axis=1)
+    group_df["mask"] = group_df.apply(get_mask, axis=1)
     group_df = group_df.reset_index()
     end = time()
     print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
-
-    # TODO: write masks to table
 
     return group_df
