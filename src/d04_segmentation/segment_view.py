@@ -227,9 +227,9 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             instance_id,
             studyidk,
             "a4c",
-            psycopg2.Binary(np_arrays_x3[0]),
-            psycopg2.Binary(np_arrays_x3[1]),
-            psycopg2.Binary(np_arrays_x3[2]),
+            str(psycopg2.Binary(np_arrays_x3[0])),
+            str(psycopg2.Binary(np_arrays_x3[1])),
+            str(psycopg2.Binary(np_arrays_x3[2])),
             images_uuid_x3[0],
             images_uuid_x3[1],
             images_uuid_x3[2],
@@ -252,13 +252,12 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [
-            instance_id,
+        d = [instance_id,
             studyidk,
             "a2c",
-            psycopg2.Binary(np_arrays_x3[0]),
-            psycopg2.Binary(np_arrays_x3[1]),
-            psycopg2.Binary(np_arrays_x3[2]),
+            str(psycopg2.Binary(np_arrays_x3[0])),
+            str(psycopg2.Binary(np_arrays_x3[1])),
+            str(psycopg2.Binary(np_arrays_x3[2])),
             images_uuid_x3[0],
             images_uuid_x3[1],
             images_uuid_x3[2],
