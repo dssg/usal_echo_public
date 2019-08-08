@@ -221,7 +221,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         
         """
         # Fetch column names
-        q = "SELECT * FROM {}.{} ORDER BY date_run DESC LIMIT(5)".format(self.schema, db_table)
-        df = pd.read_sql(q, self.engine)
+        #q = "SELECT * FROM {}.{} ORDER BY date_run DESC LIMIT(5)".format(self.schema, db_table)
+        #df = pd.read_sql(q, self.engine)
 
-        return df
+        return 1
