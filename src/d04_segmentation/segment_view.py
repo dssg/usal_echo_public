@@ -235,7 +235,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             images_uuid_x3[1],
             images_uuid_x3[2],
             str(datetime.now()),
-            video,
+            str(video),
         ]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
@@ -263,7 +263,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             images_uuid_x3[1],
             images_uuid_x3[2],
             str(datetime.now()),
-            video,
+            str(video),
         ]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
