@@ -13,6 +13,7 @@ from PIL import Image
 from scipy.misc import imresize
 from datetime import datetime
 import hashlib
+import psycopg2
 
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
@@ -174,6 +175,19 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     instances_unique_master_list = io_views.get_table('instances_unique_master_list')
     #below cleans the filename field
     instances_unique_master_list['instancefilename'] = instances_unique_master_list['instancefilename'].apply(lambda x: str(x).strip())
+    column_names = [
+            "instance_id",
+            "study_id",
+            "view_name",
+            "output_np_lv",
+            "output_np_la",
+            "output_np_lvo",
+            "output_image_seg",
+            "output_image_orig",
+            "output_image_overlay",
+            "date_run",
+            "file_name",
+        ]
     
     for video in viewlist_a4c:
         [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
@@ -183,11 +197,15 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
         df = df.reset_index()
         instance_id = df.at[0, 'instanceidk']
-        d = [instance_id, studyidk, "a4c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
-             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], str(datetime.now()), 
-             video]
+        d = [str(instance_id), str(studyidk), "a4c", 
+             psycopg2.Binary(np_arrays_x3[0]), 
+             psycopg2.Binary(np_arrays_x3[1]),
+             psycopg2.Binary(np_arrays_x3[2]), 
+             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2],
+             str(datetime.now()), 
+             str(video)]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        io_segmentation.save_numpy_array_to_db(d, 'predictions', column_names)
 
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
@@ -197,11 +215,15 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
         df = df.reset_index()
         instance_id = df.at[0, 'instanceidk']
-        d = [instance_id, studyidk, "a2c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
-             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], str(datetime.now()), 
-             video]
+        d = [str(instance_id), studyidk, "a2c", 
+             psycopg2.Binary(np_arrays_x3[0]), 
+             psycopg2.Binary(np_arrays_x3[1]), 
+             psycopg2.Binary(np_arrays_x3[2]), 
+             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], 
+             str(datetime.now()), 
+             str(video)]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        io_segmentation.save_numpy_array_to_db(d, 'predictions', column_names)
 
     return 1
 
