@@ -215,24 +215,28 @@ class dbReadWriteSegmentation(dbReadWriteData):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
         
         sql = "select * from {}.{}".format(self.schema, table_name)
-        self.cursor.execute(sql)
-        binary_data_array = self.cursor.fetchall()
         
-        array = (binary_data_array[0],
-            binary_data_array[1],
-            binary_data_array[2],
-            binary_data_array[3],
-            #passing number_of_frames (binary_data_array[3]) as an argument
-            convert_to_np(binary_data_array[3], binary_data_array[4]), 
-            convert_to_np(binary_data_array[3], binary_data_array[5]),
-            convert_to_np(binary_data_array[3], binary_data_array[6]),
-            binary_data_array[7],
-            binary_data_array[8],
-            binary_data_array[9],
-            binary_data_array[10],
-            binary_data_array[11]
-        )
+        binary_data_array_array = pd.read_sql(sql, self.engine)
         
+        numpy_array_df = [];
+        
+        for binary_data_array in binary_data_array_array:
+            array = (binary_data_array[0],
+                     binary_data_array[1],
+                     binary_data_array[2],
+                     binary_data_array[3],
+                     binary_data_array[4],
+                     #passing number_of_frames (binary_data_array[3]) as an argument
+                     convert_to_np(binary_data_array[4], binary_data_array[5]), 
+                     convert_to_np(binary_data_array[4], binary_data_array[6]),
+                     convert_to_np(binary_data_array[4], binary_data_array[7]),
+                     binary_data_array[8],
+                     binary_data_array[9],
+                     binary_data_array[10],
+                     binary_data_array[12],
+                     binary_data_array[13]
+                     )
+            numpy_array_df.append(array)
         return array
     
     
