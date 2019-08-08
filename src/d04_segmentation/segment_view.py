@@ -13,7 +13,6 @@ from PIL import Image
 from scipy.misc import imresize
 from datetime import datetime
 import hashlib
-import psycopg2
 
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
@@ -223,21 +222,21 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = (
+        d = [
             instance_id,
             studyidk,
             "a4c",
-            psycopg2.Binary(np_arrays_x3[0]),
-            psycopg2.Binary(np_arrays_x3[1]),
-            psycopg2.Binary(np_arrays_x3[2]),
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
             images_uuid_x3[0],
             images_uuid_x3[1],
             images_uuid_x3[2],
             str(datetime.now()),
             video,
-        )
+        ]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, "predictions", column_names)
+        io_segmentation.save_prediction_numpy_array_to_db(d, "predictions", column_names)
 
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
@@ -252,20 +251,20 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = (instance_id,
+        d = [instance_id,
             studyidk,
             "a2c",
-            psycopg2.Binary(np_arrays_x3[0]),
-            psycopg2.Binary(np_arrays_x3[1]),
-            psycopg2.Binary(np_arrays_x3[2]),
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
             images_uuid_x3[0],
             images_uuid_x3[1],
             images_uuid_x3[2],
             str(datetime.now()),
             video,
-        )
+        ]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, "predictions", column_names)
+        io_segmentation.save_prediction_numpy_array_to_db(d, "predictions", column_names)
 
     return 1
 

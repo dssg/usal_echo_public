@@ -16,6 +16,7 @@ from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
 import tempfile
 import gc
+import psycopg2
 
 from d00_utils.log_utils import *
 
@@ -183,22 +184,34 @@ class dbReadWriteSegmentation(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
-    def save_numpy_array_to_db(self, binary_data_array, table_name, column_names):
-        # prediction_id	instance_id	study_id	view_name	output_np_lv
-        # output_np_la	output_np_lvo	output_image_seg	output_image_orig
-        # output_image_overlay	date_run	file_name
-        
-        print("".format(",".join(column_names)))
-        
-        #values = ()
-        #for element in binary_data_array:
-        #    values = values + element
-        
-        sql = "insert into {}.{} ({}) values({})".format(
+    def save_prediction_numpy_array_to_db(self, binary_data_array, table_name, column_names):
+        #d = [instance_id,
+        #    studyidk,
+         #   "a2c",
+          #  psycopg2.Binary(np_arrays_x3[0]),
+           # psycopg2.Binary(np_arrays_x3[1]),
+            #psycopg2.Binary(np_arrays_x3[2]),
+            #images_uuid_x3[0],
+            #images_uuid_x3[1],
+            #images_uuid_x3[2],
+            #str(datetime.now()),
+            #video,
+        #]
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
             table_name,
             ",".join(column_names),
-            binary_data_array,
+            binary_data_array[0],
+            binary_data_array[1],
+            binary_data_array[2],
+            psycopg2.Binary(binary_data_array[3]),
+            psycopg2.Binary(binary_data_array[4]),
+            psycopg2.Binary(binary_data_array[5]),
+            binary_data_array[6],
+            binary_data_array[7],
+            binary_data_array[8],
+            binary_data_array[9],
+            binary_data_array[10],
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
