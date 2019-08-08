@@ -36,7 +36,7 @@ def segmentChamber(videofile, dicomdir, view):
     """
     
     """
-    # TODO: Need to put some error handling in here for when the file is not found 
+    # TODO: Need to put some error handling in here for when the file is not found
     mean = 24
     weight_decay = 1e-12
     learning_rate = 1e-4
@@ -120,21 +120,23 @@ def segmentChamber(videofile, dicomdir, view):
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
-    np_arrays_x3 = [];
-    images_uuid_x3 = [];
+    np_arrays_x3 = []
+    images_uuid_x3 = []
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 4, 1)
+            images, orig_images, model, sess, 2, 4, 1
+        )
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 3, 1)
+            images, orig_images, model, sess, 2, 3, 1
+        )
         np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
-  
+
     j = 0
     nrow = orig_images[0].shape[0]
     ncol = orig_images[0].shape[1]
@@ -143,13 +145,25 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
-    images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png").encode()).hexdigest())
+    images_uuid_x3.append(
+        hashlib.md5(
+            (
+                outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png"
+            ).encode()
+        ).hexdigest()
+    )
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
-    images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png").encode()).hexdigest())
+    images_uuid_x3.append(
+        hashlib.md5(
+            (
+                outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
+            ).encode()
+        ).hexdigest()
+    )
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
@@ -161,46 +175,82 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
-    images_uuid_x3.append(hashlib.md5((outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()).hexdigest())
-    #return 1
+    images_uuid_x3.append(
+        hashlib.md5(
+            (outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()
+        ).hexdigest()
+    )
+    # return 1
     return [np_arrays_x3, images_uuid_x3]
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
-    #set up for writing to segmentation schema
+    # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
-    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
-    #below cleans the filename field
-    instances_unique_master_list['instancefilename'] = instances_unique_master_list['instancefilename'].apply(lambda x: str(x).strip())
-    
+    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    # below cleans the filename field
+    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
+        "instancefilename"
+    ].apply(lambda x: str(x).strip())
+
     for video in viewlist_a4c:
         [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
-        instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
-        studyidk = int(video.split('_')[1])
-        #below filters to just the record of interest
-        df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
+        instancefilename = video.split("_")[2].split(".")[
+            0
+        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split("_")[1])
+        # below filters to just the record of interest
+        df = instances_unique_master_list.loc[
+            (instances_unique_master_list["instancefilename"] == instancefilename)
+            & (instances_unique_master_list["studyidk"] == studyidk)
+        ]
         df = df.reset_index()
-        instance_id = df.at[0, 'instanceidk']
-        d = [instance_id, studyidk, "a4c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
-             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], str(datetime.now()), 
-             video]
+        instance_id = df.at[0, "instanceidk"]
+        d = [
+            instance_id,
+            studyidk,
+            "a4c",
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
+            images_uuid_x3[0],
+            images_uuid_x3[1],
+            images_uuid_x3[2],
+            str(datetime.now()),
+            video,
+        ]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        io_segmentation.save_numpy_array_to_db(d, "predictions")
 
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
-        instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
-        studyidk = int(video.split('_')[1])
-        #below filters to just the record of interest
-        df = instances_unique_master_list.loc[(instances_unique_master_list['instancefilename']==instancefilename) & (instances_unique_master_list['studyidk']==studyidk)]
+        instancefilename = video.split("_")[2].split(".")[
+            0
+        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split("_")[1])
+        # below filters to just the record of interest
+        df = instances_unique_master_list.loc[
+            (instances_unique_master_list["instancefilename"] == instancefilename)
+            & (instances_unique_master_list["studyidk"] == studyidk)
+        ]
         df = df.reset_index()
-        instance_id = df.at[0, 'instanceidk']
-        d = [instance_id, studyidk, "a2c", np_arrays_x3[0], np_arrays_x3[1], np_arrays_x3[2], 
-             images_uuid_x3[0], images_uuid_x3[1], images_uuid_x3[2], str(datetime.now()), 
-             video]
+        instance_id = df.at[0, "instanceidk"]
+        d = [
+            instance_id,
+            studyidk,
+            "a2c",
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
+            images_uuid_x3[0],
+            images_uuid_x3[1],
+            images_uuid_x3[2],
+            str(datetime.now()),
+            video,
+        ]
         print(d)
-        io_segmentation.save_numpy_array_to_db(d, 'predictions')
+        io_segmentation.save_numpy_array_to_db(d, "predictions")
 
     return 1
 
@@ -294,7 +344,7 @@ def main():
     print(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
- 
+
 
 if __name__ == "__main__":
     main()
