@@ -192,14 +192,15 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[0],
             binary_data_array[1],
             binary_data_array[2],
-            psycopg2.Binary(binary_data_array[3]),
+            binary_data_array[3],
             psycopg2.Binary(binary_data_array[4]),
             psycopg2.Binary(binary_data_array[5]),
-            binary_data_array[6],
+            psycopg2.Binary(binary_data_array[6]),
             binary_data_array[7],
             binary_data_array[8],
             binary_data_array[9],
-            binary_data_array[10]
+            binary_data_array[10],
+            binary_data_array[11]
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
