@@ -26,7 +26,7 @@ def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
     """Return measurement dictionary for video."""
-    npydir = "~/data/04_segmentation/results/" + view
+    npydir = f"{os.expanduser("~")}/data/04_segmentation/results/view"
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
 
@@ -293,7 +293,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
     """
 
     model = "view_23_e5_class_11-Mar-2018"
-    dicomdir = f"~/data/01_raw/{folder}"
+    dicomdir = f"os.expanduser("~")/data/01_raw/{folder}"
     dicomdir_basename = os.path.basename(dicomdir)
 
     views_to_indices = get_views_to_indices(model)
@@ -326,7 +326,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
 
     # TODO: write to database
     out = open(
-        "~/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.pickle",
+        f"os.expanduser("~")/data/04_segmentation/{dicomdir_basename}_measurements_dict.pickle",
         "wb",
     )
     pickle.dump(study_measure_dict, out)
