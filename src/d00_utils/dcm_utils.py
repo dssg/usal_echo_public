@@ -234,7 +234,7 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     text = pipe.communicate()[0]
     lines = text.split("\n")
     dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
-    dicom_tags = {k: tuple(v) for k,v in dicom_tags.items()}
+    dicom_tags = {k: str(tuple((v.replace('""', ''))) for k,v in dicom_tags.items()}
     # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
     x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines, dicom_tags) or (None, None)
     hr = _extract_hr_from_gdcm_str(lines, dicom_tags)
@@ -257,6 +257,7 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
+        if 
         if tag == dicom_tags["physical_delta_x_direction"]:
             deltax = line.split(" ")[2]
             deltax = np.abs(float(deltax))
