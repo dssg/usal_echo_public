@@ -295,7 +295,9 @@ def main():
     tempdir = os.path.join(dicomdir, "image")
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
-    print("time:  " + str(end - start) + " seconds for " +  str(len(viewlist))  + " videos")
+    print(
+        "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
+    )
 
 
 if __name__ == "__main__":
