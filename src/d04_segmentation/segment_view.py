@@ -130,7 +130,9 @@ def segmentChamber(videofile, dicomdir, view):
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         print("THIS IS THE SIZE: {}".format(np.array(a4c_lv_segs).astype("uint8")))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
+        print("THIS IS THE SIZE: {}".format(np.array(a4c_la_segs).astype("uint8")))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
+        print("THIS IS THE SIZE: {}".format(np.array(a4c_lvo_segs).astype("uint8")))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1
