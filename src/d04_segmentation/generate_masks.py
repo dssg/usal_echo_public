@@ -42,7 +42,6 @@ def write_masks():
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
     
 
-
 def get_lines(row):
     """Get lines from start and end coordinates.
     
