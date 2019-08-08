@@ -214,3 +214,15 @@ class dbReadWriteSegmentation(dbReadWriteData):
         results = self.cursor.fetchone()[0]  # TODO we need to actually retrieve all of them and iterate
 
         return np.reshape(np.frombuffer(results, dtype="Int8"), (384, 384))
+    
+    def get_table(self, db_table):
+        """Read table in database as dataframe.
+        
+        :param db_table (str): name of database table to read
+        
+        """
+        # Fetch column names
+        q = "SELECT * FROM {}.{} ORDER BY date_run DESC LIMIT(5)".format(self.schema, db_table)
+        df = pd.read_sql(q, self.engine)
+
+        return df
