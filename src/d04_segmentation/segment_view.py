@@ -10,12 +10,9 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
-from skimage.color import rgb2gray, gray2rgb
 from datetime import datetime
-import pandas as pd
 import hashlib
 
-from d00_utils.echocv_utils_v0 import *
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
 from d04_segmentation.model_unet import Unet
@@ -128,56 +125,16 @@ def segmentChamber(videofile, dicomdir, view):
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1)
-        #np.save(outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
-        #np.save(outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
-        #np.save(outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1)
-        #np.save(outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
-        #np.save(outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
-        #np.save(outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
-    '''
-    elif view == "psax":
-        psax_lv_segs, psax_lvo_segs, psax_rv_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 1, 3
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(psax_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(psax_lvo_segs).astype("uint8")
-        )
-    elif view == "a3c":
-        a3c_lv_segs, a3c_la_segs, a3c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 3, 1
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a3c_lvo_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a3c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a3c_la_segs).astype("uint8")
-        )
-    elif view == "plax":
-        plax_lv_segs, plax_la_segs, plax_ao_segs, preds = extract_segs(
-            images, orig_images, model, sess, 1, 5, 3
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(plax_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(plax_la_segs).astype("uint8")
-        )
-    '''
+  
     j = 0
     nrow = orig_images[0].shape[0]
     ncol = orig_images[0].shape[1]
@@ -216,8 +173,6 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     instances_unique_master_list = io_views.get_table('instances_unique_master_list')
     #below cleans the filename field
     instances_unique_master_list['instancefilename'] = instances_unique_master_list['instancefilename'].apply(lambda x: str(x).strip())
-    #instance_id_dict = instances_unique_master_list.set_index('instancefilename')['instanceidk'].to_dict()
-    #study_id_dict = instances_unique_master_list.set_index('instancefilename')['studyidk'].to_dict()
     
     for video in viewlist_a4c:
         [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
@@ -232,21 +187,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              video]
         print(d)
         io_segmentation.save_numpy_array_to_db(d, 'predictions')
-        '''
-        d = {'instance_id': instance_id,
-             'study_id': studyidk,
-             'view_name': "a4c",
-             'output_np': None,
-             'output_image': images_uuid_x3,
-             'date_run': datetime.now(),
-             'file_name': video}
-        df = pd.DataFrame(data=d)
-        print(df)
-        d_np = {'output_np':np_arrays_x3}
-        df_np = pd.DataFrame(data=d_np).to_numpy()
-        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
-        io_segmentation.save_to_db(df, 'predictions')
-        '''
+
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
         instancefilename = video.split('_')[2].split('.')[0] #split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -260,45 +201,9 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
              video]
         print(d)
         io_segmentation.save_numpy_array_to_db(d, 'predictions')
-        '''
-        d = {'instance_id': instance_id,
-             'study_id': studyidk,
-             'view_name': "a2c",
-             'output_np': None,
-             'output_image': images_uuid_x3,
-             'date_run': datetime.now(),
-             'file_name': video}
-        df = pd.DataFrame(data=d)
-        print(df)
-        d_np = {'output_np':np_arrays_x3}
-        df_np = pd.DataFrame(data=d_np).to_numpy()
-        io_segmentation.save_numpy_array_to_db(df_np, 'predictions', 'output_np')
-        io_segmentation.save_to_db(df, 'predictions')
-        #io_segmentation.save_numpy_array_to_db(df.to_numpy(), 'predictions')
-        '''
+
     return 1
-    
-'''
-    for video in viewlist_psax:
-        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "psax")
-        io_segmentation.save_to_db(instance_id_dict.get(video), 
-                                   study_id_dict.get(video), 
-                                   "psax",
-                                   np_arrays_x3,
-                                   images_uuid_x3,
-                                   datetime.now(),
-                                   video)
-    for video in viewlist_plax:
-        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "plax")
-        io_segmentation.save_to_db(instance_id_dict.get(video), 
-                                   study_id_dict.get(video), 
-                                   "plax",
-                                   np_arrays_x3,
-                                   images_uuid_x3,
-                                   datetime.now(),
-                                   video)
-    
-'''
+
 
 def create_seg(output, label):
     output = output.copy()
