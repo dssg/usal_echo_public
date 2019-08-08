@@ -3,6 +3,7 @@
 """
 Created on Thu Jul 3 2019
 
+
 @author: wiebket
 """
 
@@ -111,7 +112,7 @@ class dbReadWriteData:
         
         """
         # Fetch column names
-        q = "SELECT * FROM {}.{} ORDER BY date_run DESC LIMIT(5)".format(self.schema, db_table)
+        q = "SELECT * FROM {}.{} LIMIT(0)".format(self.schema, db_table)
         cols = pd.read_sql(q, self.engine).columns.to_list()
 
         tmp = tempfile.NamedTemporaryFile()
