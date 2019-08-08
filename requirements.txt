@@ -6,3 +6,4 @@ sqlalchemy
 pyyaml
 pydicom
 black
+shapely

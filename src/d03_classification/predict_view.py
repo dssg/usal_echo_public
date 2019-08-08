@@ -130,6 +130,5 @@ def run_classify(model):
     out.close()
 
 
-if __name__ == '__main__':
-    run_classify(model = "view_23_e5_class_11-Mar-2018")
-
+if __name__ == "__main__":
+    run_classify(model="view_23_e5_class_11-Mar-2018")
