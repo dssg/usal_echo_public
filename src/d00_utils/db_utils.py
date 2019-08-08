@@ -182,52 +182,67 @@ class dbReadWriteSegmentation(dbReadWriteData):
         super().__init__(schema="segmentation")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
-        
+
     def save_numpy_array_to_db(self, np_array, table_name):
-        #prediction_id	instance_id	study_id	view_name	output_np_lv	
-        #output_np_la	output_np_lvo	output_image_seg	output_image_orig	
-        #output_image_overlay	date_run	file_name
-        #saving only the first in the list
-        column_names = ['instance_id', 'study_id', 'view_name', 
-                       'output_np_lv', 'output_np_la', 'output_np_lvo', 
-                       'output_image_seg', 'output_image_orig', 
-                       'output_image_overlay', 'date_run', 'file_name']
+        # prediction_id	instance_id	study_id	view_name	output_np_lv
+        # output_np_la	output_np_lvo	output_image_seg	output_image_orig
+        # output_image_overlay	date_run	file_name
+        # saving only the first in the list
+        column_names = [
+            "instance_id",
+            "study_id",
+            "view_name",
+            "output_np_lv",
+            "output_np_la",
+            "output_np_lvo",
+            "output_image_seg",
+            "output_image_orig",
+            "output_image_overlay",
+            "date_run",
+            "file_name",
+        ]
         print("".format(",".join(column_names)))
         binary_data_array = np_array.copy()
-        binary_data_array[3] = psycopg2.Binary(np_array[3]) #converting output_np_lv
-        binary_data_array[4] = psycopg2.Binary(np_array[4]) #converting output_np_la
-        binary_data_array[5] = psycopg2.Binary(np_array[5]) #converting output_np_lvo
-        #INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
-        sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values('{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(self.schema, table_name, 
-                           'instance_id', 'study_id', 'view_name', 
-                           'output_np_lv', 'output_np_la', 'output_np_lvo', 
-                           'output_image_seg', 'output_image_orig', 
-                           'output_image_overlay', 'date_run', 'file_name', 
-                           binary_data_array[0],
-                           binary_data_array[1],
-                           binary_data_array[2],
-                           binary_data_array[3],
-                           binary_data_array[4],
-                           binary_data_array[5],
-                           binary_data_array[6],
-                           binary_data_array[7],
-                           binary_data_array[8],
-                           binary_data_array[9],
-                           binary_data_array[10])
+        binary_data_array[3] = psycopg2.Binary(np_array[3])  # converting output_np_lv
+        binary_data_array[4] = psycopg2.Binary(np_array[4])  # converting output_np_la
+        binary_data_array[5] = psycopg2.Binary(np_array[5])  # converting output_np_lvo
+        # INSERT INTO table_name (column1, column2, column3,..) VALUES ( value1, value2, value3,..);
+        sql = "insert into {}.{} ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) values('{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
+            self.schema,
+            table_name,
+            "instance_id",
+            "study_id",
+            "view_name",
+            "output_np_lv",
+            "output_np_la",
+            "output_np_lvo",
+            "output_image_seg",
+            "output_image_orig",
+            "output_image_overlay",
+            "date_run",
+            "file_name",
+            binary_data_array[0],
+            binary_data_array[1],
+            binary_data_array[2],
+            binary_data_array[3],
+            binary_data_array[4],
+            binary_data_array[5],
+            binary_data_array[6],
+            binary_data_array[7],
+            binary_data_array[8],
+            binary_data_array[9],
+            binary_data_array[10],
+        )
         self.cursor.execute(sql)
         self.raw_conn.commit()
-        
-        print(
-            "Saved to table {} to schema {} ".format(table_name, self.schema
-            )
-        )
-    
-    def get_numpy_array_from_db(self, column_name, table_name):
-        sql = 'select {} from {}'.format(column_name, table_name)
-        self.cursor.execute(sql)
-        results = self.cursor.fetchone()[0] #TODO we need to actually retrieve all of them and iterate
-        
-        return np.reshape(np.frombuffer(results, dtype='Int8'),(384,384))
 
-    
-    
+        print("Saved to table {} to schema {} ".format(table_name, self.schema))
+
+    def get_numpy_array_from_db(self, column_name, table_name):
+        sql = "select {} from {}".format(column_name, table_name)
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()[
+            0
+        ]  # TODO we need to actually retrieve all of them and iterate
+
+        return np.reshape(np.frombuffer(results, dtype="Int8"), (384, 384))
