@@ -221,7 +221,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         numpy_array_df = [];
          
         for index, row in binary_data_array.iterrows():
-            array = (row['prediction_id'],
+            array = [row['prediction_id'],
                      row['instance_id'],
                      row['study_id'],
                      row['view_name'],
@@ -235,9 +235,10 @@ class dbReadWriteSegmentation(dbReadWriteData):
                      row['output_image_overlay'],
                      row['date_run'],
                      row['file_name']
-                     )
+                     ]
             numpy_array_df.append(array)
-        return array
+            
+        return numpy_array_df
     
     
     
