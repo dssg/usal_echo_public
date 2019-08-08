@@ -234,6 +234,7 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     text = pipe.communicate()[0]
     lines = text.split("\n")
     dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
+    # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
         k: str(tuple(v)).replace("'", "").replace(" ", "")
         for k, v in dicom_tags.items()
