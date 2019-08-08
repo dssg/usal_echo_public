@@ -8,6 +8,10 @@ from skimage.draw import polygon
 
 from d00_utils.db_utils import dbReadWriteViews
 
+def write_masks():
+    # evaluation_id	instance_id	frame	chamber	study_id	score_type	score_value
+    masks_df = generate_masks()
+    print(masks_df.columns)
 
 def get_lines(row):
     """Get lines from start and end coordinates.
