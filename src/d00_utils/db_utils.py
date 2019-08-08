@@ -216,12 +216,12 @@ class dbReadWriteSegmentation(dbReadWriteData):
             self.schema,
             'ground_truths',
             ",".join(column_names),
-            binary_data_array[0], #instance_id
-            binary_data_array[1], #frame
-            binary_data_array[2], #chamber
-            binary_data_array[3], #study_id
-            binary_data_array[4], #view
-            psycopg2.Binary(binary_data_array[5]) #numpy_array
+            binary_data_array[0],
+            binary_data_array[1],
+            binary_data_array[2],
+            binary_data_array[3],
+            binary_data_array[4],
+            psycopg2.Binary(binary_data_array[5])
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
