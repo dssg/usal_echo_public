@@ -6,12 +6,42 @@ import pandas as pd
 from shapely.geometry import Polygon
 from skimage.draw import polygon
 
-from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
 
 def write_masks():
-    # evaluation_id	instance_id	frame	chamber	study_id	score_type	score_value
+    io_views = dbReadWriteViews()
+    io_segmentation = dbReadWriteSegmentation()
+    
+    #Getting details of the study
+    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    # below cleans the filename field
+    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
+        "instancefilename"].apply(lambda x: str(x).strip())
+    dict_studyidk = instances_unique_master_list.set_index('instanceidk')['studyidk'].to_dict()
+    
     masks_df = generate_masks()
     print(masks_df.columns)
+    #Index(['instanceidk', 'indexinmglist', 'x1coordinate', 'y1coordinate',
+    #   'x2coordinate', 'y2coordinate', 'chamber', 'frame', 'filename', 'lines',
+    #   'points', 'mask'],
+    
+    #getting details for view
+    frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
+    dict_view= frames_by_volume_mask.set_index('instanceidk')['view_only'].to_dict()
+    
+    #need to get the study id
+    masks_df['study_id'] = masks_df['instanceidk'].apply(lambda x: dict_studyidk.get(x))
+    masks_df['view_name'] = masks_df['instanceidk'].apply(lambda x: dict_view.get(x))
+    
+    # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
+    d = [masks_df['instanceidk'], masks_df['frame'], masks_df['chamber'], 
+         masks_df['study_id'], masks_df['view_name'], masks_df['numpy_array']]
+    column_names = ['instance_id', 'frame', 'chamber', 'study_id',
+                     'view_name', 'numpy_array']
+    
+    io_segmentation.save_evaluation_numpy_array_to_db(d, column_names)
+    
+
 
 def get_lines(row):
     """Get lines from start and end coordinates.
