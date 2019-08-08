@@ -39,7 +39,7 @@ def write_masks():
     column_names = ['instance_id', 'frame', 'chamber', 'study_id',
                      'view_name', 'numpy_array']
     
-    io_segmentation.save_evaluation_numpy_array_to_db(d, column_names)
+    io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
     
 
 
