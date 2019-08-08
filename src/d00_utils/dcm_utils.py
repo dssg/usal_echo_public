@@ -225,7 +225,9 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         logger.error("{} could not return dict".format(filename))
 
 
-def extract_metadata_for_measurments(dicomdir, videofile):
+def extract_metadata_for_measurements(dicomdir, videofile):
+    """Get DICOM metadata using GDCM utility.
+    """
     command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
