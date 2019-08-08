@@ -15,7 +15,6 @@ from sqlalchemy.schema import CreateSchema
 from sqlalchemy import inspect
 import tempfile
 import gc
-import psycopg2
 
 from d00_utils.log_utils import *
 
