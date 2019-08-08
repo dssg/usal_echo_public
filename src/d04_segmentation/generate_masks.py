@@ -127,3 +127,6 @@ def generate_masks():
     print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df
+
+if __name__ == "__main__":
+    write_masks()
