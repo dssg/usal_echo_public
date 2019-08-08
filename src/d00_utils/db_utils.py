@@ -230,6 +230,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
     def convert_to_np(self, x, frame):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
+        
     '''
     def get_numpy_array_from_db(self, table_name):        
         sql = "select * from {}.{}".format(self.schema, table_name)
