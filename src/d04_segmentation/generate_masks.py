@@ -36,7 +36,7 @@ def write_masks():
     column_names = ['instance_id', 'frame', 'chamber', 'study_id',
                      'view_name', 'numpy_array']
     # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
-    for mask in masks_df:
+    for index, mask in masks_df.iterrows():
         d = [mask['instanceidk'], mask['frame'], mask['chamber'], 
          mask['study_id'], mask['view_name'], mask['mask']]
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
