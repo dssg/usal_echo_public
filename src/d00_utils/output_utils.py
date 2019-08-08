@@ -1,4 +1,6 @@
 def get_views_to_indices(model):
+    """ Get dictionary of view name to index in probabilities file.
+    """
     infile = open(f"d03_classification/viewclasses_{model}.txt")
     views = [i.rstrip() for i in infile.readlines()]
 
@@ -11,6 +13,8 @@ def get_views_to_indices(model):
 
 
 def get_viewprob_lists(model, dicomdir_basename):
+    """ Get list of values for every instance in study probabilities file.
+    """
     viewfile = f"/home/ubuntu/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     viewprob_lists = [i.rstrip().split("\t") for i in infile.readlines()]
@@ -19,6 +23,8 @@ def get_viewprob_lists(model, dicomdir_basename):
 
 
 def get_viewlists(viewprob_lists, views_to_indices, probthresh=0.5):
+    """ Get list of instances with A2C and A4C views based on probabilities.
+    """
     viewlist_a2c = []
     viewlist_a4c = []
 
