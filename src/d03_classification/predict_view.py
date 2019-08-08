@@ -17,6 +17,8 @@ from scipy.misc import imread
 
 from d00_utils.dcm_utils import dcmdir_to_jpgs_for_classification
 
+from d03_classification import vgg
+
 sys.path.append("./funcs/")
 sys.path.append("./nets/")
 
@@ -68,17 +70,18 @@ def classify(directory, feature_dim, label_dim, model_name):
     return predictions
 
 
-def run_classify(model):
+def run_classify():
 
     # To use dicomdir option set in global scope.
     global dicomdir, modeldir  # TODO should not be setting global parameters
 
     # Create directories for saving images
     results_dir = (
-        "/home/ubuntu/data/03_classification/results"
+        "/home/ubuntu/data/03_classification/results/"
     )  # TODO this shouldn't be hardcoded
     os.makedirs(results_dir, exist_ok=True)
-    temp_image_dir = os.path.join(dicomdir, "image/")
+    #temp_image_dir = os.path.join(dicomdir, "image/")
+    temp_image_dir = '/home/ubuntu/data/02_intermediate/test_downsampleby5/'
 
     #model_name = os.path.join(modeldir, model)
     model = 'view_23_e5_class_11-Mar-2018'
