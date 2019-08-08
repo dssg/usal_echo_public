@@ -1,6 +1,7 @@
 import numpy as np
 
 from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.log_utils import *
 
 
 def downsample_df(df, ratio):
@@ -12,6 +13,8 @@ def downsample_df(df, ratio):
 
 
 def downsample_train_test(ratio=0.1):
+
+    logger = setup_logging(__name__, "downsample_data.py")
 
     io_views = dbReadWriteViews()
 
@@ -25,10 +28,9 @@ def downsample_train_test(ratio=0.1):
     df_test_downsampled = downsample_df(df_test, ratio)
 
     io_views.save_to_db(
-        df_train_downsampled, "instances_w_labels_train_downsamp{0}".format(inv_ratio)
+        df_train_downsampled, "instances_w_labels_train_downsampleby{0}".format(inv_ratio)
     )
     io_views.save_to_db(
-        df_test_downsampled, "instances_w_labels_test_downsamp{0}".format(inv_ratio)
+        df_test_downsampled, "instances_w_labels_test_downsampleby{0}".format(inv_ratio)
     )
-    print("Dataset downsampled by a factor of {0}".format(inv_ratio))
-
+    logger.info("Dataset downsampled by a factor of {0}".format(inv_ratio))

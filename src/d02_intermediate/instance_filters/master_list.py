@@ -1,4 +1,5 @@
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean, dbReadWriteViews
+from d00_utils.log_utils import *
 
 """
 This script contains create_master_instance_list(), which creates 
@@ -13,6 +14,9 @@ This master list is created in the following way:
 
 
 def create_master_instance_list():
+
+    logger = setup_logging(__name__, "master_list.py")
+
     io_raw = dbReadWriteRaw()
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
@@ -53,5 +57,4 @@ def create_master_instance_list():
 
     final_df = merge2_df
     io_views.save_to_db(final_df, "instances_unique_master_list")
-    print("New table created: views.instances_unique_master_list")
-
+    logger.info("New table created: views.instances_unique_master_list")
