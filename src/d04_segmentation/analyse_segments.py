@@ -13,8 +13,7 @@ logger = setup_logging(__name__, "analyse_segments")
 
 
 def get_window(hr, ft):
-    """
-    Estimate duration of cardiac cycle with heart rate and frame time.
+    """Estimate duration of cardiac cycle with heart rate and frame time.
 
     (seconds/beat) / (seconds/frame) = frames/beat
 
@@ -26,6 +25,7 @@ def get_window(hr, ft):
 def compute_la_lv_volume(
     dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
 ):
+    """Return all measurements for a video."""
     npydir = "~/data/04_segmentation/results/" + view
     la_segs = np.load(npydir + "/" + videofile + "_la.npy")
     lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
@@ -124,9 +124,7 @@ def compute_la_lv_volume(
 
 
 def remove_periphery(imgs):
-    """
-
-    """
+    """Clean segmentations (adapted from Zhang et al code)."""
     imgs_ret = []
     for img in imgs:
         image = img.astype("uint8").copy()
@@ -165,6 +163,7 @@ def extract_areas(segs):
 
 
 def apply_rolling_window(areas):
+    """Clean areas (adapted from Zhang et al code)."""
     areas = (
         pd.DataFrame(areas)[0]
         .rolling(window=4, center=True)
