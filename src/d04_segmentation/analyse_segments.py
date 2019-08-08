@@ -1,4 +1,5 @@
 # coding: utf-8
+# All functions were extracted and adapted from Zhang et al. code
 import os
 import time
 import pickle
