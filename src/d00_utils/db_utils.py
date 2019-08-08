@@ -214,7 +214,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
         return np.reshape(np.frombuffer(results, dtype="Int8"), (384, 384))
     
-    def get_table(self, db_table):
+    def get_segmentation_table(self, db_table):
         """Read table in database as dataframe.
         
         :param db_table (str): name of database table to read

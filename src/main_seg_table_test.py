@@ -8,4 +8,6 @@ from d04_segmentation import segment_view
 
 
 if __name__ == "__main__":
-    db_utils.dbReadWriteSegmentation.get_table('predictions')
+    io_segmentation = dbReadWriteSegmentation()
+    table = io_segmentation.get_segmentation_table('predictions')
+    print(table)
