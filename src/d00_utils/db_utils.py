@@ -207,12 +207,35 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
         print("Saved to table {} to schema {} ".format('predictions', self.schema))
 
-    def get_numpy_array_from_db(self, column_name, table_name):
+    
+
+    def get_prediction_numpy_array_from_db(self, table_name):
+        
+        def convert_to_np(x, frame):
+            return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
+        
         sql = "select {}.{} from {}".format(self.schema, table_name, column_name)
         self.cursor.execute(sql)
-        results = self.cursor.fetchone()[0]  # TODO we need to actually retrieve all of them and iterate
-
-        return np.reshape(np.frombuffer(results, dtype="Int8"), (384, 384))
+        binary_data_array = self.cursor.fetchall()
+        
+        array = (binary_data_array[0],
+            binary_data_array[1],
+            binary_data_array[2],
+            binary_data_array[3],
+            #passing number_of_frames (binary_data_array[3]) as an argument
+            convert_to_np(binary_data_array[3], binary_data_array[4]), 
+            convert_to_np(binary_data_array[3], binary_data_array[5]),
+            convert_to_np(binary_data_array[3], binary_data_array[6]),
+            binary_data_array[7],
+            binary_data_array[8],
+            binary_data_array[9],
+            binary_data_array[10],
+            binary_data_array[11]
+        )
+        
+        return array
+    
+    
     
     def get_segmentation_table(self, db_table):
         """Read table in database as dataframe.

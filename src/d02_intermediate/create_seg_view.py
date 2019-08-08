@@ -227,9 +227,6 @@ def create_seg_view():
 
     df_6.columns = map(str.lower, df_6.columns)
     
-    # write output to db
-    io_views.save_to_db(df_6, "chords_by_volume_mask")
-
     # New transformations added later - may need to revise scripts to make more
     # efficient :see git issue
     # 11. melt the table to a single field for the views
