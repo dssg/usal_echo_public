@@ -212,7 +212,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
     
     #column_names = ['instance_id', 'frame', 'chamber', 'study_id',
      #                'score_type', 'score_value']
-        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', {})".format(
             self.schema,
             'ground_truths',
             ",".join(column_names),
@@ -230,7 +230,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
     def convert_to_np(self, x, frame):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
-
+    '''
     def get_numpy_array_from_db(self, table_name):        
         sql = "select * from {}.{}".format(self.schema, table_name)
         
@@ -257,6 +257,8 @@ class dbReadWriteSegmentation(dbReadWriteData):
             numpy_array_df.append(array)
             
         return numpy_array_df
+        
+        ''''
     
     
     
