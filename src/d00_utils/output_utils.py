@@ -1,6 +1,8 @@
+import os
+
+
 def get_views_to_indices(model):
-    """ Get dictionary of view name to index in probabilities file.
-    """
+    """ Get dictionary of view name to index in probabilities file."""
     infile = open(f"d03_classification/viewclasses_{model}.txt")
     views = [i.rstrip() for i in infile.readlines()]
 
@@ -13,9 +15,8 @@ def get_views_to_indices(model):
 
 
 def get_viewprob_lists(model, dicomdir_basename):
-    """ Get list of values for every instance in study probabilities file.
-    """
-    viewfile = f"~/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
+    """ Get list of values for every instance in study probabilities file."""
+    viewfile = f"os.expanduser('~')/data/03_classification/results/{model}_{dicomdir_basename}_probabilities.txt"
     infile = open(viewfile)
     viewprob_lists = [i.rstrip().split("\t") for i in infile.readlines()]
 
