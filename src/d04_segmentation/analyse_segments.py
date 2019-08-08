@@ -278,8 +278,7 @@ def compute_diastole(lv_areas_window, ft):
 
 
 def calculate_measurements(folder="dcm_sample_labelled"):
-    """
-    Write pickle of dictionary with calculated measurements.
+    """Write pickle of dictionary with calculated measurements.
     
     All the functions involved were extracted and adapted from Zhang et al. code.
 
@@ -321,7 +320,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
 
     logger.info(f"Results: {study_measure_dict}")
 
-    # TODO: in future, aggregate measurements across multiple videos in a study
+    # TODO: in future, aggregate measurements across multiple videos in a study?
     # Exclude measurements from videos where LAVOL/LVEDV < 30%, in case occluded
     # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
 
