@@ -223,7 +223,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [
+        d = (
             instance_id,
             studyidk,
             "a4c",
@@ -235,7 +235,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             images_uuid_x3[2],
             str(datetime.now()),
             video,
-        ]
+        )
         print(d)
         io_segmentation.save_numpy_array_to_db(d, "predictions", column_names)
 
@@ -252,7 +252,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [instance_id,
+        d = (instance_id,
             studyidk,
             "a2c",
             psycopg2.Binary(np_arrays_x3[0]),
@@ -263,7 +263,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             images_uuid_x3[2],
             str(datetime.now()),
             video,
-        ]
+        )
         print(d)
         io_segmentation.save_numpy_array_to_db(d, "predictions", column_names)
 
