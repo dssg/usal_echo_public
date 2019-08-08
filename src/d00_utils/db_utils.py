@@ -214,7 +214,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         def convert_to_np(x, frame):
             return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
         
-        sql = "select {}.{} from {}".format(self.schema, table_name, column_name)
+        sql = "select * from {}.{}".format(self.schema, table_name)
         self.cursor.execute(sql)
         binary_data_array = self.cursor.fetchall()
         
