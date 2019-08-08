@@ -216,25 +216,25 @@ class dbReadWriteSegmentation(dbReadWriteData):
         
         sql = "select * from {}.{}".format(self.schema, table_name)
         
-        binary_data_array_array = pd.read_sql(sql, self.engine)
+        binary_data_array = pd.read_sql(sql, self.engine)
         
         numpy_array_df = [];
-        
-        for binary_data_array in binary_data_array_array:
-            array = (binary_data_array[0],
-                     binary_data_array[1],
-                     binary_data_array[2],
-                     binary_data_array[3],
-                     binary_data_array[4],
+         
+        for index, row in binary_data_array.iterrows():
+            array = (row['prediction_id'],
+                     row['instance_id'],
+                     row['study_id'],
+                     row['view_name'],
+                     row['frame'],
                      #passing number_of_frames (binary_data_array[3]) as an argument
-                     convert_to_np(binary_data_array[4], binary_data_array[5]), 
-                     convert_to_np(binary_data_array[4], binary_data_array[6]),
-                     convert_to_np(binary_data_array[4], binary_data_array[7]),
-                     binary_data_array[8],
-                     binary_data_array[9],
-                     binary_data_array[10],
-                     binary_data_array[12],
-                     binary_data_array[13]
+                     convert_to_np(row['frame'], row['output_np_lv']), 
+                     convert_to_np(row['frame'], row['output_np_la']),
+                     convert_to_np(row['frame'], row['output_np_lvo']),
+                     row['output_image_seg'],
+                     row['output_image_orig'],
+                     row['output_image_overlay'],
+                     row['date_run'],
+                     row['file_name']
                      )
             numpy_array_df.append(array)
         return array
