@@ -300,7 +300,7 @@ def calculate_measurements():
     for videofile in viewlist_a4c + viewlist_a2c:
         study_measure_dict[videofile] = {}
 
-        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurments(
+        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurements(
             dicomdir, videofile
         )
         window = get_window(hr, ft)
