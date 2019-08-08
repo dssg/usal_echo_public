@@ -191,9 +191,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
         
         print("".format(",".join(column_names)))
         
-        values = ''
+        values = ()
         for element in binary_data_array:
-            values = values + ', ' + element
+            values = values + element
         
         sql = "insert into {}.{} ({}) values({})".format(
             self.schema,
