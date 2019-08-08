@@ -199,7 +199,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
             self.schema,
             table_name,
             ",".join(column_names),
-            ",".join(values)
+            values,
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
