@@ -273,7 +273,7 @@ def compute_diastole(lv_areas_window, ft):
         return np.nan
 
 
-def calculate_measurements():
+def calculate_measurements(folder="dcm_sample_labelled"):
     """
     Write pickle of dictionary with calculated measurements.
 
@@ -288,8 +288,7 @@ def calculate_measurements():
     """
 
     model = "view_23_e5_class_11-Mar-2018"
-    # TODO: change from hardcoded value
-    dicomdir = "/home/ubuntu/data/01_raw/dcm_sample_labelled"
+    dicomdir = f"~/data/01_raw/{folder}"
     dicomdir_basename = os.path.basename(dicomdir)
 
     views_to_indices = get_views_to_indices(model)
