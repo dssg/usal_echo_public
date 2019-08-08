@@ -11,7 +11,7 @@ from d00_utils.db_utils import dbReadWriteData
 from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
 from d02_intermediate.clean_xtdb import clean_tables
-from d02_intermediate.clean_dcm import clean_dcm
+from d02_intermediate.clean_dcm import clean_dcm_meta
 
 def get_postgres_credentials():
     """
@@ -65,9 +65,8 @@ class CleanDCM(luigi.Task):
         # https://luigi.readthedocs.io/en/stable/api/luigi.contrib.postgres.html
         # e.g. https://vsupalov.com/luigi-query-postgresql/
 
-    # TODO: figure out default args for clean_dcm()
-    #def run(self):
-        #return clean_dcm(metadata_path, ...)
+    def run(self):
+        return clean_dcm_meta()
 
 
 class IngestXTDB(luigi.Task):
@@ -85,7 +84,6 @@ class IngestXTDB(luigi.Task):
         host, user, password, database = get_postgres_credentials()
         table = "raw.A_measgraphic"
         update_id = "ingest"
-
         return PostgresTarget(host, database, user, password, table, update_id)
 
     def run(self):

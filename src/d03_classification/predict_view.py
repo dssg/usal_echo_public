@@ -78,7 +78,7 @@ def run_classify(model):
         "/home/ubuntu/data/03_classification/results"
     )  # TODO this shouldn't be hardcoded
     os.makedirs(results_dir, exist_ok=True)
-    temp_image_dir = os.path.join(dicomdir, 'image/')
+    temp_image_dir = os.path.join(dicomdir, "image/")
     model_name = os.path.join(modeldir, model)
 
     infile = open("d03_classification/viewclasses_" + model + ".txt")
@@ -114,7 +114,6 @@ def run_classify(model):
         predictprobmean = np.mean(predictprobdict[prefix], axis=0)
         out.write(dicomdir + "\t" + prefix)
 
-
         for i in predictprobmean:
             out.write("\t" + str(i))
             out.write("\n")
@@ -131,6 +130,5 @@ def run_classify(model):
     out.close()
 
 
-if __name__ == '__main__':
-    run_classify(model = "view_23_e5_class_11-Mar-2018")
-
+if __name__ == "__main__":
+    run_classify(model="view_23_e5_class_11-Mar-2018")
