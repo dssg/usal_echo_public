@@ -184,22 +184,10 @@ class dbReadWriteSegmentation(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
-    def save_prediction_numpy_array_to_db(self, binary_data_array, table_name, column_names):
-        #d = [instance_id,
-        #    studyidk,
-         #   "a2c",
-          #  psycopg2.Binary(np_arrays_x3[0]),
-           # psycopg2.Binary(np_arrays_x3[1]),
-            #psycopg2.Binary(np_arrays_x3[2]),
-            #images_uuid_x3[0],
-            #images_uuid_x3[1],
-            #images_uuid_x3[2],
-            #str(datetime.now()),
-            #video,
-        #]
-        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
+    def save_prediction_numpy_array_to_db(self, binary_data_array, column_names):
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
-            table_name,
+            'predictions',
             ",".join(column_names),
             binary_data_array[0],
             binary_data_array[1],
@@ -216,7 +204,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        print("Saved to table {} to schema {} ".format(table_name, self.schema))
+        print("Saved to table {} to schema {} ".format('predictions', self.schema))
 
     def get_numpy_array_from_db(self, column_name, table_name):
         sql = "select {}.{} from {}".format(self.schema, table_name, column_name)

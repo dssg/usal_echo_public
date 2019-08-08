@@ -128,11 +128,9 @@ def segmentChamber(videofile, dicomdir, view):
             images, orig_images, model, sess, 2, 4, 1
         )
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
-        print("THIS IS THE SIZE: {}".format(np.array(a4c_lv_segs).astype("uint8").shape))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
-        print("THIS IS THE SIZE: {}".format(np.array(a4c_la_segs).astype("uint8").shape))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
-        print("THIS IS THE SIZE: {}".format(np.array(a4c_lvo_segs).astype("uint8").shape))
+        number_frames = (np.array(a4c_lvo_segs).astype("uint8").shape)[0]
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1
@@ -140,6 +138,7 @@ def segmentChamber(videofile, dicomdir, view):
         np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
+        number_frames = (np.array(a2c_lvo_segs).astype("uint8").shape)[0]
 
     j = 0
     nrow = orig_images[0].shape[0]
@@ -185,7 +184,7 @@ def segmentChamber(videofile, dicomdir, view):
         ).hexdigest()
     )
     # return 1
-    return [np_arrays_x3, images_uuid_x3]
+    return [number_frames, np_arrays_x3, images_uuid_x3]
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
@@ -212,7 +211,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
     
     for video in viewlist_a4c:
-        [np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
+        [number_frames, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -228,6 +227,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             instance_id,
             studyidk,
             "a4c",
+            number_frames,
             np_arrays_x3[0],
             np_arrays_x3[1],
             np_arrays_x3[2],
@@ -237,8 +237,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             str(datetime.now()),
             video,
         ]
-        print(d)
-        io_segmentation.save_prediction_numpy_array_to_db(d, "predictions", column_names)
+        io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     for video in viewlist_a2c:
         np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
@@ -256,6 +255,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         d = [instance_id,
             studyidk,
             "a2c",
+            number_frames,
             np_arrays_x3[0],
             np_arrays_x3[1],
             np_arrays_x3[2],
@@ -265,8 +265,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             str(datetime.now()),
             video,
         ]
-        print(d)
-        io_segmentation.save_prediction_numpy_array_to_db(d, "predictions", column_names)
+        io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     return 1
 
