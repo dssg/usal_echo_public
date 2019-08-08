@@ -257,7 +257,6 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
-        if 
         if tag == dicom_tags["physical_delta_x_direction"]:
             deltax = line.split(" ")[2]
             deltax = np.abs(float(deltax))
