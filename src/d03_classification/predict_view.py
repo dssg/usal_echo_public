@@ -79,9 +79,13 @@ def run_classify(model):
     )  # TODO this shouldn't be hardcoded
     os.makedirs(results_dir, exist_ok=True)
     temp_image_dir = os.path.join(dicomdir, "image/")
-    model_name = os.path.join(modeldir, model)
 
-    infile = open("d03_classification/viewclasses_" + model + ".txt")
+    #model_name = os.path.join(modeldir, model)
+    model = 'view_23_e5_class_11-Mar-2018'
+    model_name = '/home/ubuntu/models/view_23_e5_class_11-Mar-2018'
+
+    # TODO: soft-code this
+    infile = open('/home/ubuntu/dvv/usal_echo/src/d03_classification/viewclasses_' + model + '.txt')
     infile = infile.readlines()
     views = [i.rstrip() for i in infile]
 
@@ -100,7 +104,7 @@ def run_classify(model):
     out.write("\n")
     x = time.time()
 
-    dcmdir_to_jpgs_for_classification(dicomdir, temp_image_dir)
+    #dcmdir_to_jpgs_for_classification(dicomdir, temp_image_dir)
     predictions = classify(temp_image_dir, feature_dim, label_dim, model_name)
     predictprobdict = {}
 
@@ -114,9 +118,10 @@ def run_classify(model):
         predictprobmean = np.mean(predictprobdict[prefix], axis=0)
         out.write(dicomdir + "\t" + prefix)
 
-        for i in predictprobmean:
-            out.write("\t" + str(i))
-            out.write("\n")
+    for i in predictprobmean:
+        out.write("\t" + str(i))
+        out.write("\n")
+    
     y = time.time()
 
     print(
@@ -130,5 +135,5 @@ def run_classify(model):
     out.close()
 
 
-if __name__ == "__main__":
-    run_classify(model="view_23_e5_class_11-Mar-2018")
+#if __name__ == "__main__":
+#    run_classify(model="view_23_e5_class_11-Mar-2018")
