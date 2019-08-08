@@ -1,5 +1,4 @@
 # coding: utf-8
-# All functions were extracted and adapted from Zhang et al. code
 import os
 import time
 import pickle
@@ -276,6 +275,8 @@ def compute_diastole(lv_areas_window, ft):
 def calculate_measurements(folder="dcm_sample_labelled"):
     """
     Write pickle of dictionary with calculated measurements.
+    
+    All the functions involved were extracted and adapted from Zhang et al. code.
 
     We compute chamber dimensions and ejection fraction from segmentations.
     We rely on variation in ventricular area to identify end-systole/diastole.
