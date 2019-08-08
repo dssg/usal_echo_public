@@ -119,7 +119,7 @@ def compute_la_lv_volume(
         "lvesv": lvesv,
         "ef": ef,
         "lveda_l": lveda_l,
-        "diasttime": diasttime
+        "diasttime": diasttime,
     }
 
 
@@ -326,9 +326,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
 
     # TODO: write to database
     out = open(
-        "~/data/04_segmentation/"
-        + dicomdir_basename
-        + "_measurements_dict.pickle",
+        "~/data/04_segmentation/" + dicomdir_basename + "_measurements_dict.pickle",
         "wb",
     )
     pickle.dump(study_measure_dict, out)
