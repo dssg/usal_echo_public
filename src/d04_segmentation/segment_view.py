@@ -116,7 +116,7 @@ def segmentChamber(videofile, dicomdir, view):
             saver.restore(
                 sess5, os.path.join(modeldir, "plax_45_20_all_model.ckpt-9600")
             )
-    outpath = "/home/ubuntu/courtney/usal_echo/data/segment/" + view + "/"
+    outpath = "/home/ubuntu/data/04_segmentation/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
