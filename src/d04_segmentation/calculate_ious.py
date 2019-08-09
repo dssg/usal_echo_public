@@ -21,6 +21,7 @@ def main():
     predictions = io_segmentation.get_segmentation_table('predictions')
     ground_truths = io_segmentation.get_table('ground_truths')
     
+    print('tables obtained')
     #Go through the ground truth table and write IOUS
         
     for gt in ground_truths:
@@ -48,13 +49,15 @@ def main():
         
         #calculate iou
         reported_iou = iou(gt_numpy_array, pred_numpy_array)
+        print('IOU of: {}'.format(reported_iou))
         
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
         df = {'instance_id' : gt_instance_id, 'frame' : gt['frame'], 
               'chamber' : gt_chamber, 'study_id': gt_study_id, 
               'score_type' : 'iou', 'score_value' : reported_iou}
-        io_segmentation.save_seg_evaluation_to_db(df) 
+        io_segmentation.save_seg_evaluation_to_db(df)
+        print('saved to db')
     
 
 def iou(gt, pred):
