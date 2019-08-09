@@ -38,9 +38,9 @@ def write_masks():
                      'view_name', 'numpy_array']
     # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
     for index, mask in masks_df.iterrows():
-        print('Orginal numpy array size: {}'.fomrat(mask['mask']))
-        print('Revised numpy array size: {}'.fomrat(mask['mask']))
+        print('Orginal numpy array size: {}'.format(mask['mask'].shape))
         resized_mask = (imresize(mask['mask'], (384, 384)))
+        print('Revised numpy array size: {}'.format(resized_mask.shape))
         d = [mask['instanceidk'], mask['frame'], mask['chamber'], 
          mask['study_id'], mask['view_name'], resized_mask]
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
