@@ -39,7 +39,7 @@ def main():
                                (predictions['instance_id'] == gt_instance_id)]
         
         #retrieve gt numpy array
-        gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'][0], 1) 
+        gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1) 
                     #frame = 1, as it wants number of frames in np array, not frame number
         
         #retrive relevant pred numpy array
