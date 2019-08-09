@@ -5,6 +5,7 @@ import pandas as pd
 
 from shapely.geometry import Polygon
 from skimage.draw import polygon
+from scipy.misc import imresize
 
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
 
@@ -37,8 +38,9 @@ def write_masks():
                      'view_name', 'numpy_array']
     # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
     for index, mask in masks_df.iterrows():
+        resized_mask = (imresize(mask['mask'], (384, 384)))
         d = [mask['instanceidk'], mask['frame'], mask['chamber'], 
-         mask['study_id'], mask['view_name'], mask['mask']]
+         mask['study_id'], mask['view_name'], resized_mask]
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
     
 
