@@ -83,7 +83,7 @@ create table segmentation.predictions(
    study_id integer,
    instance_id integer,
    file_name varchar,
-   frame integer,
+   num_frames integer,
    model_name varchar,
    date_run timestamp with time zone,
    output_np_lv bytea,
