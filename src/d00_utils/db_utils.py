@@ -230,7 +230,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
     def convert_to_np(self, x, frame):
         if frame == 1:
-            np_array = np.frombuffer(x, dtype='Int8')
+            np_array = np.reshape(np.frombuffer(x, dtype='Int8'), (384,384))
         else:
             np_array = np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
             
