@@ -3,14 +3,12 @@
 import random
 import os
 import subprocess
-import json
 
 import numpy as np
 from scipy.misc import imresize
 import cv2
 import pydicom
 from skimage.color import rgb2gray
-from subprocess import Popen, PIPE
 
 from d00_utils.log_utils import setup_logging
 logger = setup_logging(__name__, "download_decompress_dcm")
@@ -221,92 +219,3 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
         logger.error("{} could not return dict".format(filename))
 
 
-def extract_metadata_for_measurements(dicomdir, videofile):
-    """Get DICOM metadata using GDCM utility."""
-    command = "gdcmdump " + dicomdir + "/" + videofile
-    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
-    text = pipe.communicate()[0]
-    lines = text.split("\n")
-    dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
-    # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
-    dicom_tags = {
-        k: str(tuple(v)).replace("'", "").replace(" ", "")
-        for k, v in dicom_tags.items()
-    }
-    # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
-    x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines, dicom_tags) or (
-        None,
-        None,
-    )
-    hr = _extract_hr_from_gdcm_str(lines, dicom_tags)
-    nrow, ncol = _extract_xy_from_gdcm_str(lines, dicom_tags) or (None, None)
-    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
-    ft = _extract_ft_from_gdcm_str(lines, dicom_tags)
-    if hr < 40:
-        logger.debug(f"problem heart rate: {hr}")
-        hr = 70
-    return ft, hr, nrow, ncol, x_scale, y_scale
-
-
-def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
-    """Get x_scale, y_scale from gdcmdump output."""
-    xlist = []
-    ylist = []
-    for line in lines:
-        line = line.lstrip()
-        tag = line.split(" ")[0]
-        if tag == dicom_tags["physical_delta_x_direction"]:
-            deltax = line.split(" ")[2]
-            deltax = np.abs(float(deltax))
-            if deltax > 0.012:
-                xlist.append(deltax)
-        if tag == dicom_tags["physical_delta_y_direction"]:
-            deltay = line.split(" ")[2]
-            deltay = np.abs(float(deltay))
-            if deltay > 0.012:
-                ylist.append(deltay)
-    return np.min(xlist), np.min(ylist)
-
-
-def _extract_hr_from_gdcm_str(lines, dicom_tags):
-    """Get heart rate from gdcmdump output."""
-    hr = "None"
-    for line in lines:
-        line = line.lstrip()
-        tag = line.split(" ")[0]
-        if tag == dicom_tags["heart_rate"]:
-            hr = int(line.split("[")[1].split("]")[0])
-    return hr
-
-
-def _extract_xy_from_gdcm_str(lines, dicom_tags):
-    """Get rows, columns from gdcmdump output."""
-    for line in lines:
-        line = line.lstrip()
-        tag = line.split(" ")[0]
-        if tag == dicom_tags["rows"]:
-            rows = line.split(" ")[2]
-        elif tag == dicom_tags["columns"]:
-            cols = line.split(" ")[2]
-    return int(rows), int(cols)
-
-
-def _extract_ft_from_gdcm_str(lines, dicom_tags):
-    """Get frame time from gdcmdump output."""
-    default_framerate = 30
-    is_framerate = False
-    for line in lines:
-        tag = line.split(" ")[0]
-        if tag == dicom_tags["frame_time"]:
-            frametime = line.split("[")[1].split("]")[0]
-            is_framerate = True
-        elif tag == dicom_tags["cine_rate"]:
-            framerate = line.split("[")[1].split("]")[0]
-            frametime = 1000 / float(framerate)
-            is_framerate = True
-    if not is_framerate:
-        logger.debug("missing framerate")
-        framerate = defaultframerate
-        frametime = 1000 / framerate
-    ft = float(frametime)
-    return ft
