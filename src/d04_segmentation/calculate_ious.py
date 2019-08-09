@@ -61,8 +61,8 @@ def main():
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
         d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 'score_value']
         d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', reported_iou]
-        df = pd.DataFrame(data=d, columns=d_columns)
-        io_segmentation.save_seg_evaluation_to_db(df)
+        #df = pd.DataFrame(data=d, columns=d_columns)
+        io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         print('saved to db')
     
 

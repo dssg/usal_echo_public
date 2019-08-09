@@ -249,11 +249,19 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
         return df
     
-    def save_seg_evaluation_to_db(self, df, if_exists="append"):
+    def save_seg_evaluation_to_db(self, df, column_names, if_exists="append"):
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
         
         # Create new database table from empty dataframe
-        df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
+        #df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
+        sql = "insert into {}.{} ({}) values ('{}')".format(
+            self.schema,
+            'predictions',
+            ",".join(column_names),
+            ",".join(df)
+        )
+        self.cursor.execute(sql)
+        self.raw_conn.commit()
 
         print(
             "Saved table {} to schema {} (mode={})".format(
