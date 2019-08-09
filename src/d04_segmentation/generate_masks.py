@@ -38,6 +38,8 @@ def write_masks():
                      'view_name', 'numpy_array']
     # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
     for index, mask in masks_df.iterrows():
+        print('Orginal numpy array size: {}'.fomrat(mask['mask']))
+        print('Revised numpy array size: {}'.fomrat(mask['mask']))
         resized_mask = (imresize(mask['mask'], (384, 384)))
         d = [mask['instanceidk'], mask['frame'], mask['chamber'], 
          mask['study_id'], mask['view_name'], resized_mask]
