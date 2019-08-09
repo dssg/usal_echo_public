@@ -169,12 +169,12 @@ class dbReadWriteViews(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
 
-class dbReadWriteSegmentation(dbReadWriteData):
+class dbReadWriteMeasurement(dbReadWriteData):
     """
-    Instantiates class for postgres I/O to 'segmentation' schema
+    Instantiates class for postgres I/O to 'measurement' schema
     """
 
     def __init__(self):
-        super().__init__(schema="segmentation")
+        super().__init__(schema="measurement")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
