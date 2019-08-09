@@ -256,7 +256,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         #df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
-            'predictions',
+            'evaluations',
             ",".join(column_names),
             df[0],
             df[1],
