@@ -7,6 +7,7 @@ Created on Fri Aug  2 13:46:14 2019
 
 from d00_utils.db_utils import dbReadWriteSegmentation
 import numpy as np
+import pandas as pd
 
 def main():
     #Go through the ground truth table and write IOUS
@@ -58,9 +59,9 @@ def main():
         
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        df = {'instance_id' : gt_instance_id, 'frame' : gt['frame'], 
+        df = pd.DataFrame({'instance_id' : gt_instance_id, 'frame' : gt['frame'], 
               'chamber' : gt_chamber, 'study_id': gt_study_id, 
-              'score_type' : 'iou', 'score_value' : reported_iou}
+              'score_type' : 'iou', 'score_value' : reported_iou})
         io_segmentation.save_seg_evaluation_to_db(df)
         print('saved to db')
     
