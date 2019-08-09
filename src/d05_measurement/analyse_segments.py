@@ -3,7 +3,7 @@ import os
 import pickle
 
 from d00_utils.output_utils import *
-from d04_segmentation.meas_utils import *
+from d05_measurement.meas_utils import *
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, "analyse_segments")
@@ -58,7 +58,7 @@ def calculate_measurements(folder="dcm_sample_labelled"):
 
     # TODO: write to database
     out = open(
-        f"{os.path.expanduser('~')}/data/04_segmentation/{dicomdir_basename}_measurements_dict.pickle",
+        f"{os.path.expanduser('~')}/data/05_measurement/{dicomdir_basename}_measurements_dict.pickle",
         "wb",
     )
     pickle.dump(study_measure_dict, out)
