@@ -41,7 +41,7 @@ def main():
         #retrieve gt numpy array
         gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1) 
                     #frame = 1, as it wants number of frames in np array, not frame number
-        
+        print('hello lili')
         #retrive relevant pred numpy array
         if gt_chamber == 'la':
             pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'], pred['frame'])            
