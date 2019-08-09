@@ -44,11 +44,11 @@ def main():
         print('hello lili')
         #retrive relevant pred numpy array
         if gt_chamber == 'la':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'], pred['frame'][0])            
+            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['frame'][0])            
         elif gt_chamber == 'lv':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lv'], pred['frame'][0])
+            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lv'][0], pred['frame'][0])
         elif gt_chamber == 'lvo':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lvo'], pred['frame'][0])
+            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lvo'][0], pred['frame'][0])
         else:
             print('invalid chamber') #TODO: log this
         
