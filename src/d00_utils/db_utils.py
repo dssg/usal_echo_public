@@ -239,7 +239,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         
         """
         
-        q = "SELECT * FROM {}.{}".format(self.schema, db_table)
+        q = "SELECT * FROM {}.{} LIMIT 5".format(self.schema, db_table)
         df = pd.read_sql(q, self.engine)
 
         return df
