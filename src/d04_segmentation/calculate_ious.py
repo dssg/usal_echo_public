@@ -5,7 +5,7 @@ Created on Fri Aug  2 13:46:14 2019
 @author: court
 """
 
-from src.d00_utils.db_utils import dbReadWriteSegmentation
+from d00_utils.db_utils import dbReadWriteSegmentation
 import numpy as np
 
 def main():
