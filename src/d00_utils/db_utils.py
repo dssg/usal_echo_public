@@ -254,11 +254,16 @@ class dbReadWriteSegmentation(dbReadWriteData):
         
         # Create new database table from empty dataframe
         #df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
-        sql = "insert into {}.{} ({}) values ('{}')".format(
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
             'predictions',
             ",".join(column_names),
-            ",".join(df)
+            df[0],
+            df[1],
+            df[2],
+            df[3],
+            df[4],
+            df[5]
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
