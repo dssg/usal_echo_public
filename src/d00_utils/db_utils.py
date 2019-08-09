@@ -221,7 +221,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[2],
             binary_data_array[3],
             binary_data_array[4],
-            psycopg2.Binary(np.array(binary_data_array[5]))
+            psycopg2.Binary(binary_data_array[5])
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
@@ -243,3 +243,16 @@ class dbReadWriteSegmentation(dbReadWriteData):
         df = pd.read_sql(q, self.engine)
 
         return df
+    
+    def save_seg_evaluation_to_db(self, df, if_exists="append"):
+        # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
+        
+        # Create new database table from empty dataframe
+        df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
+
+        print(
+            "Saved table {} to schema {} (mode={})".format(
+                'evaluation', self.schema, if_exists
+            )
+        )
+        
