@@ -229,7 +229,12 @@ class dbReadWriteSegmentation(dbReadWriteData):
         print("Saved to table {} to schema {} ".format('ground truth', self.schema))
 
     def convert_to_np(self, x, frame):
-            return np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
+        if frame == 1:
+            np_array =  np.reshape(np.frombuffer(x, dtype='Int8'), (384,384))
+        else:
+            np_array = np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
+            
+        return np_array
     
     
     def get_segmentation_table(self, db_table):
