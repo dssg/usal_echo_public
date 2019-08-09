@@ -3,9 +3,13 @@ from d00_utils.log_utils import *
 
 
 def define_measurement_names():
-
-    """ Return dict of lists of measurements which define views"""
-
+    """ Return dict of lists of measurements which define views.
+    
+    Instance views are determined based on measurements taken in 
+    the instance. This dict maps views to their respective measurements
+    so that ground truth view labels can be created for instances. 
+    
+    """
     meas_dict = {}
 
     meas_dict["PLAX"] = ["Diám raíz Ao", "Diám. Ao asc.", "Diám TSVI", "Dimensión AI"]
@@ -73,16 +77,19 @@ def define_measurement_names():
 
 
 def filter_by_views():
-    """
-    Creates many tables:
+    """Filters study instances known to be plax, a4c or a2c.
+    
+    Creates the following tables:
         views.frames_w_labels: all frames with labels plax, a4c, a2c
         views.instances_w_labels: all instances which are labeled plax, a4c, a2c
             Assumption: if a frame has a view label, other frames within that instance correspond 
                         to the same view. This discludes instances which has >1 frames with 
                         conflicting labels
         views.frames_sorted_by_views_temp: intermediate table; used by other scripts
+        
+    Note: instances that are not one of these views are excluded.
+        
     """
-
     logger = setup_logging(__name__, "filter_views.py")
 
     io_clean = dbReadWriteClean()

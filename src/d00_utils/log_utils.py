@@ -13,7 +13,6 @@ import pandas as pd
 
 
 log_basedir = os.path.join(Path(__file__).parents[2], "log")
-os.makedirs(log_basedir, exist_ok=True)
 
 
 def setup_logging(name, log_file, level=logging.DEBUG):
@@ -24,6 +23,8 @@ def setup_logging(name, log_file, level=logging.DEBUG):
     :param level (int): logging.level, default=logging.DEBUG
     
     """
+    os.makedirs(log_basedir, exist_ok=True)
+    
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
