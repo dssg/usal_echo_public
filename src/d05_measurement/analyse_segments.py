@@ -3,7 +3,7 @@ import os
 import pickle
 
 from d00_utils.output_utils import *
-from d05_segmentation.meas_utils import *
+from d05_measurement.meas_utils import *
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, "analyse_segments")
