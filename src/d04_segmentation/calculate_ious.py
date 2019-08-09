@@ -59,10 +59,9 @@ def main():
         
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        d = {'instance_id' : [gt_instance_id], 'frame' : [gt['frame']], 
-              'chamber' : [gt_chamber], 'study_id': [gt_study_id], 
-              'score_type' : ['iou'], 'score_value' : [reported_iou]}
-        df = pd.DataFrame.from_dict(d)
+        d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 'score_value']
+        d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', reported_iou]
+        df = pd.DataFrame.from_dict(data=d, columns=d_columns)
         io_segmentation.save_seg_evaluation_to_db(df)
         print('saved to db')
     
