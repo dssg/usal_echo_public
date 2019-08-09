@@ -20,9 +20,10 @@ def main():
     print('hello world x')
     
     io_segmentation = dbReadWriteSegmentation()
-    predictions = io_segmentation.get_table('predictions')
+    print(io_segmentation.cursor)
+    predictions = io_segmentation.get_segmentation_table('predictions')
     print('hello again xx')
-    ground_truths = io_segmentation.get_table('ground_truths')
+    ground_truths = io_segmentation.get_segmentation_table('ground_truths')
     
     print('tables obtained')
     

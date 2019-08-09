@@ -238,7 +238,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         :param db_table (str): name of database table to read
         
         """
-        # Fetch column names
+        
         q = "SELECT * FROM {}.{}".format(self.schema, db_table)
         df = pd.read_sql(q, self.engine)
 
