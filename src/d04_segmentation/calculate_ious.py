@@ -16,12 +16,15 @@ def main():
     #        "file_name"
     # Ground truth table: ground_truth_id, instance_id, frame, chamber, study_id, view_name, numpy_array
     # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
+ 
+    print('hello world x')
     
     io_segmentation = dbReadWriteSegmentation()
     predictions = io_segmentation.get_segmentation_table('predictions')
     ground_truths = io_segmentation.get_table('ground_truths')
     
     print('tables obtained')
+    
     #Go through the ground truth table and write IOUS
         
     for gt in ground_truths:
