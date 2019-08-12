@@ -7,8 +7,18 @@ from d00_utils.db_utils import (
 )
 
 
+def get_recommendation(row):
+    return (
+        "normal"
+        if row["measurement_value"] >= 60
+        else "abnormal"
+        if row["measurement_value"] < 40
+        else "greyzone"
+    )
+
+
 def write_groundtruth(instanceidks):
-    """Write ground truth volume and ejection fraction measurements for given instanceidks to schema."""
+    """Write ground truth volumes, ejection fractions, and recommendations."""
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
     io_measurement = dbReadWriteMeasurement()
@@ -133,6 +143,14 @@ def write_groundtruth(instanceidks):
         axis=1,
     )
 
-    # Write both volumes and ejection fractions.
-    ground_truth_df = volume_df.append(ef_df)
+    # Get recommendations based on ejection fraction values.
+    recommendation_df = ef_df.copy()
+    recommendation_df["measurement_name"] = "recommendation"
+    recommendation_df["measurement_value"] = recommendation_df.apply(
+        get_recommendation, axis=1
+    )
+    recommendation_df["measurement_unit"] = ""
+
+    # Write volumes, ejection fractions, and recommendations.
+    ground_truth_df = volume_df.append(ef_df).append(recommendation_df)
     io_measurement.save_to_db(ground_truth_df, "ground_truths")
