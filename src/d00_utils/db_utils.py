@@ -210,8 +210,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
     def save_ground_truth_numpy_array_to_db(self, binary_data_array, column_names):  
     #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 
     #'frame', 'chamber', 'view_name' 'numpy_array'
-        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', {})".format(
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', {})".format(
             self.schema,
+            'ground_truths'
             ",".join(column_names),
             binary_data_array[0],
             binary_data_array[1],
