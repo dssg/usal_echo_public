@@ -64,7 +64,7 @@ class dbReadWriteData:
         self.engine = create_engine(self.connection_str, encoding="utf-8")
         self.raw_conn = self.engine.raw_connection()
         self.cursor = self.raw_conn.cursor()
-       
+
     def save_to_db(self, df, db_table, if_exists="replace"):
         """Write dataframe to table in database.
         
@@ -166,7 +166,7 @@ class dbReadWriteViews(dbReadWriteData):
 
 class dbReadWriteClassification(dbReadWriteData):
     """
-    Instantiates class for postgres I/O to 'measurement' schema
+    Instantiates class for postgres I/O to 'classification' schema
     """
 
     def __init__(self):
@@ -175,27 +175,25 @@ class dbReadWriteClassification(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
     def save_to_db(self, df, db_table, if_exists="append"):
-        
-        gc.collect()
+
         # Create new database table from empty dataframe
         if if_exists == "replace":
             df[:0].to_sql(db_table, self.engine, self.schema, if_exists, index=False)
-            query = "ALTER TABLE {}.{} ADD {} serial NOT NULL;".format(self.schema,
-                                                                       db_table, 
-                                                                       db_table[:-1]+'_id')
+            query = "ALTER TABLE {}.{} ADD {} serial NOT NULL;".format(
+                self.schema, db_table, db_table[:-1] + "_id"
+            )
             self.cursor.execute(query)
             self.raw_conn.commit()
 
         df.to_sql(db_table, self.engine, self.schema, "append", index=False)
-            
-        gc.collect()
 
         logger.info(
             "Saved table {} to schema {} (mode={})".format(
                 db_table, self.schema, if_exists
             )
-        )        
-            
+        )
+
+
 class dbReadWriteMeasurement(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'measurement' schema

@@ -70,7 +70,7 @@ def classify(img_dir, feature_dim, label_dim, model_path):
     return predictions
 
 
-def run_classify(img_dir, feature_dim=1, model_path):
+def run_classify(img_dir, model_path, feature_dim=1):
     """Writes classification predictions to database.
 
     :param img_dir: directory with jpg echo images for classification
