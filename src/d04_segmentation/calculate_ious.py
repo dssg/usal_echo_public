@@ -44,7 +44,6 @@ def main():
         pred = pred.reset_index()
         print('got predictions details for instance {}'.format(gt_instance_id))
         
-        
         if len(pred.index) > 0:
             pred_view_name = pred['view_name'][0]
             #retrieve gt numpy array
