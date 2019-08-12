@@ -250,8 +250,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
     
     def get_instance_from_segementation_table(self, db_table, instance):
         
-        q = "SELECT * FROM {}.{} WHERE instance_id='{}'".format(self.schema, 
-                           db_table, instance))
+        q = "SELECT * FROM {}.{} WHERE instance_id='{}'".format(self.schema, db_table, instance)
         df = pd.read_sql(q, self.engine)
 
         return df
