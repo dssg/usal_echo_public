@@ -108,6 +108,8 @@ create table segmentation.evaluations(
     chamber varchar,
     score_type varchar,
     score_value float,
+    gt_view_name varchar,
+    pred_view_name varchar,
     primary key(evaluation_id)
 );
 
@@ -122,7 +124,6 @@ create table segmentation.ground_truths(
     frame integer,
     chamber varchar,
     view_name varchar,
-    numpy_array  bytea,
     primary key(ground_truth_id)
 );
 
