@@ -208,7 +208,8 @@ class dbReadWriteSegmentation(dbReadWriteData):
         print("Saved to table {} to schema {} ".format('predictions', self.schema))
         
     def save_ground_truth_numpy_array_to_db(self, binary_data_array, column_names):  
-    #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 'frame', 'chamber', 'view_name' 'numpy_array'
+    #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 
+    #'frame', 'chamber', 'view_name' 'numpy_array'
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', {})".format(
             self.schema,
             'ground_truths',
@@ -218,7 +219,8 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[2],
             binary_data_array[3],
             binary_data_array[4],
-            psycopg2.Binary(binary_data_array[5])
+            binary_data_array[5],
+            psycopg2.Binary(binary_data_array[6])
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()

@@ -34,7 +34,7 @@ def write_masks():
     masks_df['study_id'] = masks_df['instanceidk'].apply(lambda x: dict_studyidk.get(x))
     masks_df['view_name'] = masks_df['instanceidk'].apply(lambda x: dict_view.get(x))
     
-    column_names = ['ground_truth_id', 'study_id', 'instance_id', 'file_name', 
+    column_names = ['study_id', 'instance_id', 'file_name', 
                     'frame', 'chamber', 'view_name', 'numpy_array']
 #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 'frame',
 # 'chamber', 'view_name' 'numpy_array'
