@@ -1,9 +1,6 @@
 # coding: utf-8
 
-import random
-import sys
 import os
-import subprocess
 import datetime
 
 import tensorflow as tf
@@ -12,7 +9,6 @@ import pandas as pd
 from scipy.misc import imread
 
 from d00_utils.db_utils import dbReadWriteClassification
-from d02_intermediate.dcm_utils import dcmdir_to_jpgs_for_classification
 from d03_classification import vgg
 from d00_utils.log_utils import setup_logging
 
@@ -50,9 +46,9 @@ def classify(img_dir, feature_dim, label_dim, model_path):
 
     :param img_dir: directory with jpg echo images for classification
     :param feature_dim:
-    :param label_dim: 
+    :param label_dim: number of classes on which model has been trained
     :param model_path: path to trained model for making predictions
-    
+
     """
     # Initialise tensorflow
     tf.reset_default_graph()
@@ -74,11 +70,17 @@ def classify(img_dir, feature_dim, label_dim, model_path):
     return predictions
 
 
-def run_classify(img_dir, feature_dim, model_path):
+def run_classify(img_dir, feature_dim=1, model_path):
+    """Writes classification predictions to database.
+
+    :param img_dir: directory with jpg echo images for classification
+    :param feature_dim: default=1
+    :param model_path: path to trained model for making predictions
+
+    """
 
     label_dim = len(view_classes)
     model_name = os.path.basename(model_path)
-    img_dir_basename = os.path.basename(img_dir)
 
     predictions = classify(img_dir, feature_dim, label_dim, model_path)
 
@@ -105,7 +107,7 @@ def run_classify(img_dir, feature_dim, model_path):
     )
 
 
-def agg_predictions(predictions):
+def agg_predictions(predictions, img_dir):
 
     predictprobdict = {}
 
