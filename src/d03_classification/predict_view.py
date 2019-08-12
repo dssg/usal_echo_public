@@ -8,9 +8,10 @@ import datetime
 
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 from scipy.misc import imread
 
-from d00_utils.db_utils import dbReadWriteData
+from d00_utils.db_utils import dbReadWriteClassification
 from d02_intermediate.dcm_utils import dcmdir_to_jpgs_for_classification
 from d03_classification import vgg
 from d00_utils.log_utils import setup_logging
@@ -94,8 +95,8 @@ def run_classify(img_dir, feature_dim, model_path):
     cols = ["study_id", "file_name", "model_name", "date_run"] + df_columns
     df = df[cols]
 
-    io_classification = dbReadWriteData(schema="classification")
-    io_classification.save_to_db(df, "predictions_frames", if_exists="append")
+    io_classification = dbReadWriteClassification()
+    io_classification.save_to_db(df, "predictions")
 
     logger.info(
         "{} prediction on frames with model {} (feature_dim={})".format(
