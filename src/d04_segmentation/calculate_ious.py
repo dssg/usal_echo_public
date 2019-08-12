@@ -38,10 +38,12 @@ def main():
         gt_instance_id = gt['instance_id']
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']
+        gt_view_name = gt['view_name']
         
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
         print('got predictions details for instance {}'.format(gt_instance_id))
+        pred_view_name = pred['view_name']
         
         if len(pred.index) > 0:
             #retrieve gt numpy array
@@ -67,7 +69,8 @@ def main():
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
         d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 'score_value']
-        d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', reported_iou]
+        d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
+             reported_iou, gt_view_name, pred_view_name]
         #df = pd.DataFrame(data=d, columns=d_columns)
         io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         print('saved to db')
