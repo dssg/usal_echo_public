@@ -70,15 +70,15 @@ def classify(img_dir, feature_dim, label_dim, model_path):
     return predictions
 
 
-def run_classify(img_dir, model_path, feature_dim=1):
+def run_classify(img_dir, model_path, if_exists, feature_dim=1):
     """Writes classification predictions to database.
 
     :param img_dir: directory with jpg echo images for classification
-    :param feature_dim: default=1
     :param model_path: path to trained model for making predictions
+    :param if_exists (str): write action if table exists
+    :param feature_dim: default=1
 
     """
-
     label_dim = len(view_classes)
     model_name = os.path.basename(model_path)
 
@@ -98,25 +98,41 @@ def run_classify(img_dir, model_path, feature_dim=1):
     df = df[cols]
 
     io_classification = dbReadWriteClassification()
-    io_classification.save_to_db(df, "predictions")
+    io_classification.save_to_db(df, "prediction_frames", if_exists)
 
     logger.info(
         "{} prediction on frames with model {} (feature_dim={})".format(
-            img_dir, model_name, feature_dim
+            os.path.basename(img_dir), model_name, feature_dim
         )
     )
 
 
-def agg_predictions(predictions, img_dir):
+def agg_predictions(if_exists="replace"):
+    """Aggregates predictions by study and instance.
+    
+    Fetches predictions from classification.prediction_frames and 
+    calculates the mean.
+    
+    :param if_exists (str): write action if table exists
+    """
 
-    predictprobdict = {}
+    io_classification = dbReadWriteClassification()
 
-    for image in list(predictions.keys()):
-        prefix = image.split(".dcm")[0] + ".dcm"
-        if prefix not in predictprobdict:
-            predictprobdict[prefix] = []
-        predictprobdict[prefix].append(predictions[image][0])
+    prediction_frames = io_classification.get_table("prediction_frames")
+    prediction_frames["file_name"] = prediction_frames["file_name"].apply(
+        lambda x: x.rsplit("_", 1)[0]
+    )
 
-    for prefix in list(predictprobdict.keys()):
-        predictprobmean = np.mean(predictprobdict[prefix], axis=0)
-        out.write(img_dir + "\t" + prefix)
+    mean_cols = ["output_" + x for x in view_classes]
+    agg_cols = dict(zip(mean_cols, ["mean"] * len(mean_cols)))
+    agg_cols["prediction_frame_id"] = "count"
+
+    predictions = (
+        prediction_frames.groupby(["study_id", "file_name", "model_name", "date_run"])
+        .agg(agg_cols)
+        .reset_index(drop=False)
+    )
+    predictions.rename(columns={"prediction_frame_id": "frame_count"}, inplace=True)
+
+    io_classification.save_to_db(predictions, "predictions", if_exists)
+    logger.info('Wrote aggregated predictions to db with method "{}"'.format(if_exists))
