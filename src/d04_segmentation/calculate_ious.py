@@ -39,7 +39,7 @@ def main():
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']
         
-        pred = io_segmentation.get_instance_from_segementation_table('prediction', gt_instance_id)
+        pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
         print('got predictions for instance {}').format(gt_instance_id)
         
