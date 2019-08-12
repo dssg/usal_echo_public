@@ -39,23 +39,26 @@ def main():
         pred = predictions.loc[(predictions['study_id'] == gt_study_id) & 
                                (predictions['instance_id'] == gt_instance_id)]
         
-        #retrieve gt numpy array
-        gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1) 
-                    #frame = 1, as it wants number of frames in np array, not frame number
-        print('hello lili')
-        #retrive relevant pred numpy array
-        if gt_chamber == 'la':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['frame'][0])            
-        elif gt_chamber == 'lv':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lv'][0], pred['frame'][0])
-        elif gt_chamber == 'lvo':
-            pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lvo'][0], pred['frame'][0])
+        if len(pred.index) > 0:
+            #retrieve gt numpy array
+            gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1) 
+                        #frame = 1, as it wants number of frames in np array, not frame number
+            print('hello lili')
+            #retrive relevant pred numpy array
+            if gt_chamber == 'la':
+                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['frame'][0])            
+            elif gt_chamber == 'lv':
+                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lv'][0], pred['frame'][0])
+            elif gt_chamber == 'lvo':
+                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lvo'][0], pred['frame'][0])
+            else:
+                print('invalid chamber') #TODO: log this
+            
+            #calculate iou
+            reported_iou = iou(gt_numpy_array, pred_numpy_array)
+            print('IOU of: {}'.format(reported_iou))
         else:
-            print('invalid chamber') #TODO: log this
-        
-        #calculate iou
-        reported_iou = iou(gt_numpy_array, pred_numpy_array)
-        print('IOU of: {}'.format(reported_iou))
+            print('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
         
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
