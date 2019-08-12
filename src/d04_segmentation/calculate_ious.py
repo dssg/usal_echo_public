@@ -38,6 +38,7 @@ def main():
         
         pred = predictions.loc[(predictions['study_id'] == gt_study_id) & 
                                (predictions['instance_id'] == gt_instance_id)]
+        pred = pred.reset_index()
         
         if len(pred.index) > 0:
             #retrieve gt numpy array
