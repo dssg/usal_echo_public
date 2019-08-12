@@ -43,7 +43,8 @@ def main():
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
         print('got predictions details for instance {}'.format(gt_instance_id))
-        pred_view_name = pred['view_name']
+        print(pred)
+        pred_view_name = pred['view_name'][0]
         
         if len(pred.index) > 0:
             #retrieve gt numpy array
