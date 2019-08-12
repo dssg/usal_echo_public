@@ -212,7 +212,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
     #'frame', 'chamber', 'view_name' 'numpy_array'
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', {})".format(
             self.schema,
-            'ground_truths'
+            'ground_truths',
             ",".join(column_names),
             binary_data_array[0],
             binary_data_array[1],
