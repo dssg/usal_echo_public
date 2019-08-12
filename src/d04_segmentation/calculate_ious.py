@@ -26,10 +26,10 @@ def main():
     ground_truths = io_segmentation.get_segmentation_table('ground_truths')
     print('ground truth obtained')
     
-    instance_id_list = ground_truths.instance_id.unique() 
-    instance_id_list = instance_id_list.astype(str)
-    predictions = io_segmentation.get_instances_from_segementation_table('predictions', instance_id_list)
-    print('prediction tables obtained')
+    #instance_id_list = ground_truths.instance_id.unique() 
+    #instance_id_list = instance_id_list.astype(str)
+    #predictions = io_segmentation.get_instances_from_segementation_table('predictions', instance_id_list)
+    #print('prediction tables obtained')
     
     #Go through the ground truth table and write IOUS
         
@@ -39,9 +39,9 @@ def main():
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']
         
-        pred = predictions.loc[(predictions['study_id'] == gt_study_id) & 
-                               (predictions['instance_id'] == gt_instance_id)]
+        pred = io_segmentation.get_instance_from_segementation_table('prediction', gt_instance_id)
         pred = pred.reset_index()
+        print('got predictions for instance {}').format(gt_instance_id)
         
         if len(pred.index) > 0:
             #retrieve gt numpy array
