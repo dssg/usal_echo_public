@@ -22,11 +22,14 @@ def main():
     
     io_segmentation = dbReadWriteSegmentation()
     print(io_segmentation.cursor)
-    predictions = io_segmentation.get_segmentation_table('predictions')
-    print('hello again xx')
+    print('cursor obtained')
     ground_truths = io_segmentation.get_segmentation_table('ground_truths')
+    print('ground truth obtained')
     
-    print('tables obtained')
+    instance_id_list = ground_truths.instance_id.unique() 
+    
+    predictions = io_segmentation.get_instances_from_segementation_table('predictions', instance_id_list)
+    print('prediction tables obtained')
     
     #Go through the ground truth table and write IOUS
         

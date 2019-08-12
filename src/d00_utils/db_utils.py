@@ -248,6 +248,13 @@ class dbReadWriteSegmentation(dbReadWriteData):
 
         return df
     
+    def get_instances_from_segementation_table(self, db_table, instances):
+        
+        q = "SELECT * FROM {}.{} WHERE instance_id IN ({})".format(self.schema, db_table, instances)
+        df = pd.read_sql(q, self.engine)
+
+        return df
+    
     def save_seg_evaluation_to_db(self, df, column_names, if_exists="append"):
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
         
