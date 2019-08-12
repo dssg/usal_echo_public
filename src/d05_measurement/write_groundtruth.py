@@ -12,7 +12,7 @@ def write_groundtruth(instanceidks):
     io_views = dbReadWriteViews()
     io_measurement = dbReadWriteMeasurement()
 
-    # For measurement name and unit on the study level.
+    # For measurement names and units on the study level.
     measurement_abstract_rpt_df = io_clean.get_table("measurement_abstract_rpt")
     measurement_abstract_rpt_df = measurement_abstract_rpt_df.drop(["value"], axis=1)
 
@@ -31,7 +31,7 @@ def write_groundtruth(instanceidks):
         ["studyidk", "instanceidk", "filename"]
     ]
 
-    # All measurements values for A2C/A4C instances with measurement name and unit.
+    # All measurement values for A2C/A4C instances with measurement names and units.
     merge_df = measurement_abstract_rpt_df.merge(
         a_measgraphref_df, on=["studyidk", "measabstractnumber"]
     )
@@ -39,7 +39,7 @@ def write_groundtruth(instanceidks):
         instances_w_a2c_a4c_labels_df, on=["studyidk", "instanceidk"]
     )
 
-    # To calculate ejection fraction, need gold-standard (MDD-ps4), non-negative end systole/diastole volumes.
+    # To calculate ejection fractions, need gold-standard end systole/diastole volumes (MDD-ps4, non-negative).
     filter_df = merge_df[merge_df["name"].isin(["VTD(MDD-ps4)", "VTS(MDD-ps4)"])]
     filter_df = filter_df[filter_df["value"] > 0]
     filter_df = filter_df[filter_df["instanceidk"].isin(instanceidks)]
@@ -67,7 +67,7 @@ def write_groundtruth(instanceidks):
         }
     )
 
-    # Get median measurement over meassequence/indexinmglist.
+    # Get median measurement values over meassequence/indexinmglist.
     agg_dict = {
         "measurement_value": pd.Series.median,
         "measurement_unit": pd.Series.unique,
@@ -105,7 +105,7 @@ def write_groundtruth(instanceidks):
         systole_df["instance_id"].isin(diastole_df["instance_id"].unique())
     ]
 
-    # Get ejection fraction where diastole volume is no less than systole volume.
+    # Calculate ejection fractions where diastole volume is no less than systole volume.
     ef_df = diastole_df.merge(
         systole_df, on=["study_id", "instance_id"], suffixes=["_diastole", "_systole"]
     )
@@ -132,5 +132,6 @@ def write_groundtruth(instanceidks):
         axis=1,
     )
 
+    # Write both volumes and ejection fractions.
     ground_truth_df = volume_df.append(ef_df)
     io_measurement.save_to_db(ground_truth_df, "ground_truths")
