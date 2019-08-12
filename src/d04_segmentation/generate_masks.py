@@ -34,15 +34,16 @@ def write_masks():
     masks_df['study_id'] = masks_df['instanceidk'].apply(lambda x: dict_studyidk.get(x))
     masks_df['view_name'] = masks_df['instanceidk'].apply(lambda x: dict_view.get(x))
     
-    column_names = ['instance_id', 'frame', 'chamber', 'study_id',
-                     'view_name', 'numpy_array']
-    # ground_truth_id	instance_id	frame	chamber	study_id	view_name	numpy_array
+    column_names = ['ground_truth_id', 'study_id', 'instance_id', 'file_name', 
+                    'frame', 'chamber', 'view_name', 'numpy_array']
+#column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 'frame',
+# 'chamber', 'view_name' 'numpy_array'
     for index, mask in masks_df.iterrows():
         print('Orginal numpy array size: {}'.format(mask['mask'].shape))
         resized_mask = (imresize(mask['mask'], (384, 384)))
         print('Revised numpy array size: {}'.format(resized_mask.shape))
-        d = [mask['instanceidk'], mask['frame'], mask['chamber'], 
-         mask['study_id'], mask['view_name'], resized_mask]
+        d = [mask['study_id'], mask['instanceidk'], mask['filename'], 
+             mask['frame'], mask['chamber'], mask['view_name'], [resized_mask]]
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
     
 
