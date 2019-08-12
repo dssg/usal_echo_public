@@ -27,7 +27,7 @@ def main():
     print('ground truth obtained')
     
     instance_id_list = ground_truths.instance_id.unique() 
-    
+    instance_id_list = instance_id_list.astype(str)
     predictions = io_segmentation.get_instances_from_segementation_table('predictions', instance_id_list)
     print('prediction tables obtained')
     
