@@ -43,6 +43,10 @@ def write_masks():
         resized_mask = (imresize(mask['mask'], (384, 384)))
         print('Revised numpy array size: {}'.format(resized_mask.shape))
         d = [mask['study_id'], mask['instanceidk'], mask['filename'], mask['frame'], mask['chamber'], mask['view_name'], resized_mask]
+        print(d[0])
+        print(len(d))
+        print(d[1], d[2], d[3], d[4], d[5], d[6])
+        
         io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
     
 
