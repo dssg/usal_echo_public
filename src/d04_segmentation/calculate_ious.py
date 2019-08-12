@@ -68,7 +68,8 @@ def main():
         
         #write to db
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 'score_value']
+        d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 
+                     'score_value', 'gt_view_name', 'pred_view_name']
         d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
              reported_iou, gt_view_name, pred_view_name]
         #df = pd.DataFrame(data=d, columns=d_columns)

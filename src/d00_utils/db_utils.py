@@ -269,7 +269,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
             df[2],
             df[3],
             df[4],
-            df[5]
+            df[5],
+            df[6],
+            df[7]
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
