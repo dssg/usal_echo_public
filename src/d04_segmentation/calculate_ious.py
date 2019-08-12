@@ -43,10 +43,10 @@ def main():
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
         print('got predictions details for instance {}'.format(gt_instance_id))
-        print(pred)
-        pred_view_name = pred['view_name'][0]
+        
         
         if len(pred.index) > 0:
+            pred_view_name = pred['view_name'][0]
             #retrieve gt numpy array
             gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1) 
                         #frame = 1, as it wants number of frames in np array, not frame number
