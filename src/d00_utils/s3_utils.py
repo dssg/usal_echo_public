@@ -83,6 +83,7 @@ def download_s3_objects(bucket, outfile, prefix='', suffix='.dcm'):
         try:
             s3 = boto3.client('s3')
             s3.download_file(bucket, key, outfile)
+            logger.info('{} Download '.format(key))
         except:
             logger.error('{} Download error'.format(key))
 
