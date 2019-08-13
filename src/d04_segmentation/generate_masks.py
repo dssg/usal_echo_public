@@ -134,6 +134,7 @@ def generate_masks(instance_ids):
             "y2coordinate": list,
             "chamber": pd.Series.unique,
             "frame": pd.Series.unique,
+            "view" : pd.Series.unique,
             "instancefilename" : pd.Series.unique,
         }
     )
