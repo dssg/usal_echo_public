@@ -82,9 +82,9 @@ def create_probabilities_textfile_testing():
         prob_tb.at[i, "image"] = (
             "a_" + str(studyidk).strip() + "_" + str(filename).strip() + ".dcm"
         )
-        if df.at[i, "view"].str.contains("A4C"):
+        if df.at[i, "view"].contains("A4C"):
             prob_tb.at[i, "a4c"] = 0.9898
-        elif df.at[i, "view"].str.contains("A2C"):
+        elif df.at[i, "view"].contains("A2C"):
             prob_tb.at[i, "a2c"] = 0.9898
 
     df_3 = prob_tb.fillna(0)
