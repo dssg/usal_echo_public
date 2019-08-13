@@ -39,22 +39,12 @@ def create_probabilities_textfile_testing(instance_id_list):
     #]
     instances_unique_master_list = io_views.get_table("instances_w_labels_test_downsampleby5")
     print('instance_list size: {}'.format(instances_unique_master_list.shape))
+    
+    # 2. filter frames_by_volume_mask to only include instances_unique_master_list
+    df = frames_by_volume_mask[frames_by_volume_mask['instanceidk'].isin(instances_unique_master_list['instanceidk'])]
 
-    # 2. Merges tables
-    df_1 = pd.merge(
-        frames_by_volume_mask,
-        instances_unique_master_list,
-        how="left",
-        on=["instanceidk", "studyidk"],
-    )
-    print('df_1: {}'.format(df_1.shape))
 
-    # 3. Filters the dataframe by the param: instanceid
-    df_2 = df_1[df_1["instanceidk"].isin(instance_id_list)]
-    print('df_2: {}'.format(df_2.shape))
-    del df_1
-
-    # 4. Create the probabilities table
+    # 3. Create the probabilities table
     prob_tb = pd.DataFrame(
         columns=[
             "study",
@@ -85,16 +75,16 @@ def create_probabilities_textfile_testing(instance_id_list):
         ]
     )
 
-    for i in df_2.index:
+    for i in df.index:
         prob_tb.at[i, "study"] = "/home/ubuntu/data/01_raw/test_downsampleby5"
-        filename = df_2.at[i, "filename"]
-        studyidk = df_2.at[i, "studyidk"]
+        filename = df.at[i, "instancefilename"]
+        studyidk = df.at[i, "studyidk"]
         prob_tb.at[i, "image"] = (
             "a_" + str(studyidk).strip() + "_" + str(filename).strip() + ".dcm"
         )
-        if df_2.at[i, "view_only"] == "a4c":
+        if df.at[i, "view"] == "a4c":
             prob_tb.at[i, "a4c"] = 0.9898
-        elif df_2.at[i, "view_only"] == "a2c":
+        elif df.at[i, "view"] == "a2c":
             prob_tb.at[i, "a2c"] = 0.9898
 
     df_3 = prob_tb.fillna(0)
