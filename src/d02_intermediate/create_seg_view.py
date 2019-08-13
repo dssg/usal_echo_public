@@ -56,6 +56,10 @@ def create_seg_view():
     del a_measgraphref_df
     del measurement_abstract_rpt_df
     
+    #3. merge with a_measgraphic_df
+    df_2 = pd.merge(df, a_measgraphic_df, how="left", on=["instanceidk", "indexinmglist"])
+    del df
+    
     #3. #create a dictionary to link measurements to views
 
     measurement_2_view_dict = {'AVItd ap4' :'A4C', 'DVItd ap4' : 'A4C', 'VTD(el-ps4)': 'A4C', 'VTD(MDD-ps4)': 'A4C', 
@@ -77,12 +81,10 @@ def create_seg_view():
                                'Vol. AI (MOD-sp4)':'ES', 'Vol. AI (MOD-sp2)':'ES'}
     
     #4. # Add these dictionaries to the df_2
-    df_2 = df
-    df_2['view'] = df['name'].map(measurement_2_view_dict)
-    df_2['chamber'] = df['name'].map(measurement_2_chamber_dict)
-    df_2['cardio_moment'] = df['name'].map(measurement_2_cardio_moment_dict)
+    df_2['view'] = df_2['name'].map(measurement_2_view_dict)
+    df_2['chamber'] = df_2['name'].map(measurement_2_chamber_dict)
+    df_2['cardio_moment'] = df_2['name'].map(measurement_2_cardio_moment_dict)
     
-    del df
     
     #5# Cut out the rows without view, chamber and cadio_moment
     df_3 = df_2[pd.notna(df_2['view']) == True]
