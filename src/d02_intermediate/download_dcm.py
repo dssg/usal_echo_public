@@ -8,7 +8,7 @@ from d00_utils.db_utils import dbReadWriteViews
 from d00_utils.s3_utils import download_s3_objects
 from d02_intermediate.dcm_utils import decompress_dcm
 from d00_utils.log_utils import setup_logging
-logger = setup_logging(__name__, "d02_intermediate")
+logger = setup_logging(__name__, __name__)
 
 
 def split_train_test(ratio, table_name):
@@ -58,7 +58,7 @@ def downsample_train_test(downsample_ratio, train_test_ratio, table_name):
     return df_train_downsampled, df_test_downsampled
 
 
-def s3_download_decomp_dcm(downsample_ratio, train_test_ratio, table_name, train):
+def s3_download_decomp_dcm(downsample_ratio, train_test_ratio, table_name, train=False):
     """Downloads and decompresses test/train dicoms from s3.
     
     :param downsample_ratio (float): percentage by which to downsample dataset
