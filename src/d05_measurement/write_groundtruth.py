@@ -17,7 +17,7 @@ def get_recommendation(row):
     )
 
 
-def write_groundtruth(instanceidks):
+def write_groundtruth():
     """Write ground truth volumes, ejection fractions, and recommendations."""
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
@@ -53,7 +53,6 @@ def write_groundtruth(instanceidks):
     # To calculate ejection fractions, need gold-standard end systole/diastole volumes (MDD-ps4, non-negative).
     filter_df = merge_df[merge_df["name"].isin(["VTD(MDD-ps4)", "VTS(MDD-ps4)"])]
     filter_df = filter_df[filter_df["value"] > 0]
-    filter_df = filter_df[filter_df["instanceidk"].isin(instanceidks)]
 
     # Rename and reorder columns for measurement schema.
     rename_df = filter_df[
@@ -153,4 +152,5 @@ def write_groundtruth(instanceidks):
 
     # Write volumes, ejection fractions, and recommendations.
     ground_truth_df = volume_df.append(ef_df).append(recommendation_df)
+    ground_truth_df['file_name'] = "a_" + ground_truth_df['study_id'].astype(str) + "_" + ground_truth_df['file_name']
     io_measurement.save_to_db(ground_truth_df, "ground_truths")
