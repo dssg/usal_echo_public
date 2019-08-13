@@ -1,15 +1,100 @@
-# coding: utf-8
 import os
-import time
-import pickle
+import json
 import numpy as np
 import pandas as pd
 
-from d00_utils.dcm_utils import *
-from d00_utils.output_utils import *
-from d00_utils.log_utils import *
+from subprocess import Popen, PIPE
 
-logger = setup_logging(__name__, "analyse_segments")
+
+def extract_metadata_for_measurements(dicomdir, videofile):
+    """Get DICOM metadata using GDCM utility."""
+    command = "gdcmdump " + dicomdir + "/" + videofile
+    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
+    text = pipe.communicate()[0]
+    lines = text.split("\n")
+    dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
+    # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
+    dicom_tags = {
+        k: str(tuple(v)).replace("'", "").replace(" ", "")
+        for k, v in dicom_tags.items()
+    }
+    # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
+    x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines, dicom_tags) or (
+        None,
+        None,
+    )
+    hr = _extract_hr_from_gdcm_str(lines, dicom_tags)
+    nrow, ncol = _extract_xy_from_gdcm_str(lines, dicom_tags) or (None, None)
+    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
+    ft = _extract_ft_from_gdcm_str(lines, dicom_tags)
+    if hr < 40:
+        logger.debug(f"problem heart rate: {hr}")
+        hr = 70
+    return ft, hr, nrow, ncol, x_scale, y_scale
+
+
+def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
+    """Get x_scale, y_scale from gdcmdump output."""
+    xlist = []
+    ylist = []
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["physical_delta_x_direction"]:
+            deltax = line.split(" ")[2]
+            deltax = np.abs(float(deltax))
+            if deltax > 0.012:
+                xlist.append(deltax)
+        if tag == dicom_tags["physical_delta_y_direction"]:
+            deltay = line.split(" ")[2]
+            deltay = np.abs(float(deltay))
+            if deltay > 0.012:
+                ylist.append(deltay)
+    return np.min(xlist), np.min(ylist)
+
+
+def _extract_hr_from_gdcm_str(lines, dicom_tags):
+    """Get heart rate from gdcmdump output."""
+    hr = "None"
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["heart_rate"]:
+            hr = int(line.split("[")[1].split("]")[0])
+    return hr
+
+
+def _extract_xy_from_gdcm_str(lines, dicom_tags):
+    """Get rows, columns from gdcmdump output."""
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["rows"]:
+            rows = line.split(" ")[2]
+        elif tag == dicom_tags["columns"]:
+            cols = line.split(" ")[2]
+    return int(rows), int(cols)
+
+
+def _extract_ft_from_gdcm_str(lines, dicom_tags):
+    """Get frame time from gdcmdump output."""
+    default_framerate = 30
+    is_framerate = False
+    for line in lines:
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["frame_time"]:
+            frametime = line.split("[")[1].split("]")[0]
+            is_framerate = True
+        elif tag == dicom_tags["cine_rate"]:
+            framerate = line.split("[")[1].split("]")[0]
+            frametime = 1000 / float(framerate)
+            is_framerate = True
+    if not is_framerate:
+        logger.debug("missing framerate")
+        framerate = defaultframerate
+        frametime = 1000 / framerate
+    ft = float(frametime)
+    return ft
 
 
 def get_window(hr, ft):
@@ -275,63 +360,3 @@ def compute_diastole(lv_areas_window, ft):
         return diasttime
     else:
         return np.nan
-
-
-def calculate_measurements(folder="dcm_sample_labelled"):
-    """Write pickle of dictionary with calculated measurements.
-    
-    All the functions involved were extracted and adapted from Zhang et al. code.
-
-    We compute chamber dimensions and ejection fraction from segmentations.
-    We rely on variation in ventricular area to identify end-systole/diastole.
-    We emphasize averaging over many cardiac cycles, within/across video(s).
-    We use all videos with the unoccluded chambers of interest.
-    We selected two percentiles/measurement, for multiple cycles within/across videos.
-    We selected first percentile based on how humans choose images: avoid min/max.
-    We selected second percentile to minimize auto/manual difference: default median.
-
-    """
-
-    model = "view_23_e5_class_11-Mar-2018"
-    dicomdir = f"{os.path.expanduser('~')}/data/01_raw/{folder}"
-    dicomdir_basename = os.path.basename(dicomdir)
-
-    views_to_indices = get_views_to_indices(model)
-    viewprob_lists = get_viewprob_lists(model, dicomdir_basename)
-    viewlist_a2c, viewlist_a4c = get_viewlists(viewprob_lists, views_to_indices)
-    logger.info(f"Apical 2 Chamber video files: {viewlist_a2c}")
-    logger.info(f"Apical 4 Chamber video files: {viewlist_a4c}")
-
-    study_measure_dict = {}
-    for videofile in viewlist_a4c + viewlist_a2c:
-        study_measure_dict[videofile] = {}
-
-        ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurements(
-            dicomdir, videofile
-        )
-        window = get_window(hr, ft)
-        view = "a4c" if videofile in viewlist_a4c else "a2c"
-
-        video_measure_dict = compute_la_lv_volume(
-            dicomdir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
-        )
-
-        study_measure_dict[videofile] = video_measure_dict
-
-    logger.info(f"Results: {study_measure_dict}")
-
-    # TODO: in future, aggregate measurements across multiple videos in a study?
-    # Exclude measurements from videos where LAVOL/LVEDV < 30%, in case occluded
-    # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
-
-    # TODO: write to database
-    out = open(
-        f"{os.path.expanduser('~')}/data/04_segmentation/{dicomdir_basename}_measurements_dict.pickle",
-        "wb",
-    )
-    pickle.dump(study_measure_dict, out)
-    out.close()
-
-
-if __name__ == "__main__":
-    calculate_measurements()
