@@ -11,7 +11,7 @@ import datetime
 import pandas as pd
 
 
-def create_probabilities_textfile_testing(instance_id_list):
+def create_probabilities_textfile_testing():
     """
     Produces text file with view ground truths for segmentation model testing. 
     
