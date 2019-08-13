@@ -15,20 +15,11 @@ def write_masks():
     
     #Instances to write masks for
     instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
-       
-    #add filenames to frames_by_volume_mask   
-    frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
-    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
-    frames_by_volume_mask_w_filenames = pd.merge(frames_by_volume_mask, instances_unique_master_list, how="left", 
-                                             on=["studyidk", "instanceidk"])    
-    
-    # below cleans the filename field
-    frames_by_volume_mask_w_filenames["instancefilename"] = frames_by_volume_mask_w_filenames[
-            "instancefilename"].apply(lambda x: str(x).strip())
-    
+
     masks_df = generate_masks(instances_w_labels_test_downsampleby5_df['instanceidk'])
     
     #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
+    
     gt_table_column_names = ['study_id', 'instance_id', 'file_name', 
                     'frame', 'chamber', 'view_name', 'numpy_array']
 
@@ -142,7 +133,8 @@ def generate_masks(instance_ids):
             "x2coordinate": list,
             "y2coordinate": list,
             "chamber": pd.Series.unique,
-            "frame": pd.Series.unique
+            "frame": pd.Series.unique,
+            "instancefilename" : pd.Series.unique,
         }
     )
     end = time()
