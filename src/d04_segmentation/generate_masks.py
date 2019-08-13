@@ -21,7 +21,7 @@ def write_masks():
     #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
     
     gt_table_column_names = ['study_id', 'instance_id', 'file_name', 
-                    'frame', 'chamber', 'view_name', 'numpy_array']
+                    'frame', 'chamber', 'view', 'numpy_array']
 
     for index, mask in masks_df.iterrows():
         print('Orginal numpy array size: {}'.format(mask['mask'].shape))
