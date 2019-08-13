@@ -44,7 +44,10 @@ def downsample_train_test(downsample_ratio, train_test_ratio, table_name):
 
     """
     df_train, df_test = split_train_test(train_test_ratio, table_name)
-    
+   
+    print(df_train.shape)
+    print(df_test.shape)
+ 
     np.random.seed(0)
     msk_train = np.random.rand(len(df_train)) < downsample_ratio
     msk_test = np.random.rand(len(df_test)) < downsample_ratio
@@ -70,17 +73,21 @@ def s3_download_decomp_dcm(downsample_ratio, train_test_ratio, table_name, train
     """
     df_train, df_test = downsample_train_test(downsample_ratio, train_test_ratio, table_name)
     
-    if train is True:
+    if train is False:
         instances = df_train
         dir_name = 'train_split{}_downsampleby{}'.format(int(100*train_test_ratio), int(1/downsample_ratio))
     else:
         instances = df_test
         dir_name = 'test_split{}_downsampleby{}'.format(int(100-100*train_test_ratio), int(1/downsample_ratio))
         
+    print(instances.shape)
+    
     prefix = instances['studyidk'].astype(str) + '/a_' + instances['filename'].astype(str)
     filenames = 'a_' + instances['studyidk'].astype(str) + '_' + instances['filename'].astype(str) + '.dcm'
-
+    
     download_dict = dict(zip(prefix, filenames))
+    
+    print(download_dict)
     
     datadir = os.path.expanduser('/home/ubuntu/data/01_raw/'+dir_name)
     raw_datadir = os.path.join(datadir, 'raw')

@@ -53,7 +53,7 @@ def load_data(config, val_split): ## may be able
     # TO DO: soft code this later, make sure it's correct with our actual data location
     directory = '~/data/02_intermediate/test'
     directory_train = '~/data/02_intermediate/train_downsampleby5'
-    directory_test = '~/data/02_intermediate/test_downsampleby5'  
+    directory_test = '~/data/02_intermediate/train_split100_downsampleby20'  
     directories = [directory_train, directory_test]
 
     img_train, img_test, label_train, label_test, filenames = ([] for i in range(5))
