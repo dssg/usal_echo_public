@@ -13,42 +13,33 @@ def write_masks():
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
     
-    #Getting details of the study
-    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
-    # below cleans the filename field
-    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
-        "instancefilename"].apply(lambda x: str(x).strip())
-    dict_studyidk = instances_unique_master_list.set_index('instanceidk')['studyidk'].to_dict()
-    
-    masks_df = generate_masks()
-    print(masks_df.columns)
-    #Index(['instanceidk', 'indexinmglist', 'x1coordinate', 'y1coordinate',
-    #   'x2coordinate', 'y2coordinate', 'chamber', 'frame', 'filename', 'lines',
-    #   'points', 'mask'],
-    
-    #getting details for view
+    #Instances to write masks for
+    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
+       
+    #add filenames to frames_by_volume_mask   
     frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
-    dict_view= frames_by_volume_mask.set_index('instanceidk')['view_only'].to_dict()
+    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
+    frames_by_volume_mask_w_filenames = pd.merge(frames_by_volume_mask, instances_unique_master_list, how="left", 
+                                             on=["studyidk", "instanceidk"])    
     
-    #need to get the study id
-    masks_df['study_id'] = masks_df['instanceidk'].apply(lambda x: dict_studyidk.get(x))
-    masks_df['view_name'] = masks_df['instanceidk'].apply(lambda x: dict_view.get(x))
+    # below cleans the filename field
+    frames_by_volume_mask_w_filenames["instancefilename"] = frames_by_volume_mask_w_filenames[
+            "instancefilename"].apply(lambda x: str(x).strip())
     
-    column_names = ['study_id', 'instance_id', 'file_name', 
+    masks_df = generate_masks(instances_w_labels_test_downsampleby5_df['instanceidk'])
+    
+    #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
+    gt_table_column_names = ['study_id', 'instance_id', 'file_name', 
                     'frame', 'chamber', 'view_name', 'numpy_array']
-#column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 'frame',
-# 'chamber', 'view_name' 'numpy_array'
+
     for index, mask in masks_df.iterrows():
         print('Orginal numpy array size: {}'.format(mask['mask'].shape))
         resized_mask = (imresize(mask['mask'], (384, 384)))
         print('Revised numpy array size: {}'.format(resized_mask.shape))
         d = [mask['study_id'], mask['instanceidk'], mask['filename'], 
              mask['frame'], mask['chamber'], mask['view_name'], resized_mask]
-        print(d[0])
-        print(len(d))
-        print(d[1], d[2], d[3], d[4], d[5], d[6])
         
-        io_segmentation.save_ground_truth_numpy_array_to_db(d, column_names)
+        io_segmentation.save_ground_truth_numpy_array_to_db(d, gt_table_column_names)
     
 
 def get_lines(row):
@@ -126,7 +117,7 @@ def get_mask(row):
     return img
 
 
-def generate_masks():
+def generate_masks(instance_ids):
     """Convert measurement segments to Numpy masks.
     
     :return: updated DataFrame
@@ -135,11 +126,13 @@ def generate_masks():
     io_views = dbReadWriteViews()
 
     chords_by_volume_mask_df = io_views.get_table("chords_by_volume_mask")
-    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
+    #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
     chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
     chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
     
-    merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
+    #merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
+    
+    merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
 
     start = time()
     group_df = merge_df.groupby(["instanceidk", "indexinmglist"]).agg(
