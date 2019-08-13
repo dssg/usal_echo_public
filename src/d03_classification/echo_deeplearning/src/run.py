@@ -24,7 +24,6 @@ flags.DEFINE_boolean(
     False,
     "If true, trains a new model and will override old models. Default [False]",
 )
-
 FLAGS = flags.FLAGS
 
 
@@ -84,16 +83,22 @@ def main(argv):
         # train model
         summary_writer = tf.summary.FileWriter(train_dir)
         checkpoint_path = os.path.join(train_dir, "model.ckpt")
-        success = model.train(
-            x_train,
-            y_train,
-            x_test,
-            y_test,
-            saver,
-            summary_writer,
-            checkpoint_path,
-            val_output_dir,
-        )
+
+        print('Number of layers in base model: ', len(model.layers))
+        for layer in model.layers[0:-10]:
+            layer.trainable = False
+
+        #success = model.train(
+        #    x_train,
+        #    y_train,
+        #    x_test,
+        #    y_test,
+        #    saver,
+        #    summary_writer,
+        #    checkpoint_path,
+        #    val_output_dir,
+        #)
+
         if not success:
             print("Exiting script")
             exit()
