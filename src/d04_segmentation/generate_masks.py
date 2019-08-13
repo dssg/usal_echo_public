@@ -142,8 +142,7 @@ def generate_masks(instance_ids):
             "x2coordinate": list,
             "y2coordinate": list,
             "chamber": pd.Series.unique,
-            "frame": pd.Series.unique,
-            "filename": pd.Series.unique
+            "frame": pd.Series.unique
         }
     )
     end = time()
