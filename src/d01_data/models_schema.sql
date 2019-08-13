@@ -71,7 +71,7 @@ create table classification.ground_truths(
 --SEGMENTATION SCHEMA
 ----tables for persisting the outputs of segmentation model
 
-DROP SCHEMA IF EXISTS segmentation  CASCADE;
+DROP SCHEMA IF EXISTS segmentation CASCADE;
 
 CREATE SCHEMA segmentation;
 
