@@ -109,16 +109,25 @@ def create_seg_view():
     )
     del df_6
     
+    # Adding file name
+    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
+    df_8 = pd.merge(df_7, instances_unique_master_list, how="left", 
+                    on=["studyidk", "instanceidk"])    
+    del instances_unique_master_list
+    
+    # below cleans the filename field
+    df_8["instancefilename"] = df_8["instancefilename"].apply(lambda x: str(x).strip())
+    
     # 9. Saving to frames_by_volume_mask
-    df_7.columns = map(str.lower, df_7.columns)
-    io_views.save_to_db(df_7, "frames_by_volume_mask")
+    df_8.columns = map(str.lower, df_8.columns)
+    io_views.save_to_db(df_8, "frames_by_volume_mask")
 
     # 9. merge with a_modvolume
-    df_8 = pd.merge(
-        a_modvolume_df, df_7, how="left", on=["instanceidk", "indexinmglist"]
+    df_9 = pd.merge(
+        a_modvolume_df, df_8, how="left", on=["instanceidk", "indexinmglist"]
     )
-    del df_7
+    del df_8
     del a_modvolume_df
     
-    io_views.save_to_db(df_8, "chords_by_volume_mask")
+    io_views.save_to_db(df_9, "chords_by_volume_mask")
     
