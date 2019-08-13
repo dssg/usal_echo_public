@@ -17,7 +17,7 @@ flags.DEFINE_boolean(
 flags.DEFINE_string("gpu", "0", "GPU number. Default [0]")
 flags.DEFINE_string("val_split", "0", "Cross validation study split, Default: 0")
 flags.DEFINE_boolean(
-    "debug", False, "If true, train and validate for 1 iteration. Default [False]"
+    "debug", True, "If true, train and validate for 1 iteration. Default [False]"
 )
 flags.DEFINE_boolean(
     "retrain",

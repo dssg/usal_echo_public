@@ -6,7 +6,8 @@ import random
                     # may not need it, as they only import 1 function (I think), i.e. split_data()
 from scipy.misc import imread
 
-sys.path.append('../../src/')
+sys.path.append('/home/ubuntu/dvv/usal_echo/src/')
+#print(sys.path)
 from d00_utils.db_utils import dbReadWriteViews
 
 

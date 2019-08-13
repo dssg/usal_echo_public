@@ -12,7 +12,7 @@ def results_txt_to_db():
     Processes results into a database table _______.______
     '''
 
-    probs_path = '/home/ubuntu/data/d03_classification/probabilities/' #TO DO: soft-code this
+    probs_path = '/home/ubuntu/data/03_classification/results/' #TO DO: soft-code this
     sys.path.append(probs_path)
 
     text_files = [f for f in listdir(probs_path) if isfile(join(probs_path,f))]
@@ -112,8 +112,8 @@ def results_txt_to_db():
     
     # USER: comment out one of below lines to run code for loose (m1) or strict (m2/m3) mapping
     for pred in view23_pred:
-        view4_pred.append([key for key, element in maps_m1.items() if pred in element][0])
-        #view4_pred.append([key for key, element in maps_m2_m3.items() if pred in element][0])
+        #view4_pred.append([key for key, element in maps_m1.items() if pred in element][0])
+        view4_pred.append([key for key, element in maps_m2_m3.items() if pred in element][0])
     corr_df['view4_pred'] = view4_pred
 
     # Add column to compare whether prediction is true or not
@@ -128,6 +128,6 @@ def results_txt_to_db():
     io_classificn = dbReadWriteData()
     io_views.schema = 'classification'
     # USER: comment out one of below lines corresponding to output for m1 or m2/m3, as above
-    io_views.save_to_db(corr_df, 'test1000_for_m1')
-    #io_views.save_to_db(corr_df, 'test1000_for_m2_m3')
+    #io_views.save_to_db(corr_df, 'test1000_for_m1')
+    io_views.save_to_db(corr_df, 'test1000_for_m2_m3')
 
