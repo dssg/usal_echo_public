@@ -96,7 +96,7 @@ def create_seg_view():
     #7. Only colums we need &drop duplicates
     df_5 = df_4[['studyidk', 'indexinmglist', 'instanceidk', 'frame','view',
        'chamber', 'cardio_moment']].copy()
-    df_5['studyidk'] = df_5['studyidk'].astype(int) 
+    df_5['studyidk'] = int(df_5['studyidk']) 
     df_6 = df_5.drop_duplicates()
     
     del df_4
