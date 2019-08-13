@@ -126,7 +126,7 @@ def generate_masks(instance_ids):
     merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
 
     start = time()
-    group_df = merge_df.groupby(["instanceidk", "indexinmglist"]).agg(
+    group_df = merge_df.groupby(["studyidk", "instanceidk", "indexinmglist"]).agg(
         {
             "x1coordinate": list,
             "y1coordinate": list,
