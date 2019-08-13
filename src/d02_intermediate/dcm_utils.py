@@ -11,7 +11,7 @@ import pydicom
 from skimage.color import rgb2gray
 
 from d00_utils.log_utils import setup_logging
-logger = setup_logging(__name__, "download_decompress_dcm")
+logger = setup_logging(__name__, __name__)
 
 
 def _ybr2gray(y, u, v):
@@ -83,15 +83,6 @@ def _dcmraw_to_np(dcmraw_obj):
             a = pxl_array[j, k, :, :]
             b = pxl_array[l, m, :, :]
             c = pxl_array[n, o, :, :]
-            # d = np.vstack((a, b))
-            # e = np.vstack((d, c))
-            # g = e.reshape(3 * nrow * ncol, 1)
-            # y = g[::3]
-            # u = g[1::3]
-            # v = g[2::3]
-            # y = y.reshape(nrow, ncol)
-            # u = u.reshape(nrow, ncol)
-            # v = v.reshape(nrow, ncol)
             ArrayDicom[:, :] = _ybr2gray(a, b, c)
             ArrayDicom[0 : int(nrow / 10), 0 : int(ncol)] = 0  # blanks out name
             counter = counter + 1
@@ -116,10 +107,6 @@ def _dcmraw_to_np(dcmraw_obj):
 def extract_framedict_from_dcmraw(dcmraw_filepath):
     """Extracts dicom frames as dictionary of numpy arrays.
 
-    The following processing steps are performed:
-    1. Reads in the raw dicom file.
-    2. Creates a dictionary of numpy arrays for all frames in the file.
-
     :param dcmraw_filepath: path to decompressed dicom file
 
     """
@@ -138,21 +125,28 @@ def dcmraw_to_10_jpgs(dcmraw_filepath, img_dir):
     """
     os.makedirs(img_dir, exist_ok=True)
     filename = dcmraw_filepath.split("/")[-1].split(".")[0]
-    framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
+    
+    all_imgs = os.listdir(img_dir)
+    count_imgs = [s for s in all_imgs if filename in s]
+    
+    if len(count_imgs) < 10:
+        framedict = extract_framedict_from_dcmraw(dcmraw_filepath)
+        y = len(list(framedict.keys())) - 1
+        if y > 10:
+            m = random.sample(list(range(0, y)), 10)
+            for n in m:
+                targetimage = framedict[n][:]
+                outfile = os.path.join(img_dir, filename) +'_'+ str(n) + ".jpg"
+                cv2.imwrite(
+                    outfile,
+                    cv2.resize(targetimage, (224, 224)),
+                    [cv2.IMWRITE_JPEG_QUALITY, 95],
+                )
 
-    y = len(list(framedict.keys())) - 1
-    if y > 10:
-        m = random.sample(list(range(0, y)), 10)
-        for n in m:
-            targetimage = framedict[n][:]
-            outfile = os.path.join(img_dir, filename) +'_'+ str(n) + ".jpg"
-            cv2.imwrite(
-                outfile,
-                cv2.resize(targetimage, (224, 224)),
-                [cv2.IMWRITE_JPEG_QUALITY, 95],
-            )
-
-    logger.info("{} 10 random frames extracted".format(filename))
+        logger.info("{} 10 random frames extracted".format(filename))
+    
+    else:
+        logger.info("{} frames exist".format(filename))
 
     return
 
@@ -217,5 +211,3 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
 
     except AttributeError:
         logger.error("{} could not return dict".format(filename))
-
-
