@@ -188,7 +188,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         #Columns names are:prediction_id	study_id	instance_id	file_name	
         #num_frames	model_name	date_run	output_np_lv	output_np_la	
         #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
-        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
+        sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}')".format(
             self.schema,
             'predictions',
             ",".join(column_names),
