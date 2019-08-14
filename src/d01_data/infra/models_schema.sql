@@ -124,6 +124,7 @@ create table segmentation.ground_truths(
     frame integer,
     chamber varchar,
     view_name varchar,
+    numpy_array bytea,
     primary key(ground_truth_id)
 );
 
