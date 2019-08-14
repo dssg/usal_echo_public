@@ -6,7 +6,9 @@ from __future__ import print_function, unicode_literals
 from pprint import pprint
 from PyInquirer import prompt, Separator
 
-#from d01_ data.ingestion_dcm import ingest_dcm
+from d01_data.ingestion_dcm import ingest_dcm
+from d01_data.ingestion_xtdb import ingest_xtdb
+from d02_intermediate.download_dcm import s3_download_decomp_dcm
 
 
 def _print_welcome_message():
@@ -44,7 +46,7 @@ def ingest_metadata():
 
 def ingest_xcelera():
     """
-
+    Asks for selection on ingesting XCelera options
     :return:
     """
     ingest_dicom = {
@@ -59,9 +61,9 @@ def ingest_xcelera():
 
 def download_files():
     """
-
-        :return:
-        """
+    Asks for selection on downloading files options
+    :return: selected_option
+    """
     download = {
         'type': 'list',
         'name': 'download_file',
@@ -75,8 +77,8 @@ def download_files():
 
 def download_files_args():
     """
-    Asks for the arguments required for downloaading DICOM files
-    :return:
+    Asks for the arguments required for downloading DICOM files
+    :return: selected option
     """
     questions = [
         {
@@ -108,8 +110,8 @@ def download_files_args():
 
 def modules():
     """
-
-    :return:
+    Asks for modules selection options
+    :return: module selected
     """
     modules = {
         'type': 'list',
@@ -124,7 +126,7 @@ def modules():
 
 def classification_args():
     """
-
+    Asks for classifications parameters
     :return:
     """
     questions = [
@@ -146,7 +148,16 @@ def classification_args():
 
 
 def process_choices(options):
-    pprint(options)
+    if _format_answer(options['ingest_metadata']).startswith('ingest'):
+        ingest_dcm()
+    elif _format_answer(options['ingest_xcelere']).startswith('ingest'):
+        ingest_xtdb()
+    elif _format_answer(options['download_file']).startswith('download'):
+        a1 = _format_answer(options['download_file_a1'])
+        a2 = _format_answer(options['downlaod_file_a2'])
+        a3 = _format_answer(options['download_file_a3'])
+        a4 = _format_answer(options['download_file_a4'])
+        s3_download_decomp_dcm(a1, a2, a3, a4)
 
 
 def main():
