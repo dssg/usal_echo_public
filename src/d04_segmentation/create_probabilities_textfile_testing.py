@@ -44,7 +44,7 @@ def create_probabilities_textfile_testing():
     df = frames_by_volume_mask[frames_by_volume_mask['instanceidk'].isin(instances_unique_master_list['instanceidk'])]
     
     #3. Drop instance index, and delete any duplicates
-    df = df.drop[['instanceidk']]
+    df = df.drop(['instanceidk'])
     df = df.drop_duplicates()
 
 
