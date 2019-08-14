@@ -108,6 +108,8 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     # Classify views
     probabilities = {}
     for filename in os.listdir(img_dir):
+        if filename.split('.')[-1] != 'jpg': #only get jpg files
+            continue
         image = imread(os.path.join(img_dir, filename), flatten=True).astype("uint8")
         img_data = [image.reshape((224, 224, 1))]
         probabilities[filename] = np.around(
