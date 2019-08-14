@@ -92,9 +92,7 @@ maps_seg = {
     "psax_apex":"other",
 }
 
-def _classify(img_dir, feature_dim, label_dim, model_path, gpu=3):
-
-    os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
+def _classify(img_dir, feature_dim, label_dim, model_path):
     
     # Initialise tensorflow
     tf.reset_default_graph()
