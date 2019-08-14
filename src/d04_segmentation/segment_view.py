@@ -221,7 +221,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             "output_image_orig",
             "output_image_overlay",            
         ]
-    
+'''    
     for video in viewlist_a4c:
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
         instancefilename = video.split("_")[2].split(".")[
@@ -251,7 +251,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             images_uuid_x3[1],
             images_uuid_x3[2]]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
-
+'''
     for video in viewlist_a2c:
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a2c")
         instancefilename = video.split("_")[2].split(".")[
