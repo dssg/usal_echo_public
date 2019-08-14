@@ -3,10 +3,14 @@
 * run example by typing `python example/checkbox.py` in your console
 """
 from __future__ import print_function, unicode_literals
-from pprint import pprint
 
-from PyInquirer import style_from_dict, Token, prompt, Separator
+from PyInquirer import prompt, Separator
 
+
+print("##################################################################")
+print("####   CLI CIBERCV-USAL | DSSG - Imperial College London 2019 ####")
+print("##################################################################")
+print("")
 
 questions = [
     {
@@ -65,15 +69,32 @@ questions = [
 answers = prompt(questions)
 
 
+# TODO there are different possible combinations, we need to define the conditional statements
+
+## download
+if (answers['options'][0].lower().replace(" ",'_').replace("'", '') == 'download_image'):
+    print("### ", answers['options'][0].lower().replace(" ",'_').replace("'", ''))
+    # TODO call the correct function
+
+## metadata
+if (answers['options'][1].lower().replace(" ",'_').replace("'", '') == 'ingest_dicom'):
+    print("### ", answers['options'][1].lower().replace(" ",'_').replace("'", ''))
+    # TODO call the correct function
+
+## metadata
+if (answers['options'][2].lower().replace(" ",'_').replace("'", '') == 'ingest_xcelera'):
+    print("### ", answers['options'][2].lower().replace(" ",'_').replace("'", ''))
+    # TODO call the correct function
+
 ## modules
 if (answers['options'][3].lower().replace(" ", '_') == 'classification'):
     print("###", answers['options'][0].lower().replace(' ', '_').replace("'", ''))
+    # TODO call the correct function
 
 ## evaluation
 if (answers['options'][4].lower().replace(' ', '_').replace("'",'') == 'evaluate'):
-    print("evaluation")
-else:
-    print(answers['options'][4].lower().replace(' ', '_').replace("'",''))
+    print("###", answers['options'][4].lower().replace(' ', '_').replace("'", ''))
+    # TODO call the correct function
 
 
 
