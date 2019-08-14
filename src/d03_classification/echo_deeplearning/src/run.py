@@ -9,6 +9,7 @@ from easydict import EasyDict as edict
 from util import *
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 flags = tf.app.flags
 

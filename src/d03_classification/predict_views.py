@@ -12,6 +12,8 @@ from d00_utils.db_utils import dbReadWriteClassification
 from d03_classification import vgg
 from d00_utils.log_utils import setup_logging
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+
 logger = setup_logging(__name__, __name__)
 
 view_classes = [
@@ -96,8 +98,8 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     
     # Initialise tensorflow
     tf.reset_default_graph()
-    config = tf.ConfigProto(device_count = {'GPU': 2})
-    sess = tf.Session(config=config)
+    
+    sess = tf.Session()    
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
     saver = tf.train.Saver()
