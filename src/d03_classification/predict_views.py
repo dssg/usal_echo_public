@@ -108,8 +108,8 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     # Classify views
     probabilities = {}
     for filename in os.listdir(img_dir):
-        if filename.split('.')[-1] != 'jpg': #only get jpg files
-            continue
+        #if filename.split('.')[-1] != 'jpg': #only get jpg files
+        #    continue
         image = imread(os.path.join(img_dir, filename), flatten=True).astype("uint8")
         img_data = [image.reshape((224, 224, 1))]
         probabilities[filename] = np.around(
@@ -173,6 +173,8 @@ def agg_probabilities(if_exists):
     )
 
     mean_cols = ['output_' + x for x in view_classes]
+    for col in mean_cols:
+        probabilities_frames[col] = pd.to_numeric(probabilities_frames[col], downcast='float')
     agg_cols = dict(zip(mean_cols, ['mean'] * len(mean_cols)))
     agg_cols['probabilities_frame_id'] = 'count'
 
@@ -198,6 +200,7 @@ def predict_views(if_exists):
                   
     predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
                                               ).set_index(['study_id','file_name','model_name','date_run'])
+    
     predictions['view23_pred'] = predictions.idxmax(axis=1).apply(lambda x : x.split('_', 1)[1])
     predictions['view4_dev'] = predictions['view23_pred'].map(maps_dev)
     predictions['view4_seg'] = predictions['view23_pred'].map(maps_seg)
