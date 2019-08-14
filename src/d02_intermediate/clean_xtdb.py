@@ -3,7 +3,7 @@
 """
 Created on Thu Jul 3 2019
 
-@author: wiebket
+author: dssg 2019 team heartthrobs
 description: the clean_xtdb script processes Xcelera_tablas database tables to have 
                 a) consistent column headers 
                 b) consistent treatment of missing values (either '' or -1)                
@@ -15,9 +15,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
+from d00_utils.log_utils import setup_logging
+logger = setup_logging(__name__, __name__)
 
 
-def clean_measurement_abstract_rpt(df):
+def _clean_measurement_abstract_rpt(df):
     """Clean measurement_abstract_rpt table.
     
     :param df: measurement_abstract_rpt table as dataframe
@@ -36,7 +38,7 @@ def clean_measurement_abstract_rpt(df):
     return df
 
 
-def clean_measgraphref(df):
+def _clean_measgraphref(df):
     """Clean measgraphref table.      
     
     :param df: measgraphref table as dataframe
@@ -53,7 +55,7 @@ def clean_measgraphref(df):
     return df
 
 
-def clean_measgraphic(df):
+def _clean_measgraphic(df):
     """Clean measgraphic table.
     
     :param df: measgraphic table as pandas dataframe
@@ -68,7 +70,7 @@ def clean_measgraphic(df):
     return df
 
 
-def clean_study_summary(df):
+def _clean_study_summary(df):
     """Clean dm_spain_view_study_summary table.
     
     In addition to processing missing values, data types and column headers, 
@@ -118,7 +120,7 @@ def clean_study_summary(df):
     return df
 
 
-def clean_modvolume(df):
+def _clean_modvolume(df):
     """Clean modvolume table.
     
     :param df: modvolume table as dataframe
@@ -134,7 +136,7 @@ def clean_modvolume(df):
     return df
 
 
-def clean_instance_filename(df):
+def _clean_instance_filename(df):
     """Clean instance_filename table.
     
     :param df: instance_filename table as dataframe
@@ -155,24 +157,24 @@ def clean_instance_filename(df):
 
 
 def clean_tables():
-    """Transforms raw tables and writes them to database schema 'clean'.
+    """Transform raw tables and write them to database schema 'clean'.
     
     """
     io_raw = dbReadWriteRaw()
     io_clean = dbReadWriteClean()
 
     tables_to_clean = {
-        "measurement_abstract_rpt": "clean_measurement_abstract_rpt(tbl)",
-        "a_measgraphref": "clean_measgraphref(tbl)",
-        "a_measgraphic": "clean_measgraphic(tbl)",
-        "dm_spain_view_study_summary": "clean_study_summary(tbl)",
-        "a_modvolume": "clean_modvolume(tbl)",
-        "instance_filename": "clean_instance_filename(tbl)",
+        "measurement_abstract_rpt": _clean_measurement_abstract_rpt(tbl),
+        "a_measgraphref": _clean_measgraphref(tbl),
+        "a_measgraphic": _clean_measgraphic(tbl),
+        "dm_spain_view_study_summary": _clean_study_summary(tbl),
+        "a_modvolume": _clean_modvolume(tbl),
+        "instance_filename": _clean_instance_filename(tbl),
     }
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
-        clean_tbl = eval(val)
+        clean_tbl = val
 
         io_clean.save_to_db(clean_tbl, key)
-        print("Created table `" + key + "` in schema " + io_clean.schema)
+        logger.info("Created table `{}` in schema {}".format(key, io_clean.schema))
