@@ -108,13 +108,8 @@ def get_window(hr, ft):
 
 
 def compute_la_lv_volume(
-    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
-):
+    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, la_segs, lv_segs):
     """Return measurement dictionary for video."""
-    npydir = f"{os.path.expanduser('~')}/data/04_segmentation/results/{view}"
-    la_segs = np.load(npydir + "/" + videofile + "_la.npy")
-    lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
-
     la_segs = remove_periphery(la_segs)
     lv_segs = remove_periphery(lv_segs)
 
