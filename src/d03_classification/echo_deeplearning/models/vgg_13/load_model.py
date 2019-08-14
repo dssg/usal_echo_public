@@ -6,6 +6,7 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plt
 import random
 import os, sys
+import nn
 
 from util import *
 from scipy.misc import imread, imresize, imsave
@@ -387,24 +388,41 @@ class NN(object):
         with tf.variable_scope('network', reuse=reuse):
             pool_ = lambda x: nn.max_pool(x, 2, 2)
             max_out_ = lambda x: nn.max_out(x, 16)
-            conv_ = lambda x, output_depth, name, trainable = True: nn.conv(x, 3, output_depth, 1, self.weight_decay, name=name, trainable = trainable)
-            fc_ = lambda x, features, name, relu = True: nn.fc(x, features, self.weight_decay, name, relu = relu)
-            VGG_MEAN = [103.939, 116.779, 123.68]
+            config = self.config 
+
+            #conv_ = lambda x, output_depth, name, trainable = True: nn.conv(x, 3, output_depth, 1, self.weight_decay, name=name, trainable = trainable)
+            #fc_ = lambda x, features, name, relu = True: nn.fc(x, features, self.weight_decay, name, relu = relu)
+            conv_ = lambda x, output_depth, name, stride=1, padding="SAME", relu=True, filter_size=3: conv(
+                x,
+                filter_size,
+                output_depth,
+                stride,
+                name=name,
+                padding=padding,
+                relu=relu,
+            )
+            fc_ = lambda x, features, name, relu=True: fc(x, features, name, relu=relu)
+
+            #VGG_MEAN = [103.939, 116.779, 123.68]
             # Convert RGB to BGR and subtract mean
             # red, green, blue = tf.split(input, 3, axis=3)
-            input = tf.concat([
-                input - 24,
-                input - 24,
-                input - 24,
-            ], axis=3)
+            VGG_MEAN = [config.mean, config.mean, config.mean]
+            input = tf.concat(
+                [input - VGG_MEAN[0], input - VGG_MEAN[1], input - VGG_MEAN[2]], axis=3
+            )
+            #input = tf.concat([
+            #    input - 24,
+            #    input - 24,
+            #    input - 24,
+            #], axis=3)
 
-            conv_1_1 = conv_(input, 64, 'conv1_1', trainable = False)
-            conv_1_2 = conv_(conv_1_1, 64, 'conv1_2', trainable = False)
+            conv_1_1 = conv_(input, 64, 'conv1_1')#, trainable = False)
+            conv_1_2 = conv_(conv_1_1, 64, 'conv1_2')#, trainable = False)
 
             pool_1 = pool_(conv_1_2)
 
-            conv_2_1 = conv_(pool_1, 128, 'conv2_1', trainable = False)
-            conv_2_2 = conv_(conv_2_1, 128, 'conv2_2', trainable = False)
+            conv_2_1 = conv_(pool_1, 128, 'conv2_1')#, trainable = False)
+            conv_2_2 = conv_(conv_2_1, 128, 'conv2_2')#, trainable = False)
 
             pool_2 = pool_(conv_2_2)
 
@@ -425,18 +443,19 @@ class NN(object):
             conv_5_3 = conv_(conv_5_2, 512, 'conv5_3')
             
             pool_5 = pool_(conv_5_3)
-            if self.maxout:
-                max_5 = max_out_(pool_5)
-                flattened = tf.contrib.layers.flatten(max_5)
-            else:
-                flattened = tf.contrib.layers.flatten(pool_5)
-            
+            #if self.maxout:
+            #    max_5 = max_out_(pool_5)
+            #    flattened = tf.contrib.layers.flatten(max_5)
+            #else:
+            #    flattened = tf.contrib.layers.flatten(pool_5)
+            flattened = tf.contrib.layers.flatten(pool_5) # i.e. assume self.maxout=False
+
             fc_6 = nn.dropout(fc_(flattened, 4096, 'fc6'), keep_prob)
             fc_7 = nn.dropout(fc_(fc_6, 4096, 'fc7'), keep_prob)
-            fc_8 = fc_(fc_7, self.label_dim, 'fc8', relu=False)
+            fc_8 = fc_(fc_7, config.label_dim, 'fc8', relu=False)
             return fc_8
 
-'''
+    '''
     def network(self, input, keep_prob=0.5, reuse=None):
         """
         Neural network architecture
@@ -496,6 +515,6 @@ class NN(object):
             fc_7 = tf.nn.dropout(fc_(fc_6, 4096, "fc7"), keep_prob)
             fc_8 = fc_(fc_7, config.label_dim, "fc8", relu=False)
             return fc_8
-'''
+    '''
     def init_weights(self):
         pass

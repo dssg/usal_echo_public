@@ -37,7 +37,7 @@ def main(argv):
     assert config_dir.startswith(Models), "Invalid config directory %s" % config_dir
     model_name, config_name = config_dir[len(Models) :].split("/")[:2]
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
+    #os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
     model_dir = os.path.join(Models, model_name)
     sys.path.append(model_dir)
@@ -56,10 +56,11 @@ def main(argv):
 
     train_dir = os.path.join(config_dir, "train", FLAGS.val_split)
 
-    ckpt = tf.train.get_checkpoint_state(train_dir)
+    #print(train_dir)
+
+    ckpt = tf.train.get_checkpoint_state(train_dir)#, latest_filename='model.ckpt-0')
     # This evalueates to None when copying ckpt from ~/models/ folder
     # Evaluates to something when the script is run without a blank 0/ directory, e.g. from previous runs
-
 
     print('Is there a checkpoint????')
     print(ckpt)
@@ -71,26 +72,32 @@ def main(argv):
     elif not FLAGS.train:
         raise RuntimeError("Cannot find checkpoint to test from, exiting")
 
-    #sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
-    config = tf.ConfigProto(device_count = {'GPU': 1})
-    sess = tf.Session(config=config)
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
 
+    #print(tf.trainable_variables())
+    print('tf vars below')
+    #sys.exit()
 
     # load model with the given configurations
     from load_model import load_model, load_data
 
     model = load_model(config, sess)
-    x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
+    #x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
 
     print('DATA LOADED!')
 
     # create saver and load in data
-    saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
+    #saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
+    print(tf.trainable_variables())
+    saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=None)
 
+    sys.exit()
+
+    #ckpt = True # force this to true instead of get_checkpoint_state
     # initialize model
     if ckpt and not FLAGS.retrain:
-        #print('checkpoint path here!!!!!!')
         #print(ckpt.model_checkpoint_path)
+        checkpoint_HARDCODE = train_dir + '/model.ckpt-0'    
         saver.restore(sess, ckpt.model_checkpoint_path)
     else:
         sess.run(tf.global_variables_initializer())

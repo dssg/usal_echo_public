@@ -2,6 +2,7 @@
 
 import os
 import datetime
+import sys
 
 import tensorflow as tf
 import numpy as np
@@ -15,6 +16,10 @@ from d00_utils.log_utils import setup_logging
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 logger = setup_logging(__name__, __name__)
+
+sys.path.append(os.getcwd())
+f = open('/home/ubuntu/dvv/usal_echo/src/d03_classification/tf_vars.txt','r')
+tf_vars = f.read()
 
 view_classes = [
     "plax_far",
@@ -102,14 +107,16 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     sess = tf.Session()    
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
-    saver = tf.train.Saver()
+    saver = tf.train.Saver(tf_vars)
+    
+    print(model_path)
+    
+    #saver = tf.train.import_meta_graph(model_path + '.meta') # if new mod
     saver.restore(sess, model_path)
 
     # Classify views
     probabilities = {}
     for filename in os.listdir(img_dir):
-        #if filename.split('.')[-1] != 'jpg': #only get jpg files
-        #    continue
         image = imread(os.path.join(img_dir, filename), flatten=True).astype("uint8")
         img_data = [image.reshape((224, 224, 1))]
         probabilities[filename] = np.around(
@@ -147,7 +154,7 @@ def run_classify(img_dir, model_path, if_exists, feature_dim=1):
     df = df[cols]
 
     io_classification = dbReadWriteClassification()
-    io_classification.save_to_db(df, 'probabilities_frames', if_exists)
+    #io_classification.save_to_db(df, 'probabilities_frames', if_exists)
 
     logger.info(
         '{} prediction on frames with model {} (feature_dim={}).'.format(

@@ -62,7 +62,7 @@ def load_data(config, val_split): ## may be able
     # Note: they import util from echocv/util.py
 
     for directory in directories:
-        for filename in os.listdir(directory):#[0:10]:
+        for filename in os.listdir(directory):
             if filename not in filenames:
                 filenames.append(filename)
                 label_vec = get_onehot_vec(filename)
