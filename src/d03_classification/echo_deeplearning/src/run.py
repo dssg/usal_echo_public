@@ -70,7 +70,10 @@ def main(argv):
     elif not FLAGS.train:
         raise RuntimeError("Cannot find checkpoint to test from, exiting")
 
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
+    #sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
+    config = tf.ConfigProto(device_count = {'GPU': 1})
+    sess = tf.Session(config=config)
+
 
     # load model with the given configurations
     from load_model import load_model, load_data

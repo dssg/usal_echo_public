@@ -96,7 +96,8 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     
     # Initialise tensorflow
     tf.reset_default_graph()
-    sess = tf.Session()
+    config = tf.ConfigProto(device_count = {'GPU': 2})
+    sess = tf.Session(config=config)
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
     saver = tf.train.Saver()
