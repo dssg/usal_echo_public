@@ -24,7 +24,7 @@ def main():
     print(io_segmentation.cursor)
     print('cursor obtained')
     ground_truths = io_segmentation.get_segmentation_table('ground_truths')
-    ground_truths = ground_truths.iloc[1157, :]    
+    ground_truths = ground_truths.iloc[1157:, :]    
     print('ground truth obtained')
     
     #instance_id_list = ground_truths.instance_id.unique() 
