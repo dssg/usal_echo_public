@@ -44,8 +44,9 @@ def create_probabilities_textfile_testing():
     print('instance_list size: {}'.format(instances_unique_master_list.shape))
     
     # 2. filter frames_by_volume_mask to only include instances_unique_master_list
-    df = pd.merge(instances_unique_master_list, frames_by_volume_mask, how = "left", 
-                  on = ['studyidk', 'instanceidk'])
+    df = pd.merge(instances_unique_master_list, frames_by_volume_mask, how="left", 
+                  on=['studyidk', 'instanceidk'])
+    print("df shape:{}".format(df.shape))
     
     #frames_by_volume_mask[frames_by_volume_mask['instanceidk'].isin(instances_unique_master_list['instanceidk'])]
     
