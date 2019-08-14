@@ -17,7 +17,7 @@ from d00_utils.log_utils import setup_logging
 logger = setup_logging(__name__, __name__)
 
 
-def get_dicom_metadata(bucket, file_path, description=False):
+def _get_dicom_metadata(bucket, file_path, description=False):
 
     """Get all dicom tags for file in file_path.
 
@@ -87,7 +87,7 @@ def get_dicom_metadata(bucket, file_path, description=False):
     return df_out
 
 
-def write_dicom_metadata_csv(df, metadata_file_suffix=None):
+def _write_dicom_metadata_csv(df, metadata_file_suffix=None):
     """Write the output of 'get_dicom_metadata()' to a csv file.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
@@ -117,7 +117,7 @@ def write_dicom_metadata_csv(df, metadata_file_suffix=None):
     )
 
 
-def write_dicom_metadata_postgres(df, db_table):
+def _write_dicom_metadata_postgres(df, db_table):
     """Write the output of 'get_dicom_metadata()' to a postgres table.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
@@ -143,15 +143,13 @@ def ingest_dcm(write_to="postgres", prefix=""):
     
     """
     if write_to == "postgres":
-        func = write_dicom_metadata_postgres(df, "metadata")
+        func = _write_dicom_metadata_postgres(df, "metadata")
     elif write_to == "csv":
-        func = write_dicom_metadata_csv(df)
+        func = _write_dicom_metadata_csv(df)
 
     for key in get_matching_s3_keys("cibercv", prefix, ".dcm"):
-        df = get_dicom_metadata("cibercv", key)
+        df = _get_dicom_metadata("cibercv", key)
         func
     os.remove("temp.txt")
 
     logger.info("All dicom metadata has been retrieved.")
-    
-    return 
