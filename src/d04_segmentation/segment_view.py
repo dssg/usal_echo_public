@@ -34,6 +34,8 @@ modeldir = params.modeldir
 
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
+#os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
 
 def segmentChamber(videofile, dicomdir, view):
     """
@@ -251,7 +253,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     for video in viewlist_a2c:
-        np_arrays_x3, images_uuid_x3 = segmentChamber(video, dicomdir, "a2c")
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a2c")
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
