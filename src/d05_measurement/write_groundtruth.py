@@ -72,15 +72,15 @@ def write_groundtruth():
             "instanceidk": "instance_id",
             "filename": "file_name",
             "name": "measurement_name",
-            "value": "measurement_value",
             "unitname": "measurement_unit",
+            "value": "measurement_value",
         }
     )
 
     # Get median measurement values over meassequence/indexinmglist.
     agg_dict = {
-        "measurement_value": pd.Series.median,
         "measurement_unit": pd.Series.unique,
+        "measurement_value": pd.Series.median,
     }
     volume_df = (
         rename_df.groupby(
@@ -125,12 +125,12 @@ def write_groundtruth():
 
     ef_df["file_name"] = ef_df["file_name_diastole"]
     ef_df["measurement_name"] = "FE(MDD-ps4)"
+    ef_df["measurement_unit"] = "%"
     ef_df["measurement_value"] = (
         (ef_df["measurement_value_diastole"] - ef_df["measurement_value_systole"])
         / ef_df["measurement_value_diastole"]
         * 100
     )
-    ef_df["measurement_unit"] = "%"
 
     ef_df = ef_df.drop(
         [
@@ -145,12 +145,24 @@ def write_groundtruth():
     # Get recommendations based on ejection fraction values.
     recommendation_df = ef_df.copy()
     recommendation_df["measurement_name"] = "recommendation"
+    recommendation_df["measurement_unit"] = ""
     recommendation_df["measurement_value"] = recommendation_df.apply(
         get_recommendation, axis=1
     )
-    recommendation_df["measurement_unit"] = ""
 
     # Write volumes, ejection fractions, and recommendations.
     ground_truth_df = volume_df.append(ef_df).append(recommendation_df)
-    ground_truth_df['file_name'] = "a_" + ground_truth_df['study_id'].astype(str) + "_" + ground_truth_df['file_name']
-    io_measurement.save_to_db(ground_truth_df, "ground_truths")
+    ground_truth_df["file_name"] = (
+        "a_"
+        + ground_truth_df["study_id"].astype(str)
+        + "_"
+        + ground_truth_df["file_name"]
+    )
+
+    # Add serial id.
+    old_ground_truth_df = io_measurement.get_table("ground_truths")
+    start = len(old_ground_truth_df)
+    ground_truth_id = pd.Series(start + ground_truth_df.index)
+    ground_truth_df.insert(0, "ground_truth_id", ground_truth_id)
+    all_ground_truth_df = old_ground_truth_df.append(ground_truth_df)
+    io_measurement.save_to_db(all_ground_truth_df, "ground_truths")
