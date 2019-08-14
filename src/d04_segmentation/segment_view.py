@@ -132,6 +132,7 @@ def segmentChamber(videofile, dicomdir, view):
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
         number_frames = (np.array(a4c_lvo_segs).astype("uint8").shape)[0]
+        model_name = "a4c_45_20_all_model.ckpt-9000"
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1
@@ -140,6 +141,7 @@ def segmentChamber(videofile, dicomdir, view):
         np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
         number_frames = (np.array(a2c_lvo_segs).astype("uint8").shape)[0]
+        model_name = "a2c_45_20_all_model.ckpt-10600"
 
     j = 0
     nrow = orig_images[0].shape[0]
@@ -185,7 +187,7 @@ def segmentChamber(videofile, dicomdir, view):
         ).hexdigest()
     )
     # return 1
-    return [number_frames, np_arrays_x3, images_uuid_x3]
+    return [number_frames, model_name, np_arrays_x3, images_uuid_x3]
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
@@ -198,23 +200,26 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
     instances_unique_master_list["instancefilename"] = instances_unique_master_list[
         "instancefilename"
     ].apply(lambda x: str(x).strip())
+    #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
     column_names = [
-            "instance_id",
             "study_id",
-            "view_name",
-            "frame",
+            "instance_id",
+            "file_name",
+            "num_frames"
+            "model_name"
+            "date_run",
             "output_np_lv",
             "output_np_la",
             "output_np_lvo",
             "output_image_seg",
             "output_image_orig",
-            "output_image_overlay",
-            "date_run",
-            "file_name",
+            "output_image_overlay",            
         ]
     
     for video in viewlist_a4c:
-        [number_frames, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -226,20 +231,21 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [
+        #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+        d = [studyidk,
             instance_id,
-            studyidk,
-            "a4c",
+            str(video),
             number_frames,
+            model_name,
+            str(datetime.now()),
             np_arrays_x3[0],
             np_arrays_x3[1],
             np_arrays_x3[2],
             images_uuid_x3[0],
             images_uuid_x3[1],
-            images_uuid_x3[2],
-            str(datetime.now()),
-            str(video),
-        ]
+            images_uuid_x3[2]]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     for video in viewlist_a2c:
@@ -255,19 +261,18 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [instance_id,
-            studyidk,
-            "a2c",
-            number_frames,
-            np_arrays_x3[0],
-            np_arrays_x3[1],
-            np_arrays_x3[2],
-            images_uuid_x3[0],
-            images_uuid_x3[1],
-            images_uuid_x3[2],
-            str(datetime.now()),
-            str(video),
-        ]
+        d = [studyidk,
+             instance_id,
+             str(video),
+             number_frames,
+             model_name,
+             str(datetime.now()),
+             np_arrays_x3[0],
+             np_arrays_x3[1],
+             np_arrays_x3[2],
+             images_uuid_x3[0],
+             images_uuid_x3[1],
+             images_uuid_x3[2]]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     return 1

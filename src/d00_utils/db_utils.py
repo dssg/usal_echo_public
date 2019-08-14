@@ -185,6 +185,9 @@ class dbReadWriteSegmentation(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
     def save_prediction_numpy_array_to_db(self, binary_data_array, column_names):
+        #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
             'predictions',
@@ -193,11 +196,11 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[1],
             binary_data_array[2],
             binary_data_array[3],
-            psycopg2.Binary(binary_data_array[4]),
-            psycopg2.Binary(binary_data_array[5]),
+            binary_data_array[4],
+            binary_data_array[5],
             psycopg2.Binary(binary_data_array[6]),
-            binary_data_array[7],
-            binary_data_array[8],
+            psycopg2.Binary(binary_data_array[7]),
+            psycopg2.Binary(binary_data_array[8]),
             binary_data_array[9],
             binary_data_array[10],
             binary_data_array[11]
