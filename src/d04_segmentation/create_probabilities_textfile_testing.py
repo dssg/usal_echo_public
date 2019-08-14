@@ -34,6 +34,9 @@ def create_probabilities_textfile_testing():
     # 1. Gets frames_by_volume_mask view
     io_views = dbReadWriteViews()
     frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
+    frames_by_volume_mask = frames_by_volume_mask.drop(columns=['indexinmglist'])
+    frames_by_volume_mask = frames_by_volume_mask.drop_duplicates()
+    
     #frames_by_volume_mask = frames_by_volume_mask[
     #    frames_by_volume_mask["view_exists"] == True
     #]
@@ -41,11 +44,14 @@ def create_probabilities_textfile_testing():
     print('instance_list size: {}'.format(instances_unique_master_list.shape))
     
     # 2. filter frames_by_volume_mask to only include instances_unique_master_list
-    df = frames_by_volume_mask[frames_by_volume_mask['instanceidk'].isin(instances_unique_master_list['instanceidk'])]
+    df = pd.merge(instances_unique_master_list, frames_by_volume_mask, how = "left", 
+                  on = ['studyidk', 'instanceidk'])
+    
+    #frames_by_volume_mask[frames_by_volume_mask['instanceidk'].isin(instances_unique_master_list['instanceidk'])]
     
     #3. Drop instance index, and delete any duplicates
-    df = df.drop(columns=['indexinmglist'])
-    df = df.drop_duplicates()
+    #df = df.drop(columns=['indexinmglist'])
+    #df = df.drop_duplicates()
 
 
     # 3. Create the probabilities table
@@ -78,7 +84,7 @@ def create_probabilities_textfile_testing():
             "psax_apex",
         ]
     )
-
+    
     for i in df.index:
         prob_tb.at[i, "study"] = "/home/ubuntu/data/01_raw/test_downsampleby5"
         filename = df.at[i, "instancefilename"]
