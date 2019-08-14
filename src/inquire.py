@@ -9,6 +9,10 @@ from PyInquirer import prompt, Separator
 from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
 from d02_intermediate.download_dcm import s3_download_decomp_dcm
+#from d02_intermediate.clean_dcm import clean_dcm
+from d02_intermediate.filter_instances import filter_all
+from d02_intermediate.clean_xtdb import clean_tables
+from d03_classification.predict_view import run_classify, agg_probabilities
 
 
 def _print_welcome_message():
@@ -127,7 +131,7 @@ def modules():
 def classification_args():
     """
     Asks for classifications parameters
-    :return:
+    :return: arguments defined
     """
     questions = [
         {
@@ -148,16 +152,31 @@ def classification_args():
 
 
 def process_choices(options):
+    """
+    Depending on the selection made by the user a specific pipeline is triggered
+    :param options: dictionary with options selected
+    :return:
+    """
     if _format_answer(options['ingest_metadata']).startswith('ingest'):
         ingest_dcm()
+        # TODO metadata_path_file is missing!
+        #clean_dcm()
+        #filter_all()
     elif _format_answer(options['ingest_xcelere']).startswith('ingest'):
         ingest_xtdb()
+        clean_tables()
+        filter_all()
     elif _format_answer(options['download_file']).startswith('download'):
-        a1 = _format_answer(options['download_file_a1'])
-        a2 = _format_answer(options['downlaod_file_a2'])
-        a3 = _format_answer(options['download_file_a3'])
-        a4 = _format_answer(options['download_file_a4'])
+        a1 = options['download_file_a1']
+        a2 = options['downlaod_file_a2']
+        a3 = options['download_file_a3']
+        a4 = options['download_file_a4']
         s3_download_decomp_dcm(a1, a2, a3, a4)
+    elif (_format_answer(options['module']) == 'classification'):
+        a1 = options['classification_a1']
+        a2 = options['classification_a2']
+        run_classify(a1, a2)
+        agg_probabilities()
 
 
 def main():
@@ -170,7 +189,7 @@ def main():
     options.update(modules())
     if (_format_answer(options['module']) == 'classification '):
         options.update(classification_args())
-    elif (_format_answer(options['module']) == 'segmentaton'):
+    elif (_format_answer(options['module']) == 'segmentation'):
         pass
     elif (_format_answer(options['module']) == 'measurements'):
         pass
