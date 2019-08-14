@@ -209,8 +209,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
             "study_id",
             "instance_id",
             "file_name",
-            "num_frames"
-            "model_name"
+            "num_frames",
+            "model_name",
             "date_run",
             "output_np_lv",
             "output_np_la",
