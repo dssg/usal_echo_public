@@ -20,8 +20,7 @@ def _print_welcome_message():
     print("####   CLI CIBERCV-USAL | DSSG - Imperial College London 2019 ####")
     print("##################################################################")
     print("")
-    print(" Usage: ")
-    print(" + Get metadata requires n arguments")
+
 
 
 def _format_answer(option):
