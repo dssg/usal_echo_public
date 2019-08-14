@@ -34,7 +34,7 @@ def main():
     #Go through the ground truth table and write IOUS
         
     for index, gt in ground_truths.iterrows():
-        #match the gt to the prediction table
+        #match the gt to the predictin table
         gt_instance_id = gt['instance_id']
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']

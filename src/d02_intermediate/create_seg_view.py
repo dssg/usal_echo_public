@@ -45,6 +45,7 @@ def create_seg_view():
     a_measgraphref_df = io_clean.get_table("a_measgraphref")
     a_measgraphic_df = io_clean.get_table("a_measgraphic")
     measurement_abstract_rpt_df = io_clean.get_table("measurement_abstract_rpt")
+    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
 
     # 2. merge a_measgraphref_df, measurement_abstract_rpt_df
     df = pd.merge(
@@ -96,7 +97,7 @@ def create_seg_view():
     #7. Only colums we need &drop duplicates
     df_5 = df_4[['studyidk', 'indexinmglist', 'instanceidk', 'frame','view',
        'chamber', 'cardio_moment']].copy()
-    df_5['studyidk'] = df_5['studyidk']
+    #df_5['studyidk'] = df_5['studyidk']
     df_6 = df_5.drop_duplicates()
     
     del df_4
@@ -111,7 +112,7 @@ def create_seg_view():
     del df_6
     
     # Adding file name
-    instances_unique_master_list = io_views.get_table('instances_unique_master_list')
+    
     df_8 = pd.merge(df_7, instances_unique_master_list, how="left", 
                     on=["studyidk", "instanceidk"])    
     del instances_unique_master_list

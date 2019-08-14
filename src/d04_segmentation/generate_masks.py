@@ -121,9 +121,9 @@ def generate_masks(instance_ids):
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
     
-    #merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
+    merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
     
-    merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
+    #merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
 
     start = time()
     group_df = merge_df.groupby(["studyidk", "instanceidk", "indexinmglist"]).agg(

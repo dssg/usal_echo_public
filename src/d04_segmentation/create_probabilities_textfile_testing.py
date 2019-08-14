@@ -174,4 +174,3 @@ def create_probabilities_textfile_testing():
 
     df_3.to_csv(data_path, index=None, header=True, sep="\t")
         
-        
