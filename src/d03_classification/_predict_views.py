@@ -2,6 +2,7 @@
 
 import os
 import datetime
+import sys
 
 import tensorflow as tf
 import numpy as np
@@ -12,14 +13,13 @@ from d00_utils.db_utils import dbReadWriteClassification
 from d03_classification import vgg
 from d00_utils.log_utils import setup_logging
 
-logger = setup_logging(__name__, __name__)
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-#sys.path.append(os.getcwd())
+logger = setup_logging(__name__, __name__)
+
+sys.path.append(os.getcwd())
 f = open('/home/ubuntu/dvv/usal_echo/src/d03_classification/tf_vars.txt','r')
 tf_vars = f.read()
-
 
 view_classes = [
     "plax_far",
@@ -103,10 +103,16 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     
     # Initialise tensorflow
     tf.reset_default_graph()
-    sess = tf.Session()
+    
+    sess = tf.Session()    
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
-    saver = tf.train.Saver(tf_vars)
+    saver = tf.train.Saver() # if running on zhang model
+    #saver = tf.train.Saver(tf_vars) # if running on retrained model
+    
+    print(model_path)
+    
+    #saver = tf.train.import_meta_graph(model_path + '.meta') # if new mod
     saver.restore(sess, model_path)
 
     # Classify views
@@ -123,10 +129,12 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
 
 def run_classify(img_dir, model_path, if_exists, feature_dim=1):
     """Writes classification probabilities of frames to database.
+
     :param img_dir: directory with jpg echo images for classification
     :param model_path: path to trained model for inferring probabilities
     :param if_exists (str): write action if table exists, must be 'replace' or 'append'
     :param feature_dim: default=1
+
     """
     label_dim = len(view_classes)
     model_name = os.path.basename(model_path)
@@ -162,6 +170,7 @@ def agg_probabilities(if_exists):
     
     Fetches probabilities from classification.probabilities_frames and 
     calculates the mean. Returns dataframe with aggregated probabilities.
+
     :param if_exists (str): write action if table exists
     
     """
@@ -173,9 +182,11 @@ def agg_probabilities(if_exists):
     )
 
     mean_cols = ['output_' + x for x in view_classes]
+    for col in mean_cols:
+        probabilities_frames[col] = pd.to_numeric(probabilities_frames[col], downcast='float')
     agg_cols = dict(zip(mean_cols, ['mean'] * len(mean_cols)))
-    agg_cols['probabilities_frame_id'] = 'count' #TODO: debug error
-    
+    agg_cols['probabilities_frame_id'] = 'count'
+
     probabilities = (
         probabilities_frames.groupby(['study_id','file_name','model_name','date_run','img_dir'])
         .agg(agg_cols)
@@ -196,11 +207,8 @@ def predict_views(if_exists):
     io_classification = dbReadWriteClassification()
     probabilities = io_classification.get_table('probabilities_instances')
                   
-    #predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
-    #                                         ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
-    predictions = probabilities.drop(columns=['probabilities_instance_id']
+    predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
                                               ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
-    
     predictions['view23_pred'] = predictions.idxmax(axis=1).apply(lambda x : x.split('_', 1)[1])
     predictions['view4_dev'] = predictions['view23_pred'].map(maps_dev)
     predictions['view4_seg'] = predictions['view23_pred'].map(maps_seg)
@@ -210,4 +218,3 @@ def predict_views(if_exists):
     
     io_classification.save_to_db(df, 'predictions', if_exists)    
     logger.info('Predicted views saved to table classification.predictions')
-
