@@ -15,7 +15,7 @@ io_views = dbReadWriteViews()
 df = io_views.get_table('instances_w_labels')
 
 
-def get_onehot_vector(filename_str):
+def get_onehot_vec(filename_str):
     ''' 
     Returns a one-hot vector corresponding to 23-class view classification model
     @params filename_str: name of .jpg file, e.g. a_113150_2WD5N6AS_53.jpg
@@ -51,9 +51,9 @@ def load_data(config, val_split): ## may be able
     # config.data = 'm1_usal', config.label_dim = 23, config.feature_dim = 1, config.image_size=224
     
     # TO DO: soft code this later, make sure it's correct with our actual data location
-    directory = '~/data/02_intermediate/test'
-    directory_train = '~/data/02_intermediate/train_downsampleby5'
-    directory_test = '~/data/02_intermediate/train_split100_downsampleby20'  
+    #directory = '~/data/02_intermediate/test'
+    directory_train = '/home/ubuntu/data/02_intermediate/test_downsampleby5/'
+    directory_test = '/home/ubuntu/data/02_intermediate/train_split100_downsampleby20/'  
     directories = [directory_train, directory_test]
 
     img_train, img_test, label_train, label_test, filenames = ([] for i in range(5))
@@ -62,25 +62,32 @@ def load_data(config, val_split): ## may be able
     # Note: they import util from echocv/util.py
 
     for directory in directories:
-        for filename in os.listdir(directory):
+        for filename in os.listdir(directory):#[0:10]:
             if filename not in filenames:
                 filenames.append(filename)
                 label_vec = get_onehot_vec(filename)
+                np_img = imread(directory + filename)
                 if directory == directory_train:
-                    img_train.append(np.load(directory + filename).astype("uint8")[:, :, :])
+                    #img_train.append(np.load(directory + filename).astype("uint8")[:, :, :])
+                    #raw_im = imread(directory + filename)
+                    img_train.append(np_img)
+                    #print(raw_im.shape)
+                    #print(raw_im.dtype)
+                    #xx
                     label_train.append(label_vec)
                 elif directory == directory_test:
-                    img_test.append(np.load(directory + filename).astype("uint8")[:, :, :])
+                    #img_test.append(np.load(directory + filename).astype("uint8")[:, :, :])
+                    img_test.append(np_img)
                     label_test.append(label_vec)
     
     x_train = np.array(img_train).reshape(
-        (len(x_train), config.image_size, config.image_size, config.feature_dim)
+        (len(img_train), config.image_size, config.image_size, config.feature_dim)
     )
     x_test = np.array(img_test).reshape(
-        (len(x_test), config.image_size, config.image_size, config.feature_dim)
+        (len(img_test), config.image_size, config.image_size, config.feature_dim)
     )
-    y_train = np.array(label_train).reshape((len(y_train), config.label_dim))
-    y_test = np.array(label_test).reshape((len(y_test), config.label_dim))
+    y_train = np.array(label_train).reshape((len(label_train), config.label_dim))
+    y_test = np.array(label_test).reshape((len(label_test), config.label_dim))
     
     return x_train, x_test, y_train, y_test
 

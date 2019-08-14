@@ -131,6 +131,13 @@ class NN(object):
             self.loss, global_step=self.global_step
         )
 
+        # TRANSFER LEARN CODE BELOW ###################
+        #W_retrain = tf.trainable_variables()[-6:]
+        #self.opt = tf.train.AdamOptimizer(config.learning_rate).minimize(
+        #    self.loss, global_step=self.global_step, var_list=W_retrain
+        #)
+        ########################################
+
         self.train_pred = self.network(self.x_train, keep_prob=1.0, reuse=True)
         self.train_accuracy = tf.reduce_mean(
             tf.cast(
@@ -211,6 +218,9 @@ class NN(object):
                 if len(losses) == config.loss_smoothing:
                     losses.popleft()
                 losses.append(loss)
+                
+                #print('loss printed here')
+                #print(losses)
 
                 stop = timeit.default_timer()
                 train_print(
@@ -232,23 +242,23 @@ class NN(object):
             stop = timeit.default_timer()
             val_print(
                 i,
-                j,
+                'xxx',#j,
                 np.mean(losses),
                 np.mean(train_accs),
                 val_acc,
                 x_train.shape[0],
                 stop - start,
             )
-            print()
+            #print()
 
             if (i + 1) % config.epoch_save_interval == 0:
                 saver.save(sess, checkpoint_path, global_step=step)
-                if "no_vis" not in config:
-                    self.visualize(x_test, y_test, val_output_dir)
+                #if "no_vis" not in config:
+                    #self.visualize(x_test, y_test, val_output_dir)
         if (i + 1) % config.epoch_save_interval != 0:
             saver.save(sess, checkpoint_path, global_step=step)
-            if "no_vis" not in config:
-                self.visualize(x_test, y_test, val_output_dir)
+            #if "no_vis" not in config:
+                #self.visualize(x_test, y_test, val_output_dir)
 
         return True
 

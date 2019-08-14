@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #predict_view_v0.main()
 	#filter_instances.run_all()
     #filter_views.filter_by_views()
-    classificn_results_to_db.results_txt_to_db()
+    #classificn_results_to_db.results_txt_to_db()
     #predict_view.run_classify()
     #download_dcm.s3_download_decomp_dcm(0.05, 1.0, 'instances_w_labels_train')
     

@@ -1,3 +1,5 @@
+#!/usr/bin/env python -W ignore::DeprecationWarning
+
 import numpy as np
 import tensorflow as tf
 
@@ -17,7 +19,7 @@ flags.DEFINE_boolean(
 flags.DEFINE_string("gpu", "0", "GPU number. Default [0]")
 flags.DEFINE_string("val_split", "0", "Cross validation study split, Default: 0")
 flags.DEFINE_boolean(
-    "debug", True, "If true, train and validate for 1 iteration. Default [False]"
+    "debug", False, "If true, train and validate for 1 iteration. Default [False]"
 )
 flags.DEFINE_boolean(
     "retrain",
@@ -54,6 +56,15 @@ def main(argv):
     train_dir = os.path.join(config_dir, "train", FLAGS.val_split)
 
     ckpt = tf.train.get_checkpoint_state(train_dir)
+    # This evalueates to None when copying ckpt from ~/models/ folder
+    # Evaluates to something when the script is run without a blank 0/ directory, e.g. from previous runs
+
+
+    print('Is there a checkpoint????')
+    print(ckpt)
+    ## NOTE: when copy ckpt from ~/models/, on first run ckpt = None; then generates ckpt for second run
+    # i.e. this is not reading in old trained model
+
     if ckpt and not FLAGS.retrain:
         print("Latest checkpoint:", ckpt.model_checkpoint_path)
     elif not FLAGS.train:
@@ -67,11 +78,15 @@ def main(argv):
     model = load_model(config, sess)
     x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
 
+    print('DATA LOADED!')
+
     # create saver and load in data
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
 
     # initialize model
     if ckpt and not FLAGS.retrain:
+        #print('checkpoint path here!!!!!!')
+        #print(ckpt.model_checkpoint_path)
         saver.restore(sess, ckpt.model_checkpoint_path)
     else:
         sess.run(tf.global_variables_initializer())
@@ -83,21 +98,19 @@ def main(argv):
         # train model
         summary_writer = tf.summary.FileWriter(train_dir)
         checkpoint_path = os.path.join(train_dir, "model.ckpt")
+        
+        #print(tf.trainable_variables()[-6:])
 
-        print('Number of layers in base model: ', len(model.layers))
-        for layer in model.layers[0:-10]:
-            layer.trainable = False
-
-        #success = model.train(
-        #    x_train,
-        #    y_train,
-        #    x_test,
-        #    y_test,
-        #    saver,
-        #    summary_writer,
-        #    checkpoint_path,
-        #    val_output_dir,
-        #)
+        success = model.train(
+            x_train,
+            y_train,
+            x_test,
+            y_test,
+            saver,
+            summary_writer,
+            checkpoint_path,
+            val_output_dir,
+        )
 
         if not success:
             print("Exiting script")
