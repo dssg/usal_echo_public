@@ -34,7 +34,7 @@ def create_probabilities_textfile_testing():
     # 1. Gets frames_by_volume_mask view
     io_views = dbReadWriteViews()
     frames_by_volume_mask = io_views.get_table("frames_by_volume_mask")
-    frames_by_volume_mask = frames_by_volume_mask.drop(columns=['indexinmglist'])
+    frames_by_volume_mask = frames_by_volume_mask.drop(columns=['indexinmglist', 'frame'])
     frames_by_volume_mask = frames_by_volume_mask.drop_duplicates()
     
     #frames_by_volume_mask = frames_by_volume_mask[
