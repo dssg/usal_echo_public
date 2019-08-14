@@ -3,98 +3,172 @@
 * run example by typing `python example/checkbox.py` in your console
 """
 from __future__ import print_function, unicode_literals
-
+from pprint import pprint
 from PyInquirer import prompt, Separator
 
+#from d01_ data.ingestion_dcm import ingest_dcm
 
-print("##################################################################")
-print("####   CLI CIBERCV-USAL | DSSG - Imperial College London 2019 ####")
-print("##################################################################")
-print("")
 
-questions = [
-    {
-        'type': 'checkbox',
-        'message': 'Select options',
-        'name': 'options',
-        'choices': [
-            Separator('====== Download DICOM image ======'),
-            {
-                'name': 'Download image'
-            },
-            {
-                'name': "Don't download image",
-                'checked': 'true'
-            },
-            Separator('====== Get metadata ======'),
-            {
-                'name': 'Ingest DICOM'
-            },
-            {
-                'name': "Don't ingest DICOM"
-            },
-            Separator('====== Ingest XCelera ======'),
-            {
-                'name': 'Ingest Xcelara'
-            },
-            {
-                'name': "Don't ingest Xcelera"
-            },
-            Separator('====== Select module ======'),
-            {
-                'name': 'Classification'
-            },
-            {
-                'name': 'Segmentation'
-            },
-            {
-                'name': 'Measurements'
-            },
-            {
-                'name': 'All'
-            },
-            Separator('====== Evaluation ======'),
-            {
-                'name': 'Evaluate'
-            },
-            {
-                'name': "Don't evaluate"
-            }
-        ],
-        'validate': lambda answer: 'You must choose at least one topping.' \
-            if len(answer) == 0 else True
+def _print_welcome_message():
+    print("##################################################################")
+    print("####   CLI CIBERCV-USAL | DSSG - Imperial College London 2019 ####")
+    print("##################################################################")
+    print("")
+    print(" Usage: ")
+    print(" + Get metadata requires n arguments")
+
+
+def _format_answer(option):
+    """
+    Process the option selected on the CLI, passes it to lower case, change spaces for underscore and eliminates the single quote used in contractions
+    :param option: options selected on CLI
+    :return: processed option
+    """
+    return option.lower().replace(" ", "_").replace("'","")
+
+
+def ingest_metadata():
+    """
+    Asks for selection on ingesting DICOM files option
+    :return: selected option
+    """
+    ingest_dicom = {
+        'type': 'list',
+        'name': 'ingest_metadata',
+        'message': 'Do you want to ingest dicom metadata?',
+        'choices': ['Ingest DICOM metadata', "Don't Ingest DICOM metadata"]
     }
-]
+    answers = prompt(ingest_dicom)
 
-answers = prompt(questions)
+    return answers
+
+def ingest_xcelera():
+    """
+
+    :return:
+    """
+    ingest_dicom = {
+        'type': 'list',
+        'name': 'ingest_xcelera',
+        'message': 'Do you want to ingest XCelera data?',
+        'choices': ['Ingest XCelera', "Don't Ingest XCelera"]
+    }
+    answers = prompt(ingest_dicom)
+
+    return answers
+
+def download_files():
+    """
+
+        :return:
+        """
+    download = {
+        'type': 'list',
+        'name': 'download_file',
+        'message': 'Do you want to download DICOM files?',
+        'choices': ['Download', "Don't Download"]
+    }
+    answers = prompt(download)
+
+    return answers
 
 
-# TODO there are different possible combinations, we need to define the conditional statements
+def download_files_args():
+    """
+    Asks for the arguments required for downloaading DICOM files
+    :return:
+    """
+    questions = [
+        {
+            'type': 'input',
+            'name': 'download_file_a1',
+            'message': 'DICOM directory:'
+        },
+        {
+            'type': 'input',
+            'name': 'download_file_a2',
+            'message': 'Table name:'
+        },
+        {
+             'type': 'input',
+             'name': 'download_file_a3',
+             'message': 'Train test ratio (float):'
+        },
+        {
+            'type': 'input',
+            'name': 'download_file_a4',
+            'message': 'Down sample ratio (float):'
+        }
+    ]
 
-## download
-if (answers['options'][0].lower().replace(" ",'_').replace("'", '') == 'download_image'):
-    print("### ", answers['options'][0].lower().replace(" ",'_').replace("'", ''))
-    # TODO call the correct function
+    answers = prompt(questions)
 
-## metadata
-if (answers['options'][1].lower().replace(" ",'_').replace("'", '') == 'ingest_dicom'):
-    print("### ", answers['options'][1].lower().replace(" ",'_').replace("'", ''))
-    # TODO call the correct function
-
-## metadata
-if (answers['options'][2].lower().replace(" ",'_').replace("'", '') == 'ingest_xcelera'):
-    print("### ", answers['options'][2].lower().replace(" ",'_').replace("'", ''))
-    # TODO call the correct function
-
-## modules
-if (answers['options'][3].lower().replace(" ", '_') == 'classification'):
-    print("###", answers['options'][0].lower().replace(' ', '_').replace("'", ''))
-    # TODO call the correct function
-
-## evaluation
-if (answers['options'][4].lower().replace(' ', '_').replace("'",'') == 'evaluate'):
-    print("###", answers['options'][4].lower().replace(' ', '_').replace("'", ''))
-    # TODO call the correct function
+    return answers
 
 
+def modules():
+    """
+
+    :return:
+    """
+    modules = {
+        'type': 'list',
+        'name': 'module',
+        'message': 'Which module do you want to execute?',
+        'choices': ['Classification', "Segmentation", "Measurements", "All"]
+    }
+    answers = prompt(modules)
+
+    return answers
+
+
+def classification_args():
+    """
+
+    :return:
+    """
+    questions = [
+        {
+            'type': 'input',
+            'name': 'classification_a1',
+            'message': 'Image directory:'
+        },
+        {
+            'type': 'input',
+            'name': 'classification_a2',
+            'message': 'Model path:'
+        }
+    ]
+
+    answers = prompt(questions)
+
+    return answers
+
+
+def process_choices(options):
+    pprint(options)
+
+
+def main():
+    _print_welcome_message()
+    options = ingest_metadata()
+    options.update(ingest_xcelera())
+    options.update(download_files())
+    if (_format_answer(options['download_file']).startswith('download')):
+        options.update(download_files_args())
+    options.update(modules())
+    if (_format_answer(options['module']) == 'classification '):
+        options.update(classification_args())
+    elif (_format_answer(options['module']) == 'segmentaton'):
+        pass
+    elif (_format_answer(options['module']) == 'measurements'):
+        pass
+    else:
+        pass
+
+    process_choices(options)
+
+
+if __name__ == '__main__':
+    main()
 
