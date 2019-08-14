@@ -42,7 +42,13 @@ def write_evaluations(folder, prediction_source):
 
     # Write evaluations to schema.
     evaluations_df = abs_diff_df.append(rel_diff_df).append(acc_df)
-    io_measurement.save_to_db(evaluations_df, 'evaluations')
+    # Add serial id.
+    old_evaluations_df = io_measurement.get_table("evaluations")
+    start = len(old_evaluations_df)
+    evaluation_id = pd.Series(start + evaluations_df.index)
+    evaluations_df.insert(0, "evaluation_id", evaluation_id)
+    all_evaluation_df = old_evaluations_df.append(evaluations_df)
+    io_measurement.save_to_db(all_evaluation_df, 'evaluations')
 
     # Plot confusion matrix for recommendations, with classes in given order.
     classes = ['normal', 'greyzone', 'abnormal']

@@ -160,7 +160,9 @@ def write_groundtruth():
     )
 
     # Add serial id.
-    start = len(io_measurement.get_table("ground_truths"))
+    old_ground_truth_df = io_measurement.get_table("ground_truths")
+    start = len(old_ground_truth_df)
     ground_truth_id = pd.Series(start + ground_truth_df.index)
     ground_truth_df.insert(0, "ground_truth_id", ground_truth_id)
-    io_measurement.save_to_db(ground_truth_df, "ground_truths")
+    all_ground_truth_df = old_ground_truth_df.append(ground_truth_df)
+    io_measurement.save_to_db(all_ground_truth_df, "ground_truths")
