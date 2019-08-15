@@ -57,6 +57,7 @@ def evaluate_meas(folder):
 
     # Write evaluations to schema.
     evaluations_df = abs_diff_df.append(rel_diff_df).append(acc_df)
+    evaluations_df["calculation_source"] = calculation_source
     # Add serial id.
     old_evaluations_df = io_measurement.get_table("evaluations")
     start = len(old_evaluations_df)
@@ -77,11 +78,7 @@ def evaluate_meas(folder):
     )
 
     fig.savefig(f"../results/cm_{folder}", bbox_inches="tight")
-    fig.savefig(
-        f"../results/cm_{folder}.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+    fig.savefig(f"../results/cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     fig, ax = plot_confusion_matrix(
         y_true,
@@ -92,11 +89,7 @@ def evaluate_meas(folder):
     )
 
     fig.savefig(f"../results/norm_cm_{folder}", bbox_inches="tight")
-    fig.savefig(
-        f"../results/norm_cm_{folder}.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+    fig.savefig(f"../results/norm_cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     # Produce dataframe like Table 2 in Zhang et al:
     # "Comparison Between Fully Automated and Manual Measurements Derived From 2-Dimensional Echocardiography"
@@ -151,9 +144,6 @@ def evaluate_meas(folder):
             "Median Absolute Deviation (% of Manual)": abs_dev_median_strs,
         }
     )
-    df.to_csv(
-        f"../results/measurement_comparison_{folder}.csv",
-        index=False,
-    )
+    df.to_csv(f"../results/measurement_comparison_{folder}.csv", index=False)
 
     return df
