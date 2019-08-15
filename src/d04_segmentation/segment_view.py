@@ -353,14 +353,14 @@ def run_segment(dcm_path, model_path):
     predictions = io_class.get_table('test_predictions')
     
     start = time.time()
+    
     for idx, row in predictions.iterrows():
-        print(row)
         #dcm_path_file = row[4]
-        #filename = row[1]
-        #if row[6] == 'a4c': 
-        #    viewlist_a4c.append(filename + '.dcm')
-        #elif row[6] == 'a2c':
-        #    viewlist_a2c.append(filename + '.dcm')
+        filename = row[1]
+        if row[6] == 'a4c': 
+            viewlist_a4c.append(str(filename) + '.dcm')
+        elif row[6] == 'a2c':
+            viewlist_a2c.append(str(filename) + '.dcm')
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
