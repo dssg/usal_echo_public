@@ -64,9 +64,9 @@ In addition to the infrastructure mentioned above, the following software is req
 The instructions below assume that you are working setting up the repository in your terminal.
 
 #### 1. Conda env and pip install
-Download the environment.yml and requirements.txt files. Create a new conda environment `usal_echo` from the .yml file and activate it. Then install the required packages with pip.
+Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. Then install the required packages with pip.
 ```
-conda env create --name usal_echo -f=environments.yml
+conda create --name usal_echo --clone tensorflow_p36
 conda activate usal_echo
 pip install -r requirements.txt
 ```
@@ -120,11 +120,19 @@ Show a new user how to use the package.
 ## Code organisation
 
 The code is organised as follows:
+1. `d00_utils`: Utility functions used throughout the system
+2. `d01_data`: Ingesting dicom metadata and XCelera csv files from s3 into database
+3. `d02_intermediate`: Cleaning and filtering database tables, downloading, decompressing and extracting images from dicom files for experiments
+4. `d03_classification`: Classification of dicom images in image directory
+5. `d04_segmentation`: Segmentation of heart chambers
+6. `d05_measurements`: Calculation of measurements from segmentations
+7. `d06_reporting`: Results analysis against machine type and BMI 
+8. `d07_visualisation`: Generating plots for reporting
 
 ## Contributors
 
 **Research fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
-**Technical mentor**: Liliana Millán  
+**Technical mentor**: Liliana Millán (Technical Mentor)
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
 ## License
