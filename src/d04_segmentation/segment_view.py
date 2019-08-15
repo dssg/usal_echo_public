@@ -350,7 +350,7 @@ def run_segment(dcm_path, model_path):
     #infile = [i.rstrip() for i in infile]
     #infile = [i.split("\t") for i in infile]
     io_class = dbReadWriteClassification()
-    predictions = io_class.get_table('test_predictions')
+    predictions = io_class.get_table('predictions')
     
     start = time.time()
     
