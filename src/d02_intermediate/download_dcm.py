@@ -160,8 +160,11 @@ def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_rat
 
 
 def _read_dcmraw(dcmraw_filepath):
-
-    ds = pydicom.dcmread(dcmraw_filepath, force=True)
+    
+    try:
+        ds = pydicom.dcmread(dcmraw_filepath, force=True)
+    except IOError:
+        print('file {} not found'.format(dcmraw_filepath))
     if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
         return ds
     else:
