@@ -24,7 +24,6 @@ def main():
     print(io_segmentation.cursor)
     print('cursor obtained')
     ground_truths = io_segmentation.get_segmentation_table('ground_truths')
-    ground_truths = ground_truths.iloc[1157:, :]    
     print('ground truth obtained')
     
     #instance_id_list = ground_truths.instance_id.unique() 
@@ -40,6 +39,7 @@ def main():
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']
         gt_view_name = gt['view_name']
+        gt_frame_no = gt['frame']
         
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
@@ -61,11 +61,11 @@ def main():
             else:
                 print('invalid chamber') #TODO: log this
             
-            #FLIPPING THE PREDICTION NUMPY
-            pred_numpy_array = np.flipud(pred_numpy_array)
+            #get the frame of the prediction, that corresponds to the frame of the ground thruth
+            pred_numpy_array_frame = pred_numpy_array[gt_frame_no, :, :]
             
             #calculate iou
-            reported_iou = iou(gt_numpy_array, pred_numpy_array)
+            reported_iou = iou(gt_numpy_array, pred_numpy_array_frame)
             print('IOU of: {}'.format(reported_iou))
         else:
             print('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
