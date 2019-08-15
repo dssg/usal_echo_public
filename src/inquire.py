@@ -1,26 +1,27 @@
-"""
-* Checkbox question example
-* run example by typing `python example/checkbox.py` in your console
-"""
 from __future__ import print_function, unicode_literals
 from pprint import pprint
-from PyInquirer import prompt, Separator
+from PyInquirer import prompt
+import os
 
 from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
-from d02_intermediate.download_dcm import s3_download_decomp_dcm
-#from d02_intermediate.clean_dcm import clean_dcm
-from d02_intermediate.filter_instances import filter_all
+from d02_intermediate.clean_dcm import clean_dcm_meta
 from d02_intermediate.clean_xtdb import clean_tables
-from d03_classification.predict_view import run_classify, agg_probabilities
+from d02_intermediate.filter_instances import filter_all
+from d02_intermediate.download_dcm import s3_download_decomp_dcm, dcmdir_to_jpgs_for_classification
+from d03_classification.predict_views import run_classify, agg_probabilities, predict_views
+from d03_classification.evaluate_views import evaluate_views
+
+#from d05_measurement.retrieve_meas import retrieve_meas
+#import d05_measurement.calculate_meas
+#from d05_measurement.evaluate_meas import evaluate_meas
 
 
 def _print_welcome_message():
     print("##################################################################")
-    print("####   CLI CIBERCV-USAL | DSSG - Imperial College London 2019 ####")
+    print("####   CLI USAL-ECHO | DSSG - Imperial College London 2019    ####")
     print("##################################################################")
     print("")
-
 
 
 def _format_answer(option):
@@ -29,7 +30,7 @@ def _format_answer(option):
     :param option: options selected on CLI
     :return: processed option
     """
-    return option.lower().replace(" ", "_").replace("'","")
+    return option.lower().replace(" ", "_").replace("'", "")
 
 
 def ingest_metadata():
@@ -38,14 +39,15 @@ def ingest_metadata():
     :return: selected option
     """
     ingest_dicom = {
-        'type': 'list',
-        'name': 'ingest_metadata',
-        'message': 'Do you want to ingest dicom metadata?',
-        'choices': ['Ingest DICOM metadata', "Don't Ingest DICOM metadata"]
+        "type": "list",
+        "name": "ingest_metadata",
+        "message": "Do you want to ingest dicom metadata?",
+        "choices": ["Ingest DICOM metadata", "Don't Ingest DICOM metadata"],
     }
     answers = prompt(ingest_dicom)
 
     return answers
+
 
 def ingest_xcelera():
     """
@@ -53,14 +55,15 @@ def ingest_xcelera():
     :return:
     """
     ingest_dicom = {
-        'type': 'list',
-        'name': 'ingest_xcelera',
-        'message': 'Do you want to ingest XCelera data?',
-        'choices': ['Ingest XCelera', "Don't Ingest XCelera"]
+        "type": "list",
+        "name": "ingest_xcelera",
+        "message": "Do you want to ingest Xcelera data?",
+        "choices": ["Ingest Xcelera", "Don't Ingest Xcelera"],
     }
     answers = prompt(ingest_dicom)
 
     return answers
+
 
 def download_files():
     """
@@ -68,10 +71,10 @@ def download_files():
     :return: selected_option
     """
     download = {
-        'type': 'list',
-        'name': 'download_file',
-        'message': 'Do you want to download DICOM files?',
-        'choices': ['Download', "Don't Download"]
+        "type": "list",
+        "name": "download_file",
+        "message": "Do you want to download DICOM files?",
+        "choices": ["Download", "Don't Download"],
     }
     answers = prompt(download)
 
@@ -85,25 +88,20 @@ def download_files_args():
     """
     questions = [
         {
-            'type': 'input',
-            'name': 'download_file_a1',
-            'message': 'DICOM directory:'
+            "type": "input",
+            "name": "download_file_dcm_dir",
+            "message": "Path to data directory:",
         },
         {
-            'type': 'input',
-            'name': 'download_file_a2',
-            'message': 'Table name:'
+            "type": "input",
+            "name": "download_file_train_test_ratio",
+            "message": "Train test ratio (float, range(0, 1)):",
         },
         {
-             'type': 'input',
-             'name': 'download_file_a3',
-             'message': 'Train test ratio (float):'
+            "type": "input",
+            "name": "download_file_downsample_ratio",
+            "message": "Down sample ratio (float, range(0, 1)):",
         },
-        {
-            'type': 'input',
-            'name': 'download_file_a4',
-            'message': 'Down sample ratio (float):'
-        }
     ]
 
     answers = prompt(questions)
@@ -117,10 +115,14 @@ def modules():
     :return: module selected
     """
     modules = {
-        'type': 'list',
-        'name': 'module',
-        'message': 'Which module do you want to execute?',
-        'choices': ['Classification', "Segmentation", "Measurements", "All"]
+        "type": "checkbox",
+        "name": "module",
+        "message": "Which modules do you want to execute?",
+        "choices": [
+            {"name": "classification", "checked": True},
+            {"name": "segmentation"},
+            {"name": "measurements"},
+        ],
     }
     answers = prompt(modules)
 
@@ -134,15 +136,45 @@ def classification_args():
     """
     questions = [
         {
-            'type': 'input',
-            'name': 'classification_a1',
-            'message': 'Image directory:'
+            "type": "input",
+            "name": "classification_img_dir",
+            "message": "Directory with echo images:",
         },
         {
-            'type': 'input',
-            'name': 'classification_a2',
-            'message': 'Model path:'
-        }
+            "type": "input",
+            "name": "classification_model_path",
+            "message": "Path to trained model:",
+        },
+    ]
+
+    answers = prompt(questions)
+
+    return answers
+
+
+def segmentation_args():
+    """
+    Asks for classifications parameters
+    :return: arguments defined
+    """
+    questions = [
+        {"type": "input", "name": "_a1", "message": "Directory with echo images:"},
+        {"type": "input", "name": "_a2", "message": "Path to trained model:"},
+    ]
+
+    answers = prompt(questions)
+
+    return answers
+
+
+def measurements_args():
+    """
+    Asks for classifications parameters
+    :return: arguments defined
+    """
+    questions = [
+        {"type": "input", "name": "_a1", "message": "Directory with echo images:"},
+        {"type": "input", "name": "_a2", "message": "Path to trained model:"},
     ]
 
     answers = prompt(questions)
@@ -156,47 +188,54 @@ def process_choices(options):
     :param options: dictionary with options selected
     :return:
     """
-    if _format_answer(options['ingest_metadata']).startswith('ingest'):
+    if _format_answer(options["ingest_metadata"]).startswith("ingest"):
         ingest_dcm()
-        # TODO metadata_path_file is missing!
-        #clean_dcm()
-        #filter_all()
-    elif _format_answer(options['ingest_xcelere']).startswith('ingest'):
+        clean_dcm_meta()
+    elif _format_answer(options["ingest_xcelera"]).startswith("ingest"):
         ingest_xtdb()
         clean_tables()
         filter_all()
-    elif _format_answer(options['download_file']).startswith('download'):
-        a1 = options['download_file_a1']
-        a2 = options['downlaod_file_a2']
-        a3 = options['download_file_a3']
-        a4 = options['download_file_a4']
-        s3_download_decomp_dcm(a1, a2, a3, a4)
-    elif (_format_answer(options['module']) == 'classification'):
-        a1 = options['classification_a1']
-        a2 = options['classification_a2']
-        run_classify(a1, a2)
+    elif _format_answer(options["download_file"]).startswith("download"):
+        dcm_dir = options["download_file_dcm_dir"]
+        train_test_ratio = options["download_file_train_test_ratio"]
+        downsample_ratio = options["download_file_downsample_ratio"]
+        dir_name = s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir)
+    elif "classification" in options["module"]:
+        img_dir = options["classification_img_dir"]
+        model_path = options["classification_model_path"]
+        dcmdir_to_jpgs_for_classification(dcm_dir, img_dir)
+        run_classify(img_dir, model_path)
         agg_probabilities()
-        # TODO add the predict_views function from test_predict branch
+        predict_views()
+        evaluate_views(img_dir, os.path.basename(model_path))
+    elif "segmentation" in options["module"]:
+        pass
+    elif "measurements" in options["module"]:
+#        retrieve_meas()
+#        evaluate_meas()
+        pass
+
 
 def cli():
     _print_welcome_message()
+
     options = ingest_metadata()
     options.update(ingest_xcelera())
     options.update(download_files())
-    if (_format_answer(options['download_file']).startswith('download')):
+
+    if _format_answer(options["download_file"]).startswith("download"):
         options.update(download_files_args())
+
     options.update(modules())
-    if (_format_answer(options['module']) == 'classification '):
+    if "classification" in options["module"]:
         options.update(classification_args())
-    elif (_format_answer(options['module']) == 'segmentation'):
-        pass
-    elif (_format_answer(options['module']) == 'measurements'):
-        pass
-    else:
-        pass
+    elif "segmentation" in options["module"]:
+        options.update(segmentation_args())
+    elif "measurements" in options["module"]:
+        options.update(measurements_args())
 
     process_choices(options)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

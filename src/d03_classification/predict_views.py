@@ -114,7 +114,7 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     return probabilities
 
 
-def run_classify(img_dir, model_path, if_exists, feature_dim=1):
+def run_classify(img_dir, model_path, if_exists='append', feature_dim=1):
     """Writes classification probabilities of frames to database.
 
     :param img_dir: directory with jpg echo images for classification
@@ -152,7 +152,7 @@ def run_classify(img_dir, model_path, if_exists, feature_dim=1):
     )
 
 
-def agg_probabilities(if_exists):
+def agg_probabilities(if_exists='replace'):
     """Aggregates probabilities by study and instance.
     
     Fetches probabilities from classification.probabilities_frames and 
@@ -183,7 +183,7 @@ def agg_probabilities(if_exists):
     logger.info('Aggregated probabilities saved to table classification.probabilities_instances')
     
     
-def predict_views(if_exists):
+def predict_views(if_exists='replace'):
     """Predicts and maps views based on maximum probability.
      
     :param if_exists (str): write action if table exists
