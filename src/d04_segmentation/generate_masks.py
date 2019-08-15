@@ -1,13 +1,38 @@
 from time import time
 
+import os
 import numpy as np
 import pandas as pd
 
 from shapely.geometry import Polygon
 from skimage.draw import polygon
+from scipy.misc import imresize
 
-from d00_utils.db_utils import dbReadWriteViews
+from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
 
+def write_masks():
+    io_views = dbReadWriteViews()
+    io_segmentation = dbReadWriteSegmentation()
+    
+    #Instances to write masks for
+    #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
+
+    masks_df = generate_masks()
+    
+    #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
+    
+    gt_table_column_names = ['study_id', 'instance_id', 'file_name', 
+                    'frame', 'chamber', 'view_name', 'numpy_array']
+
+    for index, mask in masks_df.iterrows():
+        print('Orginal numpy array size: {}'.format(mask['mask'].shape))
+        resized_mask = (imresize(mask['mask'], (384, 384)))
+        print('Revised numpy array size: {}'.format(resized_mask.shape))
+        d = [int(mask['studyidk']), mask['instanceidk'], mask['instancefilename'], 
+             int(mask['frame']), mask['chamber'], mask['view'], resized_mask]
+        
+        io_segmentation.save_ground_truth_numpy_array_to_db(d, gt_table_column_names)
+    
 
 def get_lines(row):
     """Get lines from start and end coordinates.
@@ -84,7 +109,7 @@ def get_mask(row):
     return img
 
 
-def generate_masks():
+def generate_masks(dcm_path):
     """Convert measurement segments to Numpy masks.
     
     :return: updated DataFrame
@@ -93,14 +118,17 @@ def generate_masks():
     io_views = dbReadWriteViews()
 
     chords_by_volume_mask_df = io_views.get_table("chords_by_volume_mask")
-    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
-    chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
-    chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
+    #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
+    #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
+    #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
     
-    merge_df = chords_by_volume_mask_df.merge(instances_w_labels_test_downsampleby5_df, on='instanceidk')
+    #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, chords_by_volume_mask_df, 
+    #                  how='inner', on=['studyidk', 'instanceidk'])
+    
+    #merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
 
     start = time()
-    group_df = merge_df.groupby(["instanceidk", "indexinmglist"]).agg(
+    group_df = chords_by_volume_mask_df.groupby(["studyidk", "instanceidk", "indexinmglist"]).agg(
         {
             "x1coordinate": list,
             "y1coordinate": list,
@@ -108,11 +136,43 @@ def generate_masks():
             "y2coordinate": list,
             "chamber": pd.Series.unique,
             "frame": pd.Series.unique,
-            "filename": pd.Series.unique
+            "view" : pd.Series.unique,
+            "instancefilename" : pd.Series.unique,
         }
     )
     end = time()
-    print(f"{int(end-start)} seconds to group {len(merge_df)} rows")
+    print(f"{int(end-start)} seconds to group {len(group_df)} rows")
+    
+    path = dcm_path
+
+    file_path = []
+    filenames = []
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if '.dcm' in file:
+                file_path.append(os.path.join(r, file))
+                fullfilename = os.path.basename(os.path.join(r, file))
+                #print(str(fullfilename).split('.')[0])
+                f = str(fullfilename).split('.')[0]
+                f = str(f).split('_')[2]
+                #f = str(fullfilename).split('.')[0]
+                filenames.append(f)
+                
+    print("Number of files in the directory: {}".format(len(file_path)))
+    print(filenames)
+    filename_df = pd.DataFrame(filenames)
+    
+    group_df = group_df.reset_index()
+
+    file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =[0], right_on = ['instancefilename'])
+    print("Number of files successfully matched with ground truth masks: {}".format(file_gt_masks.shape[0]))
+    
+    #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
+    #                  how='left', on=['studyidk', 'instanceidk'])
+    #print('{} rows on which to generate masks'.format(merge_df.shape[0]))
+    
+    file_gt_masks = group_df
 
     start = time()
     group_df["lines"] = group_df.apply(get_lines, axis=1)
