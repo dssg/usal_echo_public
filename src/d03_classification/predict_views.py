@@ -119,7 +119,7 @@ def run_classify(img_dir, model_path, if_exists, feature_dim=1):
 
     :param img_dir: directory with jpg echo images for classification
     :param model_path: path to trained model for inferring probabilities
-    :param if_exists (str): write action if table exists
+    :param if_exists (str): write action if table exists, must be 'replace' or 'append'
     :param feature_dim: default=1
 
     """
@@ -133,12 +133,13 @@ def run_classify(img_dir, model_path, if_exists, feature_dim=1):
         pd.DataFrame.from_dict(probabilities, columns=df_columns, orient='index')
         .rename_axis('file_name')
         .reset_index()
-    )
+    ) 
     df['file_name'] = df['file_name'].apply(lambda x: x.split('.')[0])
     df['study_id'] = df['file_name'].apply(lambda x: x.split('_')[1])
     df['model_name'] = model_name
     df['date_run'] = datetime.datetime.now()
-    cols = ['study_id', 'file_name', 'model_name', 'date_run'] + df_columns
+    df['img_dir'] = img_dir
+    cols = ['study_id','file_name','model_name','date_run','img_dir'] + df_columns
     df = df[cols]
 
     io_classification = dbReadWriteClassification()
@@ -172,7 +173,7 @@ def agg_probabilities(if_exists):
     agg_cols['probabilities_frame_id'] = 'count'
 
     probabilities = (
-        probabilities_frames.groupby(['study_id', 'file_name', 'model_name', 'date_run'])
+        probabilities_frames.groupby(['study_id','file_name','model_name','date_run','img_dir'])
         .agg(agg_cols)
         .reset_index(drop=False)
     )
@@ -192,7 +193,7 @@ def predict_views(if_exists):
     probabilities = io_classification.get_table('probabilities_instances')
                   
     predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
-                                              ).set_index(['study_id','file_name','model_name','date_run'])
+                                              ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
     predictions['view23_pred'] = predictions.idxmax(axis=1).apply(lambda x : x.split('_', 1)[1])
     predictions['view4_dev'] = predictions['view23_pred'].map(maps_dev)
     predictions['view4_seg'] = predictions['view23_pred'].map(maps_seg)
