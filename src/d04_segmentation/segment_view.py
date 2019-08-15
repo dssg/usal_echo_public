@@ -354,11 +354,11 @@ def run_segment(dcm_path, model_path):
     
     start = time.time()
     for idx in predictions.index():
-        dcm_path = predictions.at[idx, 'img_dir']
-        filename = predictions.at[idx, 'file_name']
-        if predictions.at[idx, 'view4_seg'] == 'a4c':
+        dcm_path = predictions.loc[idx, 'img_dir']
+        filename = predictions.loc[idx, 'file_name']
+        if predictions.loc[idx, 'view4_seg'] == 'a4c':
             viewlist_a4c.append(filename + '.dcm')
-        elif predictions.at[idx, 'view4_seg'] == 'a2c':
+        elif predictions.loc[idx, 'view4_seg'] == 'a2c':
             viewlist_a2c.append(filename + '.dcm')
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
