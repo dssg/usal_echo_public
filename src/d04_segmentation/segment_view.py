@@ -41,6 +41,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
 def segmentChamber(videofile, dicomdir, view, model_path):
+    print('DCM/dicom PATH : {}'.format(dicomdir))
     """
     
     """
@@ -197,6 +198,7 @@ def segmentChamber(videofile, dicomdir, view, model_path):
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
+    print('DCM PATH : {}'.format(dcm_path))
     
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
@@ -258,7 +260,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
 
 
     for video in viewlist_a2c:
-        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a2c", model_path)
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a2c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -351,17 +353,14 @@ def run_segment(dcm_path, model_path):
                 fullfilename = os.path.basename(os.path.join(r, file))
                 #print(str(fullfilename).split('.')[0])
                 filenames.append(str(fullfilename).split('.')[0])
+                
     print("Number of files in the directory: {}".format(len(file_path)))
     io_class = dbReadWriteClassification()
     predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
-    #print(filename_df.head())
-    
+
     file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
     print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
-
-    print('file predictions header')
-    print(file_predictions.head(1))
 
     start = time.time()
     
