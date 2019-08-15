@@ -224,6 +224,8 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         ]
 
     for video in viewlist_a4c:
+        print(video)
+        print('for a4c')
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
@@ -355,12 +357,13 @@ def run_segment(dcm_path, model_path):
     start = time.time()
     
     for idx, row in predictions.iterrows():
-        #dcm_path_file = row[4]
         filename = row[1]
         if row[6] == 'a4c': 
             viewlist_a4c.append(str(filename) + '.dcm')
+            print(" {} appended to a4c list".format(str(filename)))
         elif row[6] == 'a2c':
             viewlist_a2c.append(str(filename) + '.dcm')
+            print(" {} appended to a2c list".format(str(filename)))
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
