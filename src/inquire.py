@@ -176,7 +176,7 @@ def process_choices(options):
         a2 = options['classification_a2']
         run_classify(a1, a2)
         agg_probabilities()
-
+        # TODO add the predict_views function from test_predict branch
 
 def main():
     _print_welcome_message()
