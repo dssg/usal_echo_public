@@ -328,11 +328,6 @@ def run_segment(dcm_path, model_path):
     #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
     # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
     
-    
-        
-    viewlist_a2c = []
-    viewlist_a4c = []
-
     infile = open(
         "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
     )
@@ -368,18 +363,11 @@ def run_segment(dcm_path, model_path):
     print('file predictions header')
     print(file_predictions.head(1))
 
-    
     start = time.time()
     
-    #for idx, row in predictions.iterrows():
-    for idx, row in file_predictions.iterrows():
-        pred_filename = row[0]
-        if row[8] == 'a4c': 
-            viewlist_a4c.append(str(pred_filename) + '.dcm')
-            print(" {} appended to a4c list".format(str(pred_filename)))
-        elif row[8] == 'a2c':
-            viewlist_a2c.append(str(pred_filename) + '.dcm')
-            print(" {} appended to a2c list ".format(str(pred_filename)))
+    viewlist_a4c = file_predictions[file_predictions['view4_seg'] == 'a4c']['file_name'].to_list()
+    viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name'].to_list()
+    
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
