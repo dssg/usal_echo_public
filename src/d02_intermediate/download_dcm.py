@@ -106,6 +106,7 @@ def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_rat
     :param train (bool): download train set instead of test set, default=False
     
     """
+    
     df_train, df_test = _downsample_train_test(
         downsample_ratio, train_test_ratio, table_name
     )
@@ -160,12 +161,15 @@ def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_rat
 
 
 def _read_dcmraw(dcmraw_filepath):
-
-    ds = pydicom.dcmread(dcmraw_filepath, force=True)
-    if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
-        return ds
-    else:
-        logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
+    
+    try:
+        ds = pydicom.dcmread(dcmraw_filepath, force=True)
+        if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
+            return ds
+        else:
+            logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
+    except IOError:
+        print('file {} not found'.format(dcmraw_filepath))
 
 
 def _dcmraw_to_np(dcmraw_obj):

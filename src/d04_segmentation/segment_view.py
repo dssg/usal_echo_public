@@ -6,41 +6,56 @@ import matplotlib as mpl
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 
+import os
+import pandas as pd
+import numpy as np
 import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
-from skimage.color import rgb2gray, gray2rgb
+from datetime import datetime
+import hashlib
 
+#from d00_utils.echocv_utils_v0 import *
+from d02_intermediate.download_dcm import dcm_to_segmentation_arrays
+#from d00_utils.dcm_utils import dcm_to_segmentation_arrays
+from d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from d00_utils.echocv_utils_v0 import *
-from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
+#from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
 from d04_segmentation.model_unet import Unet
 
 
 ## Set environment parameters
-parser = OptionParser()
-parser.add_option(
-    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
-)
-parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
-parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
-params, args = parser.parse_args()
-dicomdir = params.dicomdir
-modeldir = params.modeldir
+#parser = OptionParser()
+#parser.add_option(
+#    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
+#)
+#parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
+#parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
+#params, args = parser.parse_args()
+#dicomdir = params.dicomdir
+#modeldir = params.modeldir
 
-os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
+#os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
+
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
-def segmentChamber(videofile, dicomdir, view):
+def segmentChamber(videofile, dicomdir, view, model_path):
+    print('DCM/dicom PATH : {}'.format(dicomdir))
     """
     
     """
+    # TODO: Need to put some error handling in here for when the file is not found
     mean = 24
     weight_decay = 1e-12
     learning_rate = 1e-4
     maxout = False
-    sesses = []
-    models = []
-    global modeldir
+#    sesses = []
+#    models = []
+    modeldir = model_path
+
+    print(videofile, dicomdir)
+
     if view == "a4c":
         g_1 = tf.Graph()
         with g_1.as_default():
@@ -90,7 +105,7 @@ def segmentChamber(videofile, dicomdir, view):
             model4 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
             sess4.run(tf.local_variables_initializer())
             sess = sess4
-            model = model4
+        model = model4
         with g_4.as_default():
             saver = tf.train.Saver()
             saver.restore(
@@ -110,69 +125,31 @@ def segmentChamber(videofile, dicomdir, view):
             saver.restore(
                 sess5, os.path.join(modeldir, "plax_45_20_all_model.ckpt-9600")
             )
-    outpath = "./segment/" + view + "/"
+    outpath = "/home/ubuntu/data/04_segmentation/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
+    np_arrays_x3 = []
+    images_uuid_x3 = []
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 4, 1
         )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a4c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a4c_la_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a4c_lvo_segs).astype("uint8")
-        )
+        np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
+        number_frames = (np.array(a4c_lvo_segs).astype("uint8").shape)[0]
+        model_name = "a4c_45_20_all_model.ckpt-9000"
     elif view == "a2c":
         a2c_lv_segs, a2c_la_segs, a2c_lvo_segs, preds = extract_segs(
             images, orig_images, model, sess, 2, 3, 1
         )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a2c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a2c_la_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a2c_lvo_segs).astype("uint8")
-        )
-    elif view == "psax":
-        psax_lv_segs, psax_lvo_segs, psax_rv_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 1, 3
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(psax_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(psax_lvo_segs).astype("uint8")
-        )
-    elif view == "a3c":
-        a3c_lv_segs, a3c_la_segs, a3c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 3, 1
-        )
-        np.save(
-            outpath + "/" + videofile + "_lvo", np.array(a3c_lvo_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(a3c_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(a3c_la_segs).astype("uint8")
-        )
-    elif view == "plax":
-        plax_lv_segs, plax_la_segs, plax_ao_segs, preds = extract_segs(
-            images, orig_images, model, sess, 1, 5, 3
-        )
-        np.save(
-            outpath + "/" + videofile + "_lv", np.array(plax_lv_segs).astype("uint8")
-        )
-        np.save(
-            outpath + "/" + videofile + "_la", np.array(plax_la_segs).astype("uint8")
-        )
+        np_arrays_x3.append(np.array(a2c_lv_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_la_segs).astype("uint8"))
+        np_arrays_x3.append(np.array(a2c_lvo_segs).astype("uint8"))
+        number_frames = (np.array(a2c_lvo_segs).astype("uint8").shape)[0]
+        model_name = "a2c_45_20_all_model.ckpt-10600"
+
     j = 0
     nrow = orig_images[0].shape[0]
     ncol = orig_images[0].shape[1]
@@ -181,11 +158,25 @@ def segmentChamber(videofile, dicomdir, view):
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png")
+    images_uuid_x3.append(
+        hashlib.md5(
+            (
+                outpath + "/" + videofile + "_" + str(j) + "_" + "segmentation.png"
+            ).encode()
+        ).hexdigest()
+    )
     plt.close()
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(orig_images[0])
     plt.savefig(outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png")
+    images_uuid_x3.append(
+        hashlib.md5(
+            (
+                outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
+            ).encode()
+        ).hexdigest()
+    )
     plt.close()
     background = Image.open(
         outpath + "/" + videofile + "_" + str(j) + "_" + "originalimage.png"
@@ -197,18 +188,104 @@ def segmentChamber(videofile, dicomdir, view):
     overlay = overlay.convert("RGBA")
     outImage = Image.blend(background, overlay, 0.5)
     outImage.save(outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png", "PNG")
-    return 1
+    images_uuid_x3.append(
+        hashlib.md5(
+            (outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()
+        ).hexdigest()
+    )
+    # return 1
+    return [number_frames, model_name, np_arrays_x3, images_uuid_x3]
 
 
-def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
+def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
+    print('DCM PATH : {}'.format(dcm_path))
+    
+    # set up for writing to segmentation schema
+    io_views = dbReadWriteViews()
+    io_segmentation = dbReadWriteSegmentation()
+    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    # below cleans the filename field
+    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
+        "instancefilename"
+    ].apply(lambda x: str(x).strip())
+    #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+    column_names = [
+            "study_id",
+            "instance_id",
+            "file_name",
+            "num_frames",
+            "model_name",
+            "date_run",
+            "output_np_lv",
+            "output_np_la",
+            "output_np_lvo",
+            "output_image_seg",
+            "output_image_orig",
+            "output_image_overlay",            
+        ]
+
     for video in viewlist_a4c:
-        segmentChamber(video, dicomdir, "a4c")
+        print(video)
+        print('for a4c')
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
+        instancefilename = video.split("_")[2].split(".")[
+            0
+        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split("_")[1])
+        # below filters to just the record of interest
+        df = instances_unique_master_list.loc[
+            (instances_unique_master_list["instancefilename"] == instancefilename)
+            & (instances_unique_master_list["studyidk"] == studyidk)
+        ]
+        df = df.reset_index()
+        instance_id = df.at[0, "instanceidk"]
+        #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+        d = [studyidk,
+            instance_id,
+            str(video),
+            number_frames,
+            model_name,
+            str(datetime.now()),
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
+            images_uuid_x3[0],
+            images_uuid_x3[1],
+            images_uuid_x3[2]]
+        io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
+
+
     for video in viewlist_a2c:
-        segmentChamber(video, dicomdir, "a2c")
-    for video in viewlist_psax:
-        segmentChamber(video, dicomdir, "psax")
-    for video in viewlist_plax:
-        segmentChamber(video, dicomdir, "plax")
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a2c", model_path)
+        instancefilename = video.split("_")[2].split(".")[
+            0
+        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split("_")[1])
+        # below filters to just the record of interest
+        df = instances_unique_master_list.loc[
+            (instances_unique_master_list["instancefilename"] == instancefilename)
+            & (instances_unique_master_list["studyidk"] == studyidk)
+        ]
+        df = df.reset_index()
+        instance_id = df.at[0, "instanceidk"]
+        d = [studyidk,
+             instance_id,
+             str(video),
+             number_frames,
+             model_name,
+             str(datetime.now()),
+             np_arrays_x3[0],
+             np_arrays_x3[1],
+             np_arrays_x3[2],
+             images_uuid_x3[0],
+             images_uuid_x3[1],
+             images_uuid_x3[2]]
+        io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
+
     return 1
 
 
@@ -244,21 +321,18 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def main():
+def run_segment(dcm_path, model_path):
     # To use dicomdir option set in global scope.
-    global dicomdir
+    #global dicomdir
+    
     # In case dicomdir is path with more than one part.
-    dicomdir_basename = os.path.basename(dicomdir)
-    viewfile = "probabilities/view_23_e5_class_11-Mar-2018_{}_probabilities.txt".format(
-        dicomdir_basename
+    # dicomdir_basename = os.path.basename(dicomdir)
+    #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
+    # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
+    
+    infile = open(
+        "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
     )
-    viewlist_a2c = []
-    viewlist_a3c = []
-    viewlist_a4c = []
-    viewlist_plax = []
-    viewlist_psax = []
-
-    infile = open("viewclasses_view_23_e5_class_11-Mar-2018.txt")
     infile = infile.readlines()
     infile = [i.rstrip() for i in infile]
 
@@ -266,39 +340,42 @@ def main():
 
     for i in range(len(infile)):
         viewdict[infile[i]] = i + 2
+    
+    path = dcm_path
 
-    probthresh = (
-        0.5
-    )  # arbitrary choice of "probability" threshold for view classification
+    file_path = []
+    filenames = []
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if '.dcm' in file:
+                file_path.append(os.path.join(r, file))
+                fullfilename = os.path.basename(os.path.join(r, file))
+                #print(str(fullfilename).split('.')[0])
+                filenames.append(str(fullfilename).split('.')[0])
+                
+    print("Number of files in the directory: {}".format(len(file_path)))
+    io_class = dbReadWriteClassification()
+    predictions = io_class.get_table('predictions')
+    filename_df = pd.DataFrame(filenames)
 
-    infile = open(viewfile)
-    infile = infile.readlines()
-    infile = [i.rstrip() for i in infile]
-    infile = [i.split("\t") for i in infile]
+    file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
+    print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
-    for i in infile[1:]:
-        dicomdir = i[0]
-        filename = i[1]
-        if eval(i[viewdict["psax_pap"]]) > probthresh:
-            viewlist_psax.append(filename)
-        elif eval(i[viewdict["a4c"]]) > probthresh:
-            viewlist_a4c.append(filename)
-        elif eval(i[viewdict["a2c"]]) > probthresh:
-            viewlist_a2c.append(filename)
-        elif eval(i[viewdict["a3c"]]) > probthresh:
-            viewlist_a3c.append(filename)
-        elif eval(i[viewdict["plax_plax"]]) > probthresh:
-            viewlist_plax.append(filename)
-    print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
-    segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir)
-    tempdir = os.path.join(dicomdir, "image")
+    
+    viewlist_a4c = file_predictions[file_predictions['view4_seg'] == 'a4c']['file_name']
+    viewlist_a4c = viewlist_a4c.apply(lambda x: x +'.dcm')
+    viewlist_a4c = viewlist_a4c.to_list()
+    
+    viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name']
+    viewlist_a2c = viewlist_a2c.apply(lambda x: x +'.dcm')
+    viewlist_a2c = viewlist_a2c.to_list()
+    
+    segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
-    viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
+    viewlist = viewlist_a2c + viewlist_a4c
     print(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
 
-
-if __name__ == "__main__":
-    main()

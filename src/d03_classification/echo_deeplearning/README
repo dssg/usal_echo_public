@@ -1,4 +1,4 @@
-Tensorflow and python code to run deep learning models.
+Tensorflow and python code to re-train deep learning models.
 
 FILEPATHS
 
@@ -34,16 +34,14 @@ echo_deeplearning/
 |   |
 |   |   ...
 |   |
-|---src/
-|   |   run.py    (python file to run models)
-|   |   util.py    (utility functions)
+|---run.py (python file to run models)
+|---util.py (utility functions)
 ```
 
 FOLDER DESCRIPTIONS
 
     'data/' holds data and preprocessing information for each model
     'models/' holds all models and experiments
-    'src/' holds python files to run
 
 HYPERPARAMTERS
 
