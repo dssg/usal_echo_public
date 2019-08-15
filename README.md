@@ -7,9 +7,12 @@ This project classifies echocardiographic DICOM images.
 
 1. [Introduction](https://github.com/dssg/usal_echo#introduction)
 2. [Overview](https://github.com/dssg/usal_echo#overview)
-3. [Infrastructure](https://github.com/dssg/usal_echo#infrastructure)
-3. [Installation and setup](https://github.com/dssg/usal_echo#installation-and-setup)
-4. [Code Examples](https://github.com/dssg/usal_echo#setup)
+3. [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements)
+4. [Installation and setup](https://github.com/dssg/usal_echo#installation-and-setup)
+5. [Pipeline options](https://github.com/dssg/usal_echo#pipeline-options)
+6. [Code organisation](https://github.com/dssg/usal_echo#code-organisation)
+7. [Contributors](https://github.com/dssg/usal_echo#contributors)
+8. [License](https://github.com/dssg/usal_echo#license)
 
 ## Introduction
 
@@ -82,7 +85,7 @@ python src/setup.py
 
 To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
-**aws credentials**   
+##### aws credentials   
 Located in `~/user/.aws/credentials` and formatted as:
 ```
 [default]
@@ -91,7 +94,7 @@ aws_secret_access_key=your_secret_key
 ```
 The pipeline uses the `default` user credentials.
 
-**postgres credentials**  
+##### postgres credentials  
 Located in `~/user/.psql_credentials.json` and formatted as:
 ```
 {
@@ -116,7 +119,6 @@ Show a new user how to use the package.
 ## Code organisation
 
 The code is organised as follows:
-
 
 ## Contributors
 
