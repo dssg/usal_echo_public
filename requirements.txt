@@ -7,4 +7,6 @@ sqlalchemy
 pyyaml
 pydicom
 black
+flake8
 shapely
+pyinquirer
