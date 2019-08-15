@@ -64,9 +64,10 @@ In addition to the infrastructure mentioned above, the following software is req
 The instructions below assume that you are working setting up the repository in your terminal.
 
 #### 1. Conda env and pip install
-Download the environment.yml and requirements.txt files. Create a new conda environment from the .yml file and install required packages with pip.
+Download the environment.yml and requirements.txt files. Create a new conda environment `usal_echo` from the .yml file and activate it. Then install the required packages with pip.
 ```
-conda env create -f environment.yml
+conda env create --name usal_echo -f=environments.yml
+conda activate usal_echo
 pip install -r requirements.txt
 ```
 
