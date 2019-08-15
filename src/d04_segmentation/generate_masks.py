@@ -154,7 +154,9 @@ def generate_masks(dcm_path):
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 #print(str(fullfilename).split('.')[0])
-                filenames.append(str(fullfilename).split('.')[0])
+                f = str(fullfilename).split('.')[0]
+                f = str(fullfilename).split('_')[1]
+                filenames.append(f)
                 
     print("Number of files in the directory: {}".format(len(file_path)))
     filename_df = pd.DataFrame(filenames)
