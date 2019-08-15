@@ -132,11 +132,11 @@ class NN(object):
             self.loss, global_step=self.global_step
         )
 
-        # TRANSFER LEARN CODE BELOW ###################
-        #W_retrain = tf.trainable_variables()[-6:]
-        #self.opt = tf.train.AdamOptimizer(config.learning_rate).minimize(
+        # TRANSFER LEARNING CODE HERE ###################
+        # W_retrain = tf.trainable_variables()[-6:]
+        # self.opt = tf.train.AdamOptimizer(config.learning_rate).minimize(
         #    self.loss, global_step=self.global_step, var_list=W_retrain
-        #)
+        # )
         ########################################
 
         self.train_pred = self.network(self.x_train, keep_prob=1.0, reuse=True)
@@ -219,9 +219,6 @@ class NN(object):
                 if len(losses) == config.loss_smoothing:
                     losses.popleft()
                 losses.append(loss)
-                
-                #print('loss printed here')
-                #print(losses)
 
                 stop = timeit.default_timer()
                 train_print(
@@ -243,23 +240,22 @@ class NN(object):
             stop = timeit.default_timer()
             val_print(
                 i,
-                'xxx',#j,
+                "xxx",  # j,
                 np.mean(losses),
                 np.mean(train_accs),
                 val_acc,
                 x_train.shape[0],
                 stop - start,
             )
-            #print()
 
             if (i + 1) % config.epoch_save_interval == 0:
                 saver.save(sess, checkpoint_path, global_step=step)
-                #if "no_vis" not in config:
-                    #self.visualize(x_test, y_test, val_output_dir)
+                # if "no_vis" not in config:
+                # self.visualize(x_test, y_test, val_output_dir)
         if (i + 1) % config.epoch_save_interval != 0:
             saver.save(sess, checkpoint_path, global_step=step)
-            #if "no_vis" not in config:
-                #self.visualize(x_test, y_test, val_output_dir)
+            # if "no_vis" not in config:
+            # self.visualize(x_test, y_test, val_output_dir)
 
         return True
 
@@ -384,14 +380,12 @@ class NN(object):
             myfile.write("ROC_Area")
             myfile.write("\t" + str(roc_auc[0]) + "\n")
 
-    def network(self, input, keep_prob = 0.5, reuse = None):
-        with tf.variable_scope('network', reuse=reuse):
+    def network(self, input, keep_prob=0.5, reuse=None):
+        with tf.variable_scope("network", reuse=reuse):
             pool_ = lambda x: nn.max_pool(x, 2, 2)
             max_out_ = lambda x: nn.max_out(x, 16)
-            config = self.config 
+            config = self.config
 
-            #conv_ = lambda x, output_depth, name, trainable = True: nn.conv(x, 3, output_depth, 1, self.weight_decay, name=name, trainable = trainable)
-            #fc_ = lambda x, features, name, relu = True: nn.fc(x, features, self.weight_decay, name, relu = relu)
             conv_ = lambda x, output_depth, name, stride=1, padding="SAME", relu=True, filter_size=3: conv(
                 x,
                 filter_size,
@@ -403,118 +397,46 @@ class NN(object):
             )
             fc_ = lambda x, features, name, relu=True: fc(x, features, name, relu=relu)
 
-            #VGG_MEAN = [103.939, 116.779, 123.68]
-            # Convert RGB to BGR and subtract mean
-            # red, green, blue = tf.split(input, 3, axis=3)
-            VGG_MEAN = [config.mean, config.mean, config.mean]
-            input = tf.concat(
-                [input - VGG_MEAN[0], input - VGG_MEAN[1], input - VGG_MEAN[2]], axis=3
-            )
-            #input = tf.concat([
-            #    input - 24,
-            #    input - 24,
-            #    input - 24,
-            #], axis=3)
-
-            conv_1_1 = conv_(input, 64, 'conv1_1')#, trainable = False)
-            conv_1_2 = conv_(conv_1_1, 64, 'conv1_2')#, trainable = False)
-
-            pool_1 = pool_(conv_1_2)
-
-            conv_2_1 = conv_(pool_1, 128, 'conv2_1')#, trainable = False)
-            conv_2_2 = conv_(conv_2_1, 128, 'conv2_2')#, trainable = False)
-
-            pool_2 = pool_(conv_2_2)
-
-            conv_3_1 = conv_(pool_2, 256, 'conv3_1')
-            conv_3_2 = conv_(conv_3_1, 256, 'conv3_2')
-            conv_3_3 = conv_(conv_3_2, 256, 'conv3_3')
-
-            pool_3 = pool_(conv_3_3)
-
-            conv_4_1 = conv_(pool_3, 512, 'conv4_1')
-            conv_4_2 = conv_(conv_4_1, 512, 'conv4_2')
-            conv_4_3 = conv_(conv_4_2, 512, 'conv4_3')
-
-            pool_4 = pool_(conv_4_3)
-
-            conv_5_1 = conv_(pool_4, 512, 'conv5_1')
-            conv_5_2 = conv_(conv_5_1, 512, 'conv5_2')
-            conv_5_3 = conv_(conv_5_2, 512, 'conv5_3')
-            
-            pool_5 = pool_(conv_5_3)
-            #if self.maxout:
-            #    max_5 = max_out_(pool_5)
-            #    flattened = tf.contrib.layers.flatten(max_5)
-            #else:
-            #    flattened = tf.contrib.layers.flatten(pool_5)
-            flattened = tf.contrib.layers.flatten(pool_5) # i.e. assume self.maxout=False
-
-            fc_6 = nn.dropout(fc_(flattened, 4096, 'fc6'), keep_prob)
-            fc_7 = nn.dropout(fc_(fc_6, 4096, 'fc7'), keep_prob)
-            fc_8 = fc_(fc_7, config.label_dim, 'fc8', relu=False)
-            return fc_8
-
-    '''
-    def network(self, input, keep_prob=0.5, reuse=None):
-        """
-        Neural network architecture
-        Returns segmentation label predictions on input
-
-        @params input: Numpy array of images
-        @params keep_prob: dropout probability 
-        @params reuse: Set to None for new session and True to use same variables in same session
-        """
-        config = self.config
-        with tf.variable_scope("network", reuse=reuse):
-            pool_ = lambda x: max_pool(x, 2, 2)
-            conv_ = lambda x, output_depth, name, stride=1, padding="SAME", relu=True, filter_size=3: conv(
-                x,
-                filter_size,
-                output_depth,
-                stride,
-                name=name,
-                padding=padding,
-                relu=relu,
-            )
-            fc_ = lambda x, features, name, relu=True: fc(x, features, name, relu=relu)
-            # VGG_MEAN = [103.939, 116.779, 123.68]
             VGG_MEAN = [config.mean, config.mean, config.mean]
             input = tf.concat(
                 [input - VGG_MEAN[0], input - VGG_MEAN[1], input - VGG_MEAN[2]], axis=3
             )
 
-            conv_1_1 = conv_(input, 64, "conv1_1")
-            conv_1_2 = conv_(conv_1_1, 64, "conv1_2")
+            conv_1_1 = conv_(input, 64, "conv1_1")  # , trainable = False)
+            conv_1_2 = conv_(conv_1_1, 64, "conv1_2")  # , trainable = False)
 
             pool_1 = pool_(conv_1_2)
 
-            conv_2_1 = conv_(pool_1, 128, "conv2_1")
-            conv_2_2 = conv_(conv_2_1, 128, "conv2_2")
+            conv_2_1 = conv_(pool_1, 128, "conv2_1")  # , trainable = False)
+            conv_2_2 = conv_(conv_2_1, 128, "conv2_2")  # , trainable = False)
 
             pool_2 = pool_(conv_2_2)
 
             conv_3_1 = conv_(pool_2, 256, "conv3_1")
             conv_3_2 = conv_(conv_3_1, 256, "conv3_2")
+            conv_3_3 = conv_(conv_3_2, 256, "conv3_3")
 
-            pool_3 = pool_(conv_3_2)
+            pool_3 = pool_(conv_3_3)
 
             conv_4_1 = conv_(pool_3, 512, "conv4_1")
             conv_4_2 = conv_(conv_4_1, 512, "conv4_2")
+            conv_4_3 = conv_(conv_4_2, 512, "conv4_3")
 
-            pool_4 = pool_(conv_4_2)
+            pool_4 = pool_(conv_4_3)
 
             conv_5_1 = conv_(pool_4, 512, "conv5_1")
             conv_5_2 = conv_(conv_5_1, 512, "conv5_2")
+            conv_5_3 = conv_(conv_5_2, 512, "conv5_3")
 
-            pool_5 = pool_(conv_5_2)
+            pool_5 = pool_(conv_5_3)
+            flattened = tf.contrib.layers.flatten(
+                pool_5
+            )  # i.e. assume self.maxout=False
 
-            flattened = tf.contrib.layers.flatten(pool_5)
-
-            fc_6 = tf.nn.dropout(fc_(flattened, 4096, "fc6"), keep_prob)
-            fc_7 = tf.nn.dropout(fc_(fc_6, 4096, "fc7"), keep_prob)
+            fc_6 = nn.dropout(fc_(flattened, 4096, "fc6"), keep_prob)
+            fc_7 = nn.dropout(fc_(fc_6, 4096, "fc7"), keep_prob)
             fc_8 = fc_(fc_7, config.label_dim, "fc8", relu=False)
             return fc_8
-    '''
+
     def init_weights(self):
         pass
