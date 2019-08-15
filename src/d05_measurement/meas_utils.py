@@ -2,9 +2,13 @@ import os
 import json
 import numpy as np
 import pandas as pd
+import cv2
 
+from scipy.misc import imresize
 from subprocess import Popen, PIPE
+from d00_utils.log_utils import *
 
+logger = setup_logging(__name__, __name__)
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
@@ -12,7 +16,8 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     lines = text.split("\n")
-    dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
+    # TODO: change path!
+    dicom_tags = json.load(open("../src/d02_intermediate/dicom_tags.json"))
     # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
         k: str(tuple(v)).replace("'", "").replace(" ", "")
@@ -122,7 +127,7 @@ def compute_la_lv_volume(
     lavolmin, lavolmax = 10, 300
     lvedvmin, lvedvmax = 20, 600
     lvesvmax = 600
-    efmax, efmin = 0.8, 0.1
+    efmax, efmin = 80, 10
     diastmin, diastmax = 100, 400
 
     lavollist = []
@@ -159,13 +164,16 @@ def compute_la_lv_volume(
                     ncol,
                     hr,
                 )
+                
+                if la_l == 0 or lveda_l == 0 or lvesa_l == 0:
+                    continue
 
                 lavol = compute_volume_AL(la_a, la_l)
                 # Derived LVEDV and LVESV using the area-length formula.
                 lvedv = compute_volume_AL(lveda_a, lveda_l)
                 lvesv = compute_volume_AL(lvesa_a, lvesa_l)
                 # Used LVEDV and LVESV to compute EF for cycle.
-                ef = (lvedv - lvesv) / lvedv
+                ef = (lvedv - lvesv) / lvedv * 100
 
                 if lavol < lavolmax and lavol > lavolmin:
                     lavollist.append(lavol)
@@ -315,6 +323,7 @@ def extract_area_l_scaled(
 
 def L(x, y, x_la):
     """Get Euclidean distance from points fit by function (adapted from Zhang et al.)"""
+    if x.sum() == 0 or y.sum() == 0 or x_la.sum() == 0: return 0
     fit = np.polyfit(x, y, 1)
     fit_fn = np.poly1d(fit)
     line_points = fit_fn(x_la)
