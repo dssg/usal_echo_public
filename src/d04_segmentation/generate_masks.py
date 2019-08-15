@@ -156,6 +156,7 @@ def generate_masks(dcm_path):
                 #print(str(fullfilename).split('.')[0])
                 f = str(fullfilename).split('.')[0]
                 f = str(fullfilename).split('_')[2]
+                f = str(fullfilename).split('.')[0]
                 filenames.append(f)
                 
     print("Number of files in the directory: {}".format(len(file_path)))
