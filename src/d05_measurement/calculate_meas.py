@@ -92,7 +92,6 @@ def calculate_meas(folder):
             video_measure_dict["instance_id"] = instance_id
             video_measure_dict["file_name"] = file_name
             folder_measure_dict[file_name] = video_measure_dict
-        break
 
     # TODO: in future, aggregate measurements across multiple videos in a study?
     # Exclude measurements from videos where LAVOL/LVEDV < 30%, in case occluded
