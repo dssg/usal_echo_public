@@ -152,7 +152,7 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
             _decompress_dcm(dcm_filepath, dcm_rawfilepath)
 
     logger.info(
-        "Successfully downloaded {} [train/test split = {}, downsample ratio = {}]".format(
+        "Downloaded {} [train/test split = {}, downsample ratio = {}]".format(
             table_name, train_test_ratio, downsample_ratio
         )
     )

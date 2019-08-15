@@ -16,6 +16,10 @@ from d03_classification.evaluate_views import evaluate_views
 #import d05_measurement.calculate_meas
 #from d05_measurement.evaluate_meas import evaluate_meas
 
+dcm_dir = os.path.expanduser('~/data/01_raw')
+img_dir = os.path.expanduser('~/data/02_intermediate')
+model_path = os.path.expanduser('~/models/model.ckpt-6460')
+
 
 def _print_welcome_message():
     print("##################################################################")
@@ -89,11 +93,6 @@ def download_files_args():
     questions = [
         {
             "type": "input",
-            "name": "download_file_dcm_dir",
-            "message": "Path to data directory:",
-        },
-        {
-            "type": "input",
             "name": "download_file_train_test_ratio",
             "message": "Train test ratio (float, range(0, 1)):",
         },
@@ -139,12 +138,7 @@ def classification_args():
             "type": "input",
             "name": "classification_img_dir",
             "message": "Directory with echo images:",
-        },
-        {
-            "type": "input",
-            "name": "classification_model_path",
-            "message": "Path to trained model:",
-        },
+        }
     ]
 
     answers = prompt(questions)
@@ -196,18 +190,17 @@ def process_choices(options):
         clean_tables()
         filter_all()
     elif _format_answer(options["download_file"]).startswith("download"):
-        dcm_dir = options["download_file_dcm_dir"]
-        train_test_ratio = options["download_file_train_test_ratio"]
-        downsample_ratio = options["download_file_downsample_ratio"]
+        train_test_ratio = float(options["download_file_train_test_ratio"])
+        downsample_ratio = float(options["download_file_downsample_ratio"])
         dir_name = s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir)
     elif "classification" in options["module"]:
-        img_dir = options["classification_img_dir"]
-        model_path = options["classification_model_path"]
-        dcmdir_to_jpgs_for_classification(dcm_dir, img_dir)
-        run_classify(img_dir, model_path)
+        print('Starting classification.')
+        dir_name = options["classification_img_dir"]
+        dcmdir_to_jpgs_for_classification(dcm_dir, os.path.join(img_dir, dir_name))
+        run_classify(os.path.join(img_dir, dir_name), model_path)
         agg_probabilities()
         predict_views()
-        evaluate_views(img_dir, os.path.basename(model_path))
+        evaluate_views(os.path.join(img_dir, dir_name), os.path.basename(model_path))
     elif "segmentation" in options["module"]:
         pass
     elif "measurements" in options["module"]:
@@ -239,3 +232,4 @@ def cli():
 
 if __name__ == "__main__":
     cli()
+    print('Pipeline executed successfully')

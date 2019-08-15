@@ -194,7 +194,7 @@ def agg_probabilities(if_exists='replace'):
     )
 
 
-def predict_views(if_exists):
+def predict_views(if_exists='replace'):
 
     """Predicts and maps views based on maximum probability.
      
