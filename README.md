@@ -74,7 +74,7 @@ Describe and show how to run the tests with code examples.
 **Technical mentor**: Liliana Millán  
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
-![Cardiologist at work](docs/images/cardiologist_journey_3.png?raw=true "Cardiologist at work")
+![Cardiologist at work](docs/images/cardiologist_journey_3.jpeg?raw=true "Cardiologist at work")
 
 ## License
 
