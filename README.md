@@ -106,7 +106,7 @@ Located in `~/user/.psql_credentials.json` and formatted as:
 ```
 
 #### 4. Run the pipeline
-The final step is to run the inquire.py script. 
+The final step is to run the `inquire.py` script. 
 ```
 python src/inquire.py
 ```
