@@ -1,5 +1,6 @@
 from time import time
 
+import os
 import numpy as np
 import pandas as pd
 
@@ -142,7 +143,7 @@ def generate_masks(dcm_path):
     end = time()
     print(f"{int(end-start)} seconds to group {len(group_df)} rows")
     
-        path = dcm_path
+    path = dcm_path
 
     file_path = []
     filenames = []
@@ -156,12 +157,10 @@ def generate_masks(dcm_path):
                 filenames.append(str(fullfilename).split('.')[0])
                 
     print("Number of files in the directory: {}".format(len(file_path)))
-    io_class = dbReadWriteClassification()
-    predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
 
     file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =[0], right_on = ['file_name'])
-    print("Number of files successfully matched with ground truth masks: {}".format(file_predictions.shape[0]))
+    print("Number of files successfully matched with ground truth masks: {}".format(file_gt_masks.shape[0]))
     
     #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
     #                  how='left', on=['studyidk', 'instanceidk'])
