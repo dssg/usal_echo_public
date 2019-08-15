@@ -365,6 +365,9 @@ def run_segment(dcm_path, model_path):
     file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
     print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
 
+    print('file predictions header')
+    print(file_predictions.head(1))
+
     
     start = time.time()
     
