@@ -24,7 +24,7 @@ from d04_segmentation.model_unet import Unet
 
 
 ## Set environment parameters
-#parser = OptionParser()
+parser = OptionParser()
 #parser.add_option(
 #    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
 #)
