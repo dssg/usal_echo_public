@@ -7,6 +7,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 
 import os
+import pandas as pd
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -342,28 +343,40 @@ def run_segment(dcm_path, model_path):
 
     for i in range(len(infile)):
         viewdict[infile[i]] = i + 2
+    
+    path = dcm_path
 
-    #probthresh = (
-    #    0.5
-    #)  # arbitrary choice of "probability" threshold for view classification
-
-    #infile = open(viewfile)
-    #infile = infile.readlines()
-    #infile = [i.rstrip() for i in infile]
-    #infile = [i.split("\t") for i in infile]
+    file_path = []
+    filenames = []
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if '.dcm' in file:
+                file_path.append(os.path.join(r, file))
+                fullfilename = os.path.basename(os.path.join(r, file))
+                #print(str(fullfilename).split('.')[0])
+                filenames.append(str(fullfilename).split('.')[0])
+    print("Number of files in the directory: {}".format(len(file_path)))
     io_class = dbReadWriteClassification()
     predictions = io_class.get_table('predictions')
+    filename_df = pd.DataFrame(filenames)
+    #print(filename_df.head())
+    
+    file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
+    print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
+
     
     start = time.time()
     
-    for idx, row in predictions.iterrows():
-        filename = row[1]
-        if row[6] == 'a4c': 
-            viewlist_a4c.append(str(filename) + '.dcm')
-            print(" {} appended to a4c list".format(str(filename)))
-        elif row[6] == 'a2c':
-            viewlist_a2c.append(str(filename) + '.dcm')
-            print(" {} appended to a2c list ".format(str(filename)))
+    #for idx, row in predictions.iterrows():
+    for idx, row in file_predictions.iterrows():
+        pred_filename = row[0]
+        if row[8] == 'a4c': 
+            viewlist_a4c.append(str(pred_filename) + '.dcm')
+            print(" {} appended to a4c list".format(str(pred_filename)))
+        elif row[8] == 'a2c':
+            viewlist_a2c.append(str(pred_filename) + '.dcm')
+            print(" {} appended to a2c list ".format(str(pred_filename)))
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
