@@ -15,7 +15,7 @@ from datetime import datetime
 import hashlib
 
 #from d00_utils.echocv_utils_v0 import *
-from d02_intermediate.download_dcm import download_dcm
+from d02_intermediate.download_dcm import dcm_to_segmentation_arrays
 #from d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from d00_utils.echocv_utils_v0 import *
