@@ -368,7 +368,7 @@ def run_segment(dcm_path, model_path):
     viewlist_a4c = viewlist_a4c.apply(lambda x: x +'.dcm')
     viewlist_a4c = viewlist_a4c.to_list()
     
-    viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name'].to_list()
+    viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name']
     viewlist_a2c = viewlist_a2c.apply(lambda x: x +'.dcm')
     viewlist_a2c = viewlist_a2c.to_list()
     
