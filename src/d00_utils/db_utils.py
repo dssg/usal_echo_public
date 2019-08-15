@@ -18,9 +18,9 @@ import tempfile
 import gc
 import psycopg2
 
-from d00_utils.log_utils import *
+from d00_utils.log_utils import setup_logging
 
-logger = setup_logging(__name__, "save_to_db")
+logger = setup_logging(__name__, __name__)
 
 
 def _load_json_credentials(filepath):
@@ -87,16 +87,12 @@ class dbReadWriteData:
         # Save data to temporary file to be able to use it in fast write method `copy_from`
         tmp = tempfile.NamedTemporaryFile()
         df.to_csv(tmp.name, encoding="utf-8", decimal=".", index=False, sep="|")
-
-        connection = self.engine.raw_connection()
-        cursor = connection.cursor()
-
         with open(tmp.name, "r") as f:
             next(f)  # Skip the header row.
-            cursor.copy_from(
+            self.cursor.copy_from(
                 f, "{}.{}".format(self.schema, db_table), sep="|", size=100000, null=""
             )
-            connection.commit()
+            self.raw_conn.commit()
 
         gc.collect()
 
@@ -117,14 +113,11 @@ class dbReadWriteData:
         cols = pd.read_sql(q, self.engine).columns.to_list()
 
         tmp = tempfile.NamedTemporaryFile()
-        connection = self.engine.raw_connection()
-        cursor = connection.cursor()
-
         with open(tmp.name, "w") as f:
-            cursor.copy_to(
+            self.cursor.copy_to(
                 f, "{}.{}".format(self.schema, db_table), columns=cols, null=""
             )
-        connection.commit()
+        self.raw_conn.commit()
 
         df = pd.read_csv(tmp.name, sep="\t", names=cols)
         df.fillna("", inplace=True)
@@ -172,6 +165,7 @@ class dbReadWriteViews(dbReadWriteData):
         super().__init__(schema="views")
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
+
 
 
 class dbReadWriteSegmentation(dbReadWriteData):
@@ -285,3 +279,44 @@ class dbReadWriteSegmentation(dbReadWriteData):
             )
         )
         
+
+class dbReadWriteClassification(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'classification' schema
+    """
+
+    def __init__(self):
+        super().__init__(schema="classification")
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
+
+    def save_to_db(self, df, db_table, if_exists="append"):
+
+        # Create new database table from empty dataframe
+        if if_exists == "replace":
+            df[:0].to_sql(db_table, self.engine, self.schema, if_exists, index=False)
+            query = "ALTER TABLE {}.{} ADD {} serial NOT NULL;".format(
+                self.schema, db_table, db_table[:-1] + "_id"
+            )
+            self.cursor.execute(query)
+            self.raw_conn.commit()
+
+        df.to_sql(db_table, self.engine, self.schema, "append", index=False)
+
+        logger.info(
+            "Saved table {} to schema {} (mode={})".format(
+                db_table, self.schema, if_exists
+            )
+        )
+
+
+class dbReadWriteMeasurement(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'measurement' schema
+    """
+
+    def __init__(self):
+        super().__init__(schema="measurement")
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
+

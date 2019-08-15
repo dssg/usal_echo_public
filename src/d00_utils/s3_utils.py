@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jul 3 2019
-
-@author: wiebket
-"""
 
 import boto3
+import os
+from d00_utils.log_utils import setup_logging
+logger = setup_logging(__name__, 'd00_utils.download_s3_objects')
+
 
 # TODO specify aws s3 credentials
 
@@ -63,8 +62,29 @@ def get_matching_s3_keys(bucket, prefix="", suffix=""):
     :param prefix: Only fetch keys that start with this prefix (optional).
     :param suffix: Only fetch keys that end with this suffix (optional).
     
-    ** code from https://alexwlchan.net/2018/01/listing-s3-keys-redux/
-    
     """
     for obj in get_matching_s3_objects(bucket, prefix, suffix):
         yield obj["Key"]
+        
+        
+def download_s3_objects(bucket, outfile, prefix='', suffix='.dcm'):
+    """Download all the objects with a specific suffix from a s3 bucket.
+
+    :param bucket: Name of the S3 bucket.
+    :param outfile: name of file download
+    :param prefix: Only fetch objects whose key starts with this prefix (optional).
+    :param suffix: Only fetch objects whose keys end with this suffix, default='.dcm'
+
+    """
+    outdir = os.path.dirname(outfile)
+    os.makedirs(outdir, exist_ok=True)
+
+    for key in get_matching_s3_keys(bucket, prefix, suffix):
+        try:
+            s3 = boto3.client('s3')
+            s3.download_file(bucket, key, outfile)
+            logger.info('{} Download '.format(key))
+        except:
+            logger.error('{} Download error'.format(key))
+
+    return

@@ -124,6 +124,7 @@ create table segmentation.ground_truths(
     frame integer,
     chamber varchar,
     view_name varchar,
+    numpy_array bytea,
     primary key(ground_truth_id)
 );
 
@@ -146,6 +147,7 @@ create table measurement.calculations(
     measurement_name varchar,
     measurement_unit varchar,
     measurement_value float,
+    calculation_source varchar,
     primary key(calculation_id)
 );
 
@@ -159,6 +161,8 @@ create table measurement.evaluations(
     file_name varchar,
     score_type varchar,
     score_value float,
+    measurement_name varchar,
+    calculation_source varchar,
     primary key(evaluation_id)
 );
 

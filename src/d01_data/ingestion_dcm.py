@@ -13,9 +13,11 @@ import tempfile
 
 from d00_utils.db_utils import dbReadWriteRaw
 from d00_utils.s3_utils import get_matching_s3_keys
+from d00_utils.log_utils import setup_logging
+logger = setup_logging(__name__, __name__)
 
 
-def get_dicom_metadata(bucket, file_path, description=False):
+def _get_dicom_metadata(bucket, file_path, description=False):
 
     """Get all dicom tags for file in file_path.
 
@@ -68,8 +70,8 @@ def get_dicom_metadata(bucket, file_path, description=False):
                         value = clean_line[clean_line.find("#") + 2 :].strip()
                     line_meta = [dir_name, file_name, tag1, tag2, value]
                     meta.append(line_meta)
-            except IndexError:
-                break
+            except IndexError as e:
+                logger.error(e)
 
     df = pd.DataFrame.from_records(
         meta, columns=["dirname", "filename", "tag1", "tag2", "value"]
@@ -85,7 +87,7 @@ def get_dicom_metadata(bucket, file_path, description=False):
     return df_out
 
 
-def write_dicom_metadata_csv(df, metadata_file_suffix=None):
+def _write_dicom_metadata_csv(df, metadata_file_suffix=None):
     """Write the output of 'get_dicom_metadata()' to a csv file.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
@@ -103,19 +105,19 @@ def write_dicom_metadata_csv(df, metadata_file_suffix=None):
             data_path, "dicom_metadata_" + str(metadata_file_suffix) + ".csv"
         )
     if not os.path.isfile(dicom_meta_path):  # create new file if it does not exist
-        print("Creating new metadata file")
+        logger.info("Creating new metadata file")
         df.to_csv(dicom_meta_path, index=False)
     else:  # if file exists append
         df.to_csv(dicom_meta_path, mode="a", index=False, header=False)
 
-    print(
-        "dicom metadata saved for study {}, instance {}".format(
+    logger.info(
+        "study {}, instance {} - metadata saved".format(
             df.iloc[0, 0], df.iloc[0, 1]
         )
     )
 
 
-def write_dicom_metadata_postgres(df, db_table):
+def _write_dicom_metadata_postgres(df, db_table):
     """Write the output of 'get_dicom_metadata()' to a postgres table.
     
     :param df (pandas.DataFrame): output of 'get_dicom_metadata()'
@@ -126,7 +128,7 @@ def write_dicom_metadata_postgres(df, db_table):
     io_raw = dbReadWriteRaw()
     io_raw.save_to_db(df, db_table, "append")
 
-    print("study: {}, instance: {}".format(df.iloc[0, 0], df.iloc[0, 1]))
+    logger.info("study: {}, instance: {} - metadata saved".format(df.iloc[0, 0], df.iloc[0, 1]))
 
 
 def ingest_dcm(write_to="postgres", prefix=""):
@@ -141,13 +143,13 @@ def ingest_dcm(write_to="postgres", prefix=""):
     
     """
     if write_to == "postgres":
-        func = 'write_dicom_metadata_postgres(df, "metadata")'
+        func = _write_dicom_metadata_postgres(df, "metadata")
     elif write_to == "csv":
-        func = "write_dicom_metadata_csv(df)"
+        func = _write_dicom_metadata_csv(df)
 
     for key in get_matching_s3_keys("cibercv", prefix, ".dcm"):
-        df = get_dicom_metadata("cibercv", key)
-        eval(func)
+        df = _get_dicom_metadata("cibercv", key)
+        func
     os.remove("temp.txt")
 
-    return "All dicom metadata has been retrieved."
+    logger.info("All dicom metadata has been retrieved.")

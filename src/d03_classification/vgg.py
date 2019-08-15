@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 import sys
 
-sys.path.append("../funcs/")
 from d03_classification import nn
 
 # # Network
