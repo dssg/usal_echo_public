@@ -121,13 +121,13 @@ def generate_masks(instance_ids):
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
     
-    merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, chords_by_volume_mask_df, 
-                      how='inner', on=['studyidk', 'instanceidk'])
+    #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, chords_by_volume_mask_df, 
+    #                  how='inner', on=['studyidk', 'instanceidk'])
     
-    merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
+    #merge_df = chords_by_volume_mask_df[chords_by_volume_mask_df['instanceidk'].isin(instance_ids)]
 
     start = time()
-    group_df = merge_df.groupby(["studyidk", "instanceidk", "indexinmglist"]).agg(
+    group_df = chords_by_volume_mask_df.groupby(["studyidk", "instanceidk", "indexinmglist"]).agg(
         {
             "x1coordinate": list,
             "y1coordinate": list,
@@ -140,15 +140,20 @@ def generate_masks(instance_ids):
         }
     )
     end = time()
-    print(f"{int(end-start)} seconds to group {len(merge_df)} rows")
+    print(f"{int(end-start)} seconds to group {len(group_df)} rows")
+    
+    merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
+                      how='left', on=['studyidk', 'instanceidk'])
+    print('{} rows on which to generate masks'.format(merge_df.shape[0]))
+    
 
     start = time()
-    group_df["lines"] = group_df.apply(get_lines, axis=1)
-    group_df["points"] = group_df.apply(get_points, axis=1)
-    group_df["mask"] = group_df.apply(get_mask, axis=1)
-    group_df = group_df.reset_index()
+    merge_df["lines"] = merge_df.apply(get_lines, axis=1)
+    merge_df["points"] = merge_df.apply(get_points, axis=1)
+    merge_df["mask"] = merge_df.apply(get_mask, axis=1)
+    merge_df = group_df.reset_index()
     end = time()
-    print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
+    print(f"{int(end-start)} seconds to apply {len(merge_df)} rows")
 
     return group_df
 
