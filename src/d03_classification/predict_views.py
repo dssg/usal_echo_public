@@ -108,8 +108,8 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
     
-    #saver = tf.train.Saver() # if running zhang's model
-    
+    ## DELETE THIS BLOCK #######################################
+    #saver = tf.train.Saver() # if running zhang's model 
     #tf_vars = ['network/conv1_1/W:0', 'network/conv1_1/b:0']
     #tf_vars = ['conv1_1', 'conv1_2']
     #tf_vars = ['conv1_1/W:0', 'conv1_2/W:0']
@@ -119,11 +119,14 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     #tf_vars = [v for v in tf.get_collection(tf.trainable_variables())]
     
     #saver = tf.train.Saver(tf_vars) # if running on retrained model
+    ###########################################################
+
     saver = tf.train.Saver() # Thurs afternoon 2:41p
 
     #saver = tf.train.import_meta_graph(model_path + '.meta') # if new mod (?) 
     ckpt_files = model_path + '/model.ckpt-6460'
-    saver.restore(sess, ckpt_files)#model_path)
+    #saver.restore(sess, model_path) # run this to predict w zhang model
+    saver.restore(sess, ckpt_files) # run this to predict w new model
 
     #sys.exit()
 
