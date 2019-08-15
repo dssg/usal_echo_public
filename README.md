@@ -13,7 +13,7 @@ This project classifies echocardiographic DICOM images.
 
 ## Introduction
 
-### Data Science for Social Good at Imperial College London
+### Data Science for Social Good at Imperial College London 2019
 
 The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with governments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
 
@@ -66,16 +66,38 @@ The instructions below assume that you are working setting up the repository in 
 
 #### 2. Clone repository
 After activating your Anaconda environment, clone this repository into your work space:  
-`git clone https://github.com/dssg/usal_echo.git`  
+```
+git clone https://github.com/dssg/usal_echo.git
+```
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
-`. src/setup.py`
+```
+. src/setup.py
+```
 
 #### 3. Credentials files
 
-To run the pipeline, you need to specify the credentials for your aws  
+To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
-- create aws and postgres config files
+**aws credentials**   
+Located in `~/user/.aws/credentials` and formatted as:
+```
+[default]
+aws_access_key_id=your_key_id
+aws_secret_access_key=your_secret_key
+```
+The pipeline uses the `default` user credentials.
+
+**postgres credentials**  
+Located in `~/user/.psql_credentials.json` and formatted as:
+```
+{
+"user":"your_user",
+"host": "your_server.rds.amazonaws.com",
+"database": "your_database_name",
+"psswd": "your_database_password"
+}
+```
 
 #### 4. Run the pipeline
 - run inquire.py
