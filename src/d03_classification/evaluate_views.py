@@ -104,4 +104,4 @@ def evaluate_views(
 
         logger.info(
             "Evaluated {} {} {} {})".format(img_dir, model_name, date_run, view_mapping)
-        )
+       )

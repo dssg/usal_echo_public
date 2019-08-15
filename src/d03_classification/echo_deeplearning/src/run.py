@@ -82,16 +82,19 @@ def main(argv):
     from load_model import load_model, load_data
 
     model = load_model(config, sess)
-    #x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
+    x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
 
     print('DATA LOADED!')
 
-    # create saver and load in data
+    # create saver and load in datai
+    #print(tf.global_variables())
     #saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
-    print(tf.trainable_variables())
-    saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=None)
+    #print(tf.trainable_variables())
+    #saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=None)
+    # ^^ Thurs morning - trying tf.global_variables(). Wed night did tf.trainable_variables()
+    saver = tf.train.Saver() # Thurs afternoon
 
-    sys.exit()
+    #sys.exit()
 
     #ckpt = True # force this to true instead of get_checkpoint_state
     # initialize model

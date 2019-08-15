@@ -2,6 +2,7 @@
 
 import os
 import datetime
+import sys
 
 import tensorflow as tf
 import numpy as np
@@ -16,7 +17,7 @@ logger = setup_logging(__name__, __name__)
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-#sys.path.append(os.getcwd())
+sys.path.append(os.getcwd())
 f = open('/home/ubuntu/dvv/usal_echo/src/d03_classification/tf_vars.txt','r')
 tf_vars = f.read()
 
@@ -106,8 +107,25 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     model = vgg.Network(0.0, 0.0, feature_dim, label_dim, False)
-    saver = tf.train.Saver(tf_vars)
-    saver.restore(sess, model_path)
+    
+    #saver = tf.train.Saver() # if running zhang's model
+    
+    #tf_vars = ['network/conv1_1/W:0', 'network/conv1_1/b:0']
+    #tf_vars = ['conv1_1', 'conv1_2']
+    #tf_vars = ['conv1_1/W:0', 'conv1_2/W:0']
+    #tf_vars = tf.trainable_variables()
+    #tf_vars = tf.global_variables()
+    #note: tf.get_collection(tf.trainable_variables)) is an empty list
+    #tf_vars = [v for v in tf.get_collection(tf.trainable_variables())]
+    
+    #saver = tf.train.Saver(tf_vars) # if running on retrained model
+    saver = tf.train.Saver() # Thurs afternoon 2:41p
+
+    #saver = tf.train.import_meta_graph(model_path + '.meta') # if new mod (?) 
+    ckpt_files = model_path + '/model.ckpt-6460'
+    saver.restore(sess, ckpt_files)#model_path)
+
+    #sys.exit()
 
     # Classify views
     probabilities = {}
