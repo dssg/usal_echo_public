@@ -28,7 +28,6 @@ The project was done in collaboration with the CIBERCV (Biomedical Research Netw
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
 
-
 ## Infrastructure requirements
 We retrieve our data from an AWS S3 bucket and use an AWS EC2 server for running all code. Results for each processing layer are stored in an AWS RDS.
 ```
@@ -61,8 +60,12 @@ In addition to the infrastructure mentioned above, the following software is req
 
 The instructions below assume that you are working setting up the repository in your terminal.
 
-#### 1. Create a conda environment
-- create conda environment
+#### 1. Conda env and pip install
+Download the requirements.txt and environment.yml files. Create a new conda environment from the .yml file and install required packages with pip.
+```
+conda env create -f environment.yml
+
+```
 
 #### 2. Clone repository
 After activating your Anaconda environment, clone this repository into your work space:  
@@ -72,7 +75,7 @@ git clone https://github.com/dssg/usal_echo.git
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
 ```
-. src/setup.py
+python src/setup.py
 ```
 
 #### 3. Credentials files
@@ -100,9 +103,13 @@ Located in `~/user/.psql_credentials.json` and formatted as:
 ```
 
 #### 4. Run the pipeline
-- run inquire.py
+The final step is to run the inquire.py script. 
+```
+python src/inquire.py
+```
+This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail in the following section.
 
-## Code example
+## Pipeline options
 
 Show a new user how to use the package.
 
