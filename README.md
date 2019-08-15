@@ -74,8 +74,10 @@ Describe and show how to run the tests with code examples.
 **Technical mentor**: Liliana Millán  
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
-![Cardiologist at work](docs/images/cardiologist_journey_3.jpeg?raw=true "Cardiologist at work")
-
+<p align="center">
+<img src="docs/images/cardiologist_journey_3.jpeg" alt="Cardiologist at work" width="400" align:center/>
+</p>
+    
 ## License
 
 This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
