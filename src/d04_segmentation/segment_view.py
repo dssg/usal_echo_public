@@ -363,7 +363,7 @@ def run_segment(dcm_path, model_path):
             print(" {} appended to a4c list".format(str(filename)))
         elif row[6] == 'a2c':
             viewlist_a2c.append(str(filename) + '.dcm')
-            print(" {} appended to a2c list".format(str(filename)))
+            print(" {} appended to a2c list ".format(str(filename)))
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
