@@ -192,7 +192,7 @@ def agg_probabilities(if_exists):
 
     mean_cols = ['output_' + x for x in view_classes]
     agg_cols = dict(zip(mean_cols, ['mean'] * len(mean_cols)))
-    agg_cols['probabilities_frame_id'] = 'count' #TODO: debug error
+    agg_cols['probabilities_frame_id'] = 'count'
     
     probabilities = (
         probabilities_frames.groupby(['study_id','file_name','model_name','date_run','img_dir'])
@@ -214,10 +214,10 @@ def predict_views(if_exists):
     io_classification = dbReadWriteClassification()
     probabilities = io_classification.get_table('probabilities_instances')
                   
-    #predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
-    #                                         ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
-    predictions = probabilities.drop(columns=['probabilities_instance_id']
-                                              ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
+    predictions = probabilities.drop(columns=['probabilities_instance_id', 'frame_count']
+                                             ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
+    #predictions = probabilities.drop(columns=['probabilities_instance_id']
+    #                                          ).set_index(['study_id','file_name','model_name','date_run','img_dir'])
     
     predictions['view23_pred'] = predictions.idxmax(axis=1).apply(lambda x : x.split('_', 1)[1])
     predictions['view4_dev'] = predictions['view23_pred'].map(maps_dev)

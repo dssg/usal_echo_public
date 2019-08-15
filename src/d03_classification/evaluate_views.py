@@ -69,7 +69,7 @@ def evaluate_view_map(img_dir, model_name, date_run, view_mapping, study_filter=
 
     eval_out["model_name"] = model_name
     eval_out["img_dir"] = img_dir
-    eval_out["date_run"] = df["date_run"][0] #TODO: debug error, no KeyValue 0
+    eval_out["date_run"] = df["date_run"]#[0] #TODO: debug error, no KeyValue 0
     eval_out["view_mapping"] = view_mapping
     eval_out["study_filter"] = study_filter
 
