@@ -10,6 +10,7 @@ from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
 
+
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
     command = "gdcmdump " + dicomdir + "/" + videofile
@@ -113,7 +114,8 @@ def get_window(hr, ft):
 
 
 def compute_la_lv_volume(
-    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, la_segs, lv_segs):
+    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, la_segs, lv_segs
+):
     """Return measurement dictionary for video."""
     la_segs = remove_periphery(la_segs)
     lv_segs = remove_periphery(lv_segs)
@@ -164,7 +166,7 @@ def compute_la_lv_volume(
                     ncol,
                     hr,
                 )
-                
+
                 if la_l == 0 or lveda_l == 0 or lvesa_l == 0:
                     continue
 
@@ -323,7 +325,8 @@ def extract_area_l_scaled(
 
 def L(x, y, x_la):
     """Get Euclidean distance from points fit by function (adapted from Zhang et al.)"""
-    if x.sum() == 0 or y.sum() == 0 or x_la.sum() == 0: return 0
+    if x.sum() == 0 or y.sum() == 0 or x_la.sum() == 0:
+        return 0
     fit = np.polyfit(x, y, 1)
     fit_fn = np.poly1d(fit)
     line_points = fit_fn(x_la)

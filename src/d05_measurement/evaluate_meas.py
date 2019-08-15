@@ -78,11 +78,7 @@ def evaluate_meas(folder):
     )
 
     fig.savefig(f"../results/cm_{folder}", bbox_inches="tight")
-    fig.savefig(
-        f"../results/cm_{folder}.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+    fig.savefig(f"../results/cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     fig, ax = plot_confusion_matrix(
         y_true,
@@ -93,11 +89,7 @@ def evaluate_meas(folder):
     )
 
     fig.savefig(f"../results/norm_cm_{folder}", bbox_inches="tight")
-    fig.savefig(
-        f"../results/norm_cm_{folder}.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+    fig.savefig(f"../results/norm_cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     # Produce dataframe like Table 2 in Zhang et al:
     # "Comparison Between Fully Automated and Manual Measurements Derived From 2-Dimensional Echocardiography"
@@ -152,9 +144,6 @@ def evaluate_meas(folder):
             "Median Absolute Deviation (% of Manual)": abs_dev_median_strs,
         }
     )
-    df.to_csv(
-        f"../results/measurement_comparison_{folder}.csv",
-        index=False,
-    )
+    df.to_csv(f"../results/measurement_comparison_{folder}.csv", index=False)
 
     return df
