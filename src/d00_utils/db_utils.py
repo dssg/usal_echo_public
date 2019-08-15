@@ -324,6 +324,7 @@ class dbReadWriteClassification(dbReadWriteData):
             )
         )
         
+        
 class dbReadWriteMeasurement(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'measurement' schema
