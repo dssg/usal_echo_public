@@ -17,29 +17,29 @@ import hashlib
 #from d00_utils.echocv_utils_v0 import *
 #from d02_intermediate.download_dcm import download_dcm
 from d00_utils.dcm_utils import dcm_to_segmentation_arrays
-from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
+from d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from d00_utils.echocv_utils_v0 import *
 #from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
 from d04_segmentation.model_unet import Unet
 
 
 ## Set environment parameters
-parser = OptionParser()
-parser.add_option(
-    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
-)
+#parser = OptionParser()
+#parser.add_option(
+#    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
+#)
 parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
-parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
-params, args = parser.parse_args()
-dicomdir = params.dicomdir
-modeldir = params.modeldir
+#parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
+#params, args = parser.parse_args()
+#dicomdir = params.dicomdir
+#modeldir = params.modeldir
 
 os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
 #os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
-def segmentChamber(videofile, dicomdir, view):
+def segmentChamber(videofile, dicomdir, view, model_path):
     """
     
     """
@@ -50,7 +50,7 @@ def segmentChamber(videofile, dicomdir, view):
     maxout = False
 #    sesses = []
 #    models = []
-    global modeldir
+    modeldir = model_path
 
     print(videofile, dicomdir)
 
@@ -195,7 +195,7 @@ def segmentChamber(videofile, dicomdir, view):
     return [number_frames, model_name, np_arrays_x3, images_uuid_x3]
 
 
-def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir):
+def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
     
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
@@ -224,7 +224,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
         ]
 
     for video in viewlist_a4c:
-        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a4c")
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -255,7 +255,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicom
 
 
     for video in viewlist_a2c:
-        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a2c")
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dicomdir, "a2c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -316,18 +316,19 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def main():
+def run_segment(dcm_path, model_path):
     # To use dicomdir option set in global scope.
-    global dicomdir
+    #global dicomdir
+    
     # In case dicomdir is path with more than one part.
     # dicomdir_basename = os.path.basename(dicomdir)
-    viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
+    #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
     # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
+    
+    
+        
     viewlist_a2c = []
-    viewlist_a3c = []
     viewlist_a4c = []
-    viewlist_plax = []
-    viewlist_psax = []
 
     infile = open(
         "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
@@ -340,40 +341,29 @@ def main():
     for i in range(len(infile)):
         viewdict[infile[i]] = i + 2
 
-    probthresh = (
-        0.5
-    )  # arbitrary choice of "probability" threshold for view classification
+    #probthresh = (
+    #    0.5
+    #)  # arbitrary choice of "probability" threshold for view classification
 
-    infile = open(viewfile)
-    infile = infile.readlines()
-    infile = [i.rstrip() for i in infile]
-    infile = [i.split("\t") for i in infile]
-
+    #infile = open(viewfile)
+    #infile = infile.readlines()
+    #infile = [i.rstrip() for i in infile]
+    #infile = [i.split("\t") for i in infile]
+    io_class = dbReadWriteClassification()
+    predictions = io_class.get_table('test_predictions')
+    
     start = time.time()
-    for i in infile[1:]:
-        print(i)
-        dicomdir = i[0]
-        filename = i[1]
-        print(filename)
-        if eval(i[viewdict["psax_pap"]]) > probthresh:
-            viewlist_psax.append(filename)
-        elif eval(i[viewdict["a4c"]]) > probthresh:
-            viewlist_a4c.append(filename)
-        elif eval(i[viewdict["a2c"]]) > probthresh:
-            viewlist_a2c.append(filename)
-        elif eval(i[viewdict["a3c"]]) > probthresh:
-            viewlist_a3c.append(filename)
-        elif eval(i[viewdict["plax_plax"]]) > probthresh:
-            viewlist_plax.append(filename)
-    print(viewlist_a2c, viewlist_a4c, viewlist_a3c, viewlist_psax, viewlist_plax)
-    segmentstudy(viewlist_a2c, viewlist_a4c, viewlist_psax, viewlist_plax, dicomdir)
-#    tempdir = os.path.join(dicomdir, "image")
+    for i in predictions.iterrows():
+        dcm_path = i['img_dir']
+        filename = i['file_name']
+        if i['view4_seg'] == 'a4c':
+            viewlist_a4c.append(filename + '.dcm')
+        elif i['view4_seg'] == 'a2c':
+            viewlist_a2c.append(filename + '.dcm')
+    segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
-    viewlist = viewlist_a2c + viewlist_a4c + viewlist_psax + viewlist_plax
+    viewlist = viewlist_a2c + viewlist_a4c
     print(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
 
-
-if __name__ == "__main__":
-    main()
