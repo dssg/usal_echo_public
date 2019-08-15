@@ -61,6 +61,9 @@ def main():
             else:
                 print('invalid chamber') #TODO: log this
             
+            #FLIPPING THE PREDICTION NUMPY
+            pred_numpy_array = np.flipud(pred_numpy_array)
+            
             #calculate iou
             reported_iou = iou(gt_numpy_array, pred_numpy_array)
             print('IOU of: {}'.format(reported_iou))
