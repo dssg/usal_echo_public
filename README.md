@@ -61,10 +61,10 @@ In addition to the infrastructure mentioned above, the following software is req
 The instructions below assume that you are working setting up the repository in your terminal.
 
 #### 1. Conda env and pip install
-Download the requirements.txt and environment.yml files. Create a new conda environment from the .yml file and install required packages with pip.
+Download the environment.yml and requirements.txt files. Create a new conda environment from the .yml file and install required packages with pip.
 ```
 conda env create -f environment.yml
-
+pip install -r requirements.txt
 ```
 
 #### 2. Clone repository
