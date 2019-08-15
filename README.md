@@ -54,10 +54,30 @@ Infrastructure: AWS
 
 ## Installation and setup
 
-- clone repository
+#### 0. Requirements
+In addition to the infrastructure mentioned above, the following software is required:
+* [Anaconda](https://docs.anaconda.com/anaconda/install/)
+* [git](https://www.atlassian.com/git/tutorials/install-git)  
+
+The instructions below assume that you are working setting up the repository in your terminal.
+
+#### 1. Create a conda environment
 - create conda environment
-- run setup.py
+
+#### 2. Clone repository
+After activating your Anaconda environment, clone this repository into your work space:  
+`git clone https://github.com/dssg/usal_echo.git`  
+
+Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
+`. src/setup.py`
+
+#### 3. Credentials files
+
+To run the pipeline, you need to specify the credentials for your aws  
+
 - create aws and postgres config files
+
+#### 4. Run the pipeline
 - run inquire.py
 
 ## Code example
@@ -66,7 +86,8 @@ Show a new user how to use the package.
 
 ## Code organisation
 
-Describe and show how to run the tests with code examples.
+The code is organised as follows:
+
 
 ## Contributors
 
@@ -74,10 +95,10 @@ Describe and show how to run the tests with code examples.
 **Technical mentor**: Liliana Millán  
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
-<p align="center">
-<img src="docs/images/cardiologist_journey_3.jpeg" alt="Cardiologist at work" width="400" align:center/>
-</p>
-    
 ## License
 
 This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
+
+<p align="center">
+<img src="docs/images/cardiologist_journey_3.jpeg" alt="Cardiologist at work" width="400" align:center/>
+</p>
