@@ -6,7 +6,7 @@ from d00_utils.db_utils import dbReadWriteMeasurement
 from d07_visualisation.confusion_matrix import plot_confusion_matrix
 
 
-def write_evaluations(folder, prediction_source):
+def write_evaluations(folder):
     # Get ground truth and calculated measurements for files in folder.
     io_measurement = dbReadWriteMeasurement()
     ground_truths_df = io_measurement.get_table("ground_truths")
@@ -76,9 +76,9 @@ def write_evaluations(folder, prediction_source):
         y_true, y_calc, classes=classes, title="Confusion matrix, without normalization"
     )
 
-    fig.savefig(f"../results/cm_{folder}_{prediction_source}", bbox_inches="tight")
+    fig.savefig(f"../results/cm_{folder}", bbox_inches="tight")
     fig.savefig(
-        f"../results/cm_{folder}_{prediction_source}.pdf",
+        f"../results/cm_{folder}.pdf",
         format="pdf",
         bbox_inches="tight",
     )
@@ -91,9 +91,9 @@ def write_evaluations(folder, prediction_source):
         title="Normalized confusion matrix",
     )
 
-    fig.savefig(f"../results/norm_cm_{folder}_{prediction_source}", bbox_inches="tight")
+    fig.savefig(f"../results/norm_cm_{folder}", bbox_inches="tight")
     fig.savefig(
-        f"../results/norm_cm_{folder}_{prediction_source}.pdf",
+        f"../results/norm_cm_{folder}.pdf",
         format="pdf",
         bbox_inches="tight",
     )
@@ -152,7 +152,7 @@ def write_evaluations(folder, prediction_source):
         }
     )
     df.to_csv(
-        f"../results/measurement_comparison_{folder}_{prediction_source}.csv",
+        f"../results/measurement_comparison_{folder}.csv",
         index=False,
     )
 
