@@ -178,7 +178,7 @@ def process_choices(options):
         agg_probabilities()
         # TODO add the predict_views function from test_predict branch
 
-def main():
+def cli():
     _print_welcome_message()
     options = ingest_metadata()
     options.update(ingest_xcelera())
@@ -199,5 +199,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-
+    cli()
