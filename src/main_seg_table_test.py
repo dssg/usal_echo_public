@@ -9,4 +9,4 @@ from d04_segmentation import calculate_ious
 
 
 if __name__ == "__main__":
-    calculate_ious.main()
+    calculate_masks.main()

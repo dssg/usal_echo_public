@@ -14,9 +14,9 @@ def write_masks():
     io_segmentation = dbReadWriteSegmentation()
     
     #Instances to write masks for
-    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
+    #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
 
-    masks_df = generate_masks(instances_w_labels_test_downsampleby5_df['instanceidk'])
+    masks_df = generate_masks()
     
     #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
     
@@ -108,7 +108,7 @@ def get_mask(row):
     return img
 
 
-def generate_masks(instance_ids):
+def generate_masks():
     """Convert measurement segments to Numpy masks.
     
     :return: updated DataFrame
@@ -117,7 +117,7 @@ def generate_masks(instance_ids):
     io_views = dbReadWriteViews()
 
     chords_by_volume_mask_df = io_views.get_table("chords_by_volume_mask")
-    instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
+    #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')    
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('ven'), "chamber"] = "lv"
     #chords_by_volume_mask_df.loc[chords_by_volume_mask_df["view_name"].str.contains('atr'), "chamber"] = "la"
     
@@ -142,20 +142,17 @@ def generate_masks(instance_ids):
     end = time()
     print(f"{int(end-start)} seconds to group {len(group_df)} rows")
     
-    merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
-                      how='left', on=['studyidk', 'instanceidk'])
-    print('{} rows on which to generate masks'.format(merge_df.shape[0]))
+    #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
+    #                  how='left', on=['studyidk', 'instanceidk'])
+    #print('{} rows on which to generate masks'.format(merge_df.shape[0]))
     
 
     start = time()
-    merge_df["lines"] = merge_df.apply(get_lines, axis=1)
-    merge_df["points"] = merge_df.apply(get_points, axis=1)
-    merge_df["mask"] = merge_df.apply(get_mask, axis=1)
-    merge_df = group_df.reset_index()
+    group_df["lines"] = group_df.apply(get_lines, axis=1)
+    group_df["points"] = group_df.apply(get_points, axis=1)
+    group_df["mask"] = group_df.apply(get_mask, axis=1)
+    group_df = group_df.reset_index()
     end = time()
-    print(f"{int(end-start)} seconds to apply {len(merge_df)} rows")
+    print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df
-
-if __name__ == "__main__":
-    write_masks()
