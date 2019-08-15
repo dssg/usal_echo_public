@@ -24,19 +24,19 @@ from d04_segmentation.model_unet import Unet
 
 
 ## Set environment parameters
-parser = OptionParser()
+#parser = OptionParser()
 #parser.add_option(
 #    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
 #)
-parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
+#parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
 #parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
-params, args = parser.parse_args()
+#params, args = parser.parse_args()
 #dicomdir = params.dicomdir
 #modeldir = params.modeldir
 
-os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
+#os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
-#os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
 def segmentChamber(videofile, dicomdir, view, model_path):
