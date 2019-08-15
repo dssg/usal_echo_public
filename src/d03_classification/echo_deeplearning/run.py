@@ -1,3 +1,5 @@
+#!/usr/bin/env python -W ignore::DeprecationWarning
+
 import numpy as np
 import tensorflow as tf
 
@@ -7,6 +9,7 @@ from easydict import EasyDict as edict
 from util import *
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+# os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 flags = tf.app.flags
 
@@ -24,7 +27,6 @@ flags.DEFINE_boolean(
     False,
     "If true, trains a new model and will override old models. Default [False]",
 )
-
 FLAGS = flags.FLAGS
 
 
@@ -35,7 +37,7 @@ def main(argv):
     assert config_dir.startswith(Models), "Invalid config directory %s" % config_dir
     model_name, config_name = config_dir[len(Models) :].split("/")[:2]
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
+    # os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
     model_dir = os.path.join(Models, model_name)
     sys.path.append(model_dir)
@@ -55,6 +57,7 @@ def main(argv):
     train_dir = os.path.join(config_dir, "train", FLAGS.val_split)
 
     ckpt = tf.train.get_checkpoint_state(train_dir)
+
     if ckpt and not FLAGS.retrain:
         print("Latest checkpoint:", ckpt.model_checkpoint_path)
     elif not FLAGS.train:
@@ -68,11 +71,14 @@ def main(argv):
     model = load_model(config, sess)
     x_train, x_test, y_train, y_test = load_data(config, FLAGS.val_split)
 
-    # create saver and load in data
-    saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
+    print("DATA LOADED!")
+
+    saver = tf.train.Saver()
 
     # initialize model
     if ckpt and not FLAGS.retrain:
+        # print(ckpt.model_checkpoint_path)
+        checkpoint_HARDCODE = train_dir + "/model.ckpt-0"
         saver.restore(sess, ckpt.model_checkpoint_path)
     else:
         sess.run(tf.global_variables_initializer())
@@ -84,6 +90,7 @@ def main(argv):
         # train model
         summary_writer = tf.summary.FileWriter(train_dir)
         checkpoint_path = os.path.join(train_dir, "model.ckpt")
+
         success = model.train(
             x_train,
             y_train,
@@ -94,6 +101,7 @@ def main(argv):
             checkpoint_path,
             val_output_dir,
         )
+
         if not success:
             print("Exiting script")
             exit()

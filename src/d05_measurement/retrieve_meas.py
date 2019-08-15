@@ -17,7 +17,7 @@ def get_recommendation(row):
     )
 
 
-def write_groundtruth():
+def retrieve_meas():
     """Write ground truth volumes, ejection fractions, and recommendations."""
     io_clean = dbReadWriteClean()
     io_views = dbReadWriteViews()
