@@ -353,8 +353,8 @@ def run_segment(dcm_path, model_path):
     predictions = io_class.get_table('test_predictions')
     
     start = time.time()
-    for idx in predictions.index():
-        dcm_path = predictions.loc[idx, 'img_dir']
+    for pred in predictions:
+        dcm_path = pred['img_dir']
         filename = predictions.loc[idx, 'file_name']
         if predictions.loc[idx, 'view4_seg'] == 'a4c':
             viewlist_a4c.append(filename + '.dcm')
