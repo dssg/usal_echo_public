@@ -1,13 +1,15 @@
-# Echocardiographic Image Classification with CIBERCV data
+# USAL Echocardiogram Analysis
 
-This project classifies echocardiographic DICOM images obtained from the CIBERCV (Biomedical Research Networking Centres - Cardiovascular).
+This project classifies echocardiographic DICOM images.
 
 
-## Table of Contents
+## Table of contents
 
-1. [Introduction](https://github.com/dssg/repo_name#introduction)
-2. [Installation and setup](https://github.com/dssg/repo_name#setup)
-3. [Code Examples]
+1. [Introduction](https://github.com/dssg/usal_echo#introduction)
+2. [Overview](https://github.com/dssg/usal_echo#overview)
+3. [Infrastructure](https://github.com/dssg/usal_echo#infrastructure)
+3. [Installation and setup](https://github.com/dssg/usal_echo#installation-and-setup)
+4. [Code Examples](https://github.com/dssg/usal_echo#setup)
 
 ## Introduction
 
@@ -19,31 +21,59 @@ For three months they learn, hone, and apply their data science, analytical, and
 
 ### Partners
 
-Hospital Universitario de Salamanca
+The project was done in collaboration with the CIBERCV (Biomedical Research Networking Centres - Cardiovascular) research team working at the Hospital Universitario de Salamanca (USAL). USAL has one of the most advanced cardiographic imaging units in Spain and serves an ageing, largely rural population. The team of cardiologists at USAL is investigating new technologies such as artificial intelligence to help improve patient care.
 
+## Overview
+
+The processing pipeline is structured as follows.
+![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
+
+
+## Infrastructure requirements
+We retrieve our data from an AWS S3 bucket and use an AWS EC2 server for running all code. Results for each processing layer are stored in an AWS RDS.
+```
+Infrastructure: AWS
+
++ AMI: ami-079bef5a6246ca216, Deep Learning AMI (Ubuntu) Version 23.1
++ EC2 instance: p3.2xlarge
+    + GPU: 1
+    + vCPU: 8
+    + RAM: 61 GB
++ OS: ubuntu 18.04 LTS
++ Volumes: 1
+    + Type: gp2
+    + Size: 450 GB
++ RDS: PostgreSQL
+    + Engine: PostgreSQL
+    + Engine version: 10.6
+    + Instance: db.t2.xlarge
+    + vCPU: 2
+    + RAM: 4 GB
+    + Storage: 40 GB
+```
 
 ## Installation and setup
 
-Provide setup instructions.
-If there are any specific hardware requirements, please specify here.
+- clone repository
+- create conda environment
+- run setup.py
+- create aws and postgres config files
+- run inquire.py
 
-## Code Example
+## Code example
 
 Show a new user how to use the package.
 
-## Tests
+## Code organisation
 
 Describe and show how to run the tests with code examples.
 
 ## Contributors
 
-* Courtney Irwin
-* Liliana Millán (Technical Mentor)
-* Yoni Nachmany
-* Sara Guerreiro de Sousa (Project Manager)
-* Wiebke Toussaint
-* Dave Van Veen
+**Research fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
+**Technical mentor**: Liliana Millán  
+**Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
 ## License
 
-A short snippet describing the license
+This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
