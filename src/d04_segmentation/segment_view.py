@@ -30,7 +30,7 @@ parser = OptionParser()
 #)
 parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
 #parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
-#params, args = parser.parse_args()
+params, args = parser.parse_args()
 #dicomdir = params.dicomdir
 #modeldir = params.modeldir
 
