@@ -6,7 +6,7 @@ from d00_utils.db_utils import dbReadWriteMeasurement
 from d07_visualisation.confusion_matrix import plot_confusion_matrix
 
 
-def write_evaluations(folder):
+def evaluate_meas(folder):
     # Get ground truth and calculated measurements for files in folder.
     io_measurement = dbReadWriteMeasurement()
     ground_truths_df = io_measurement.get_table("ground_truths")
