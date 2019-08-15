@@ -354,9 +354,9 @@ def run_segment(dcm_path, model_path):
     
     start = time.time()
     for idx, row in predictions.iterrows():
-        dcm_path = row[4] # 'img_dir']
-        filename = row[1] #'file_name']
-        if row[6] == 'a4c': # 'view4_seg']
+        dcm_path = row[4]
+        filename = row[1]
+        if row[6] == 'a4c': 
             viewlist_a4c.append(filename + '.dcm')
         elif row[6] == 'a2c':
             viewlist_a2c.append(filename + '.dcm')
