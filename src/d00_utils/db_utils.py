@@ -194,6 +194,30 @@ class dbReadWriteClassification(dbReadWriteData):
         )
 
 
+class dbReadWriteSegmentation(dbReadWriteData):
+    """
+    Instantiates class for postgres I/O to 'segmentation' schema
+    """
+
+    def __init__(self):
+        super().__init__(schema="segmentation")
+        if not self.engine.dialect.has_schema(self.engine, self.schema):
+            self.engine.execute(CreateSchema(self.schema))
+            
+    def get_segmentation_rows_for_file(self, db_table, file_name):
+
+        q = "SELECT * FROM {}.{} WHERE file_name='{}'".format(self.schema, db_table, file_name)
+        df = pd.read_sql(q, self.engine)
+
+        return df
+    
+    def get_segmentation_rows_for_files(self, db_table, file_names):
+
+        q = "SELECT * FROM {}.{} WHERE file_name IN {}".format(self.schema, db_table, file_names)
+        df = pd.read_sql(q, self.engine)
+
+        return df
+
 class dbReadWriteMeasurement(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'measurement' schema
@@ -205,12 +229,3 @@ class dbReadWriteMeasurement(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
             
 
-class dbReadWriteSegmentation(dbReadWriteData):
-    """
-    Instantiates class for postgres I/O to 'segmentation' schema
-    """
-
-    def __init__(self):
-        super().__init__(schema="segmentation")
-        if not self.engine.dialect.has_schema(self.engine, self.schema):
-            self.engine.execute(CreateSchema(self.schema))
