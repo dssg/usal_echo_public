@@ -173,7 +173,7 @@ def generate_masks(dcm_path):
     
     group_df = group_df.reset_index()
 
-    file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =[0], right_on = ['instancefilename'])
+    file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =['file_name'], right_on = ['instancefilename'])
     print("Number of files successfully matched with ground truth masks: {}".format(file_gt_masks.shape[0]))
     
     #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
