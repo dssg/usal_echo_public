@@ -161,12 +161,15 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
 
 
 def _read_dcmraw(dcmraw_filepath):
-
-    ds = pydicom.dcmread(dcmraw_filepath, force=True)
-    if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
-        return ds
-    else:
-        logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
+    
+    try:
+        ds = pydicom.dcmread(dcmraw_filepath, force=True)
+        if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
+            return ds
+        else:
+            logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
+    except IOError:
+        print('file {} not found'.format(dcmraw_filepath))
 
 
 def _dcmraw_to_np(dcmraw_obj):
