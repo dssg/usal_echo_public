@@ -180,7 +180,7 @@ def generate_masks(dcm_path):
     #                  how='left', on=['studyidk', 'instanceidk'])
     #print('{} rows on which to generate masks'.format(merge_df.shape[0]))
     
-    file_gt_masks = group_df
+    group_df = file_gt_masks
 
     start = time()
     group_df["lines"] = group_df.apply(get_lines, axis=1)
