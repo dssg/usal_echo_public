@@ -106,7 +106,7 @@ def get_mask(row):
     print('filepath im gettting data from: {}'.format(row['file_path']))
     print('instance file name: {}'.format(row['instancefilename']))
     
-    proper_file_name = 'a_' + row['studyidk'] + '_' + row['instancefilename'] +'.dcm_raw'
+    proper_file_name = 'a_' + str(row['studyidk']) + '_' + row['instancefilename'] +'.dcm_raw'
     _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(proper_file_name, row['instancefilename'])
     
     if nrow == None:
