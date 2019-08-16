@@ -68,8 +68,8 @@ def _extract_hr_from_gdcm_str(lines, dicom_tags):
 
 def _extract_xy_from_gdcm_str(lines, dicom_tags):
     """Get rows, columns from gdcmdump output."""
-    rows = None
-    cols = None
+    rows = 0
+    cols = 0
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]

@@ -109,9 +109,9 @@ def get_mask(row):
     proper_file_name = 'a_' + str(row['studyidk']) + '_' + row['instancefilename'] +'.dcm_raw'
     _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(proper_file_name, row['instancefilename'])
     
-    if nrow == None:
+    if nrow == 0:
         nrow = 600
-    if ncol == None:
+    if ncol == 0:
         ncol = 800
         
     SHAPE = (nrow, ncol)
