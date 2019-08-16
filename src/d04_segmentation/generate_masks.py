@@ -107,11 +107,18 @@ def get_mask(row):
     print('instance file name: {}'.format(row['instancefilename']))
     _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], row['instancefilename'])
     
-    
+    if nrow == None:
+        nrow = 600
+    if ncol == None:
+        ncol = 800
+        
     SHAPE = (nrow, ncol)
-    img = np.zeros(SHAPE, dtype=np.uint8)
-    img[rr, cc] = 1
-
+    try:
+        img = np.zeros(SHAPE, dtype=np.uint8)
+        img[rr, cc] = 1
+    except:
+        img = None
+    
     return img
 
 
@@ -188,6 +195,7 @@ def generate_masks(dcm_path):
     group_df["mask"] = group_df.apply(get_mask, axis=1)
     group_df = group_df.reset_index()
     end = time()
+    
     print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df
