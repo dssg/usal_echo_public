@@ -11,11 +11,9 @@ logger = setup_logging(__name__, __name__)
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
     command = "gdcmdump " + dicomdir + "/" + videofile
-    print(command)
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     lines = text.split("\n")
-    print(lines)
     dicom_tags = json.load(open("../src/d02_intermediate/dicom_tags.json"))
     # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
