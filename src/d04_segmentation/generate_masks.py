@@ -8,10 +8,15 @@ from shapely.geometry import Polygon
 from skimage.draw import polygon
 from scipy.misc import imresize
 
+from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
+from d05_measurement.meas_utils import extract_metadata_for_measurements
+
+
+logger = setup_logging(__name__, __name__)
 
 def write_masks():
-    io_views = dbReadWriteViews()
+    #io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
     
     #Instances to write masks for
@@ -25,13 +30,13 @@ def write_masks():
                     'frame', 'chamber', 'view_name', 'numpy_array']
 
     for index, mask in masks_df.iterrows():
-        print('Orginal numpy array size: {}'.format(mask['mask'].shape))
         resized_mask = (imresize(mask['mask'], (384, 384)))
-        print('Revised numpy array size: {}'.format(resized_mask.shape))
         d = [int(mask['studyidk']), mask['instanceidk'], mask['instancefilename'], 
              int(mask['frame']), mask['chamber'], mask['view'], resized_mask]
         
         io_segmentation.save_ground_truth_numpy_array_to_db(d, gt_table_column_names)
+    
+    logger.info('{} ground truth masks written to the segmentation.ground_truths table'.format(masks_df.shape[0]))
     
 
 def get_lines(row):
@@ -93,19 +98,30 @@ def get_mask(row):
     :return: Numpy mask
     """
 
-    poly = Polygon(row["points"])
-    exterior = list(poly.exterior.coords)
+    #poly = Polygon(row["points"])
+    #exterior = list(poly.exterior.coords)
 
     # https://scikit-image.org/docs/dev/api/skimage.draw.html#skimage.draw.polygon
-    c = [pt[0] for pt in exterior]
-    r = [pt[1] for pt in exterior]
+    c = [pt[0] for pt in row['points']]#exterior]
+    r = [pt[1] for pt in row['points']] #exterior]
     rr, cc = polygon(r, c)
 
-    # TODO: get shape from DICOM metadata, which needs to be updated.
-    SHAPE = (600, 800)
-    img = np.zeros(SHAPE, dtype=np.uint8)
-    img[rr, cc] = 1
-
+ 
+    proper_file_name = 'a_' + str(int(row['studyidk'])) + '_' + row['instancefilename'] +'.dcm_raw'
+    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], proper_file_name)
+    
+    if nrow == 0:
+        nrow = 600
+    if ncol == 0:
+        ncol = 800
+        
+    SHAPE = (nrow, ncol)
+    try:
+        img = np.zeros(SHAPE, dtype=np.uint8)
+        img[rr, cc] = 1
+    except:
+        img = None
+    
     return img
 
 
@@ -141,17 +157,18 @@ def generate_masks(dcm_path):
         }
     )
     end = time()
-    print(f"{int(end-start)} seconds to group {len(group_df)} rows")
+    
+    logger.info(f"{int(end-start)} seconds to group {len(group_df)} rows")
     
     path = dcm_path
 
-    file_path = []
+    file_paths = []
     filenames = []
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
         for file in f:
             if '.dcm' in file:
-                file_path.append(os.path.join(r, file))
+                file_paths.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 #print(str(fullfilename).split('.')[0])
                 f = str(fullfilename).split('.')[0]
@@ -159,20 +176,21 @@ def generate_masks(dcm_path):
                 #f = str(fullfilename).split('.')[0]
                 filenames.append(f)
                 
-    print("Number of files in the directory: {}".format(len(file_path)))
-    print(filenames)
-    filename_df = pd.DataFrame(filenames)
-    
+    logger.info("Number of files in the directory: {}".format(len(file_paths)))
+    #print(filenames)
+    filename_df = pd.DataFrame({'file_name': filenames})
+    filename_df['file_path'] = path
+
     group_df = group_df.reset_index()
 
-    file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =[0], right_on = ['instancefilename'])
-    print("Number of files successfully matched with ground truth masks: {}".format(file_gt_masks.shape[0]))
+    file_gt_masks = pd.merge(filename_df, group_df, how='inner', left_on =['file_name'], right_on = ['instancefilename'])
+    logger.info("Number of files successfully matched with ground truth masks: {}".format(file_gt_masks.shape[0]))
     
     #merge_df = pd.merge(instances_w_labels_test_downsampleby5_df, group_df, 
     #                  how='left', on=['studyidk', 'instanceidk'])
     #print('{} rows on which to generate masks'.format(merge_df.shape[0]))
     
-    file_gt_masks = group_df
+    group_df = file_gt_masks
 
     start = time()
     group_df["lines"] = group_df.apply(get_lines, axis=1)
@@ -180,6 +198,7 @@ def generate_masks(dcm_path):
     group_df["mask"] = group_df.apply(get_mask, axis=1)
     group_df = group_df.reset_index()
     end = time()
-    print(f"{int(end-start)} seconds to apply {len(group_df)} rows")
+    
+    logger.info(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df

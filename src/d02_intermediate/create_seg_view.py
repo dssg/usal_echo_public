@@ -6,7 +6,6 @@ Created on Fri Jul 12 09:26:54 2019
 """
 from d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
 import pandas as pd
-import numpy as np
 
 
 def create_seg_view():

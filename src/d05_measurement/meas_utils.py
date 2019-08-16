@@ -6,10 +6,10 @@ import cv2
 
 from scipy.misc import imresize
 from subprocess import Popen, PIPE
+
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
-
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
@@ -17,7 +17,7 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     lines = text.split("\n")
-    dicom_tags = json.load(open("d02_intermediate/dicom_tags.json"))
+    dicom_tags = json.load(open("../src/d02_intermediate/dicom_tags.json"))
     # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
         k: str(tuple(v)).replace("'", "").replace(" ", "")
@@ -55,7 +55,7 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
             deltay = np.abs(float(deltay))
             if deltay > 0.012:
                 ylist.append(deltay)
-    return np.min(xlist), np.min(ylist)
+    return np.nan if not len(xlist) else np.min(xlist), np.nan if not len(ylist) else np.min(ylist)
 
 
 def _extract_hr_from_gdcm_str(lines, dicom_tags):
@@ -71,6 +71,8 @@ def _extract_hr_from_gdcm_str(lines, dicom_tags):
 
 def _extract_xy_from_gdcm_str(lines, dicom_tags):
     """Get rows, columns from gdcmdump output."""
+    rows = 0
+    cols = 0
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
