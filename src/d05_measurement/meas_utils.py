@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 
 from subprocess import Popen, PIPE
+from d00_utils.log_utils import setup_logging
 
+logger = setup_logging(__name__, __name__)
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
