@@ -50,7 +50,7 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
             deltay = np.abs(float(deltay))
             if deltay > 0.012:
                 ylist.append(deltay)
-    return np.min(xlist), np.min(ylist)
+    return np.nan if not len(xlist) else np.min(xlist), np.nan if not len(xlist) else np.min(ylist)
 
 
 def _extract_hr_from_gdcm_str(lines, dicom_tags):
