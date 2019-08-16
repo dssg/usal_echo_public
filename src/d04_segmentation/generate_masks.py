@@ -105,7 +105,9 @@ def get_mask(row):
     # TODO: get shape from DICOM metadata, which needs to be updated.
     print('filepath im gettting data from: {}'.format(row['file_path']))
     print('instance file name: {}'.format(row['instancefilename']))
-    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], row['instancefilename'])
+    
+    proper_file_name = 'a_' + row['studyidk'] + '_' + row['instancefilename'] +'.dcm_raw'
+    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(proper_file_name, row['instancefilename'])
     
     if nrow == None:
         nrow = 600
