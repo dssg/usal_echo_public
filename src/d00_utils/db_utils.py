@@ -305,7 +305,7 @@ class dbReadWriteClassification(dbReadWriteData):
         if not self.engine.dialect.has_schema(self.engine, self.schema):
             self.engine.execute(CreateSchema(self.schema))
 
-    def save_to_db(self, df, db_table, if_exists="append"):
+    def save_to_db(self, df, db_table, if_exists):
 
         # Create new database table from empty dataframe
         if if_exists == "replace":

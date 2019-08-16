@@ -131,7 +131,7 @@ def _write_dicom_metadata_postgres(df, db_table):
     logger.info("study: {}, instance: {} - metadata saved".format(df.iloc[0, 0], df.iloc[0, 1]))
 
 
-def ingest_dcm(write_to="postgres", prefix=""):
+def ingest_dcm(bucket='cibercv', write_to="postgres", prefix=""):
     """
     Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
     
@@ -147,8 +147,8 @@ def ingest_dcm(write_to="postgres", prefix=""):
     elif write_to == "csv":
         func = _write_dicom_metadata_csv(df)
 
-    for key in get_matching_s3_keys("cibercv", prefix, ".dcm"):
-        df = _get_dicom_metadata("cibercv", key)
+    for key in get_matching_s3_keys(bucket, prefix, ".dcm"):
+        df = _get_dicom_metadata(bucket, key)
         func
     os.remove("temp.txt")
 
