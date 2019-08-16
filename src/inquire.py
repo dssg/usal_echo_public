@@ -1,5 +1,3 @@
-from __future__ import print_function, unicode_literals
-from pprint import pprint
 from PyInquirer import prompt
 import os
 
@@ -8,17 +6,29 @@ from d01_data.ingestion_xtdb import ingest_xtdb
 from d02_intermediate.clean_dcm import clean_dcm_meta
 from d02_intermediate.clean_xtdb import clean_tables
 from d02_intermediate.filter_instances import filter_all
-from d02_intermediate.download_dcm import s3_download_decomp_dcm, dcmdir_to_jpgs_for_classification
-from d03_classification.predict_views import run_classify, agg_probabilities, predict_views
+from d02_intermediate.download_dcm import (
+    s3_download_decomp_dcm,
+    dcmdir_to_jpgs_for_classification,
+)
+from d03_classification.predict_views import (
+    run_classify,
+    agg_probabilities,
+    predict_views,
+)
 from d03_classification.evaluate_views import evaluate_views
+from d02_intermediate.create_seg_view import create_seg_view
+from d04_segmentation.segment_view import run_segment
+from d04_segmentation.generate_masks import generate_masks
+from d04_segmentation.evaluate_masks import evaluate_masks
+from d05_measurement.retrieve_meas import retrieve_meas
+from d05_measurement.calculate_meas import calculate_meas
+from d05_measurement.evaluate_meas import evaluate_meas
 
-#from d05_measurement.retrieve_meas import retrieve_meas
-#import d05_measurement.calculate_meas
-#from d05_measurement.evaluate_meas import evaluate_meas
-
-dcm_dir = os.path.expanduser('~/data/01_raw')
-img_dir = os.path.expanduser('~/data/02_intermediate')
-model_path = os.path.expanduser('~/models/model.ckpt-6460')
+bucket = "cibercv"
+dcm_dir = os.path.expanduser("~/data/01_raw")
+img_dir = os.path.expanduser("~/data/02_intermediate")
+model_path = os.path.expanduser("~/models")
+classification_model = "model.ckpt-6460"
 
 
 def _print_welcome_message():
@@ -128,49 +138,17 @@ def modules():
     return answers
 
 
-def classification_args():
+def pipeline_args():
     """
-    Asks for classifications parameters
+    Asks for parameters required by classification, segmentation and measurement
     :return: arguments defined
     """
     questions = [
         {
-            "type": "input",
-            "name": "classification_img_dir",
-            "message": "Directory with echo images:",
-        }
+            "type": "input", 
+            "name": "dir_name", 
+            "message": "Directory with echo images:"}
     ]
-
-    answers = prompt(questions)
-
-    return answers
-
-
-def segmentation_args():
-    """
-    Asks for classifications parameters
-    :return: arguments defined
-    """
-    questions = [
-        {"type": "input", "name": "_a1", "message": "Directory with echo images:"},
-        {"type": "input", "name": "_a2", "message": "Path to trained model:"},
-    ]
-
-    answers = prompt(questions)
-
-    return answers
-
-
-def measurements_args():
-    """
-    Asks for classifications parameters
-    :return: arguments defined
-    """
-    questions = [
-        {"type": "input", "name": "_a1", "message": "Directory with echo images:"},
-        {"type": "input", "name": "_a2", "message": "Path to trained model:"},
-    ]
-
     answers = prompt(questions)
 
     return answers
@@ -183,30 +161,39 @@ def process_choices(options):
     :return:
     """
     if _format_answer(options["ingest_metadata"]).startswith("ingest"):
-        ingest_dcm()
+        ingest_dcm(bucket)
         clean_dcm_meta()
     elif _format_answer(options["ingest_xcelera"]).startswith("ingest"):
-        ingest_xtdb()
+        ingest_xtdb(bucket)
         clean_tables()
         filter_all()
     elif _format_answer(options["download_file"]).startswith("download"):
         train_test_ratio = float(options["download_file_train_test_ratio"])
         downsample_ratio = float(options["download_file_downsample_ratio"])
-        dir_name = s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir)
+        s3_download_decomp_dcm(
+            train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket
+        )
     elif "classification" in options["module"]:
-        print('Starting classification.')
-        dir_name = options["classification_img_dir"]
-        dcmdir_to_jpgs_for_classification(dcm_dir, os.path.join(img_dir, dir_name))
-        run_classify(os.path.join(img_dir, dir_name), model_path)
+        print("Starting classification.")
+        dir_name = options["dir_name"]
+        img_dir_path = os.path.join(img_dir, dir_name)
+        dcmdir_to_jpgs_for_classification(dcm_dir, img_dir_path)
+        run_classify(img_dir_path, os.path.join(model_path, classification_model))
         agg_probabilities()
         predict_views()
-        evaluate_views(os.path.join(img_dir, dir_name), os.path.basename(model_path))
+        evaluate_views(img_dir_path, classification_model)
     elif "segmentation" in options["module"]:
-        pass
+        dir_name = options["dir_name"]
+        dcm_dir_path = os.path.join(dcm_dir, dir_name)
+        run_segment(dcm_dir_path, model_path)
+        create_seg_view()
+        generate_masks(dcm_dir_path)
+        evaluate_masks()
     elif "measurements" in options["module"]:
-#        retrieve_meas()
-#        evaluate_meas()
-        pass
+        dir_name = options["dir_name"]
+        retrieve_meas(dir_name)
+        calculate_meas(dir_name)
+        evaluate_meas()
 
 
 def cli():
@@ -220,16 +207,12 @@ def cli():
         options.update(download_files_args())
 
     options.update(modules())
-    if "classification" in options["module"]:
-        options.update(classification_args())
-    elif "segmentation" in options["module"]:
-        options.update(segmentation_args())
-    elif "measurements" in options["module"]:
-        options.update(measurements_args())
+    if len(options["module"]) > 0:
+        options.update(pipeline_args())
 
     process_choices(options)
 
 
 if __name__ == "__main__":
     cli()
-    print('Pipeline executed successfully')
+    print("Pipeline execution complete. Check log files for errors.")
