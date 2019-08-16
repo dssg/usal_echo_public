@@ -9,6 +9,7 @@ from skimage.draw import polygon
 from scipy.misc import imresize
 
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
+from d05_measurement.meas_utils import extract_metadata_for_measurements
 
 def write_masks():
     io_views = dbReadWriteViews()
@@ -93,16 +94,21 @@ def get_mask(row):
     :return: Numpy mask
     """
 
-    poly = Polygon(row["points"])
-    exterior = list(poly.exterior.coords)
+    #poly = Polygon(row["points"])
+    #exterior = list(poly.exterior.coords)
 
     # https://scikit-image.org/docs/dev/api/skimage.draw.html#skimage.draw.polygon
-    c = [pt[0] for pt in exterior]
-    r = [pt[1] for pt in exterior]
+    c = [pt[0] for pt in row['points']]#exterior]
+    r = [pt[1] for pt in row['points']] #exterior]
     rr, cc = polygon(r, c)
 
     # TODO: get shape from DICOM metadata, which needs to be updated.
-    SHAPE = (600, 800)
+    print('filepath im gettting data from: {}'.format(row['file_path']))
+    print('instance file name: {}'.format(row['instancefilename']))
+    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], row['instancefilename'])
+    
+    
+    SHAPE = (nrow, ncol)
     img = np.zeros(SHAPE, dtype=np.uint8)
     img[rr, cc] = 1
 
@@ -160,8 +166,8 @@ def generate_masks(dcm_path):
                 filenames.append(f)
                 
     print("Number of files in the directory: {}".format(len(file_path)))
-    print(filenames)
-    filename_df = pd.DataFrame(filenames)
+    #print(filenames)
+    filename_df = pd.DataFrame(filenames, file_path)
     
     group_df = group_df.reset_index()
 
