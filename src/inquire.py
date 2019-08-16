@@ -163,17 +163,17 @@ def process_choices(options):
     if _format_answer(options["ingest_metadata"]).startswith("ingest"):
         ingest_dcm(bucket)
         clean_dcm_meta()
-    elif _format_answer(options["ingest_xcelera"]).startswith("ingest"):
+    if _format_answer(options["ingest_xcelera"]).startswith("ingest"):
         ingest_xtdb(bucket)
         clean_tables()
         filter_all()
-    elif _format_answer(options["download_file"]).startswith("download"):
+    if _format_answer(options["download_file"]).startswith("download"):
         train_test_ratio = float(options["download_file_train_test_ratio"])
         downsample_ratio = float(options["download_file_downsample_ratio"])
         s3_download_decomp_dcm(
             train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket
         )
-    elif "classification" in options["module"]:
+    if "classification" in options["module"]:
         print("Starting classification.")
         dir_name = options["dir_name"]
         img_dir_path = os.path.join(img_dir, dir_name)
@@ -182,18 +182,18 @@ def process_choices(options):
         agg_probabilities()
         predict_views()
         evaluate_views(img_dir_path, classification_model)
-    elif "segmentation" in options["module"]:
+    if "segmentation" in options["module"]:
         dir_name = options["dir_name"]
         dcm_dir_path = os.path.join(dcm_dir, dir_name)
         run_segment(dcm_dir_path, model_path)
         create_seg_view()
         generate_masks(dcm_dir_path)
         evaluate_masks()
-    elif "measurements" in options["module"]:
+    if "measurements" in options["module"]:
         dir_name = options["dir_name"]
-        retrieve_meas(dir_name)
+        retrieve_meas()
         calculate_meas(dir_name)
-        evaluate_meas()
+        evaluate_meas(dir_name)
 
 
 def cli():

@@ -157,7 +157,7 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
         )
     )
 
-    return dir_name
+    return 
 
 
 def _read_dcmraw(dcmraw_filepath):
