@@ -153,7 +153,7 @@ def generate_masks(dcm_path):
 
     file_paths = []
     filenames = []
-    i = 1
+    i = 0
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
         for file in f:
