@@ -9,9 +9,11 @@ from subprocess import Popen, PIPE
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
     command = "gdcmdump " + dicomdir + "/" + videofile
+    print(command)
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     lines = text.split("\n")
+    print(lines)
     dicom_tags = json.load(open("../src/d02_intermediate/dicom_tags.json"))
     # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
@@ -66,6 +68,8 @@ def _extract_hr_from_gdcm_str(lines, dicom_tags):
 
 def _extract_xy_from_gdcm_str(lines, dicom_tags):
     """Get rows, columns from gdcmdump output."""
+    rows = None
+    cols = None
     for line in lines:
         line = line.lstrip()
         tag = line.split(" ")[0]
