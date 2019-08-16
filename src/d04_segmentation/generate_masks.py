@@ -168,6 +168,7 @@ def generate_masks(dcm_path):
     print("Number of files in the directory: {}".format(len(file_path)))
     #print(filenames)
     filename_df = pd.DataFrame(filenames, file_path)
+    print(filename_df.head())
     
     group_df = group_df.reset_index()
 
