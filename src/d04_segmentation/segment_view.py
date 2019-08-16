@@ -15,6 +15,7 @@ from scipy.misc import imresize
 from datetime import datetime
 import hashlib
 
+from d00_utils.log_utils import setup_logging
 #from d00_utils.echocv_utils_v0 import *
 from d02_intermediate.download_dcm import dcm_to_segmentation_arrays
 #from d00_utils.dcm_utils import dcm_to_segmentation_arrays
@@ -23,6 +24,8 @@ from d00_utils.echocv_utils_v0 import *
 #from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
 from d04_segmentation.model_unet import Unet
 
+
+logger = setup_logging(__name__, __name__)
 
 ## Set environment parameters
 #parser = OptionParser()
@@ -41,7 +44,6 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 
 def segmentChamber(videofile, dicomdir, view, model_path):
-    print('DCM/dicom PATH : {}'.format(dicomdir))
     """
     
     """
@@ -53,8 +55,6 @@ def segmentChamber(videofile, dicomdir, view, model_path):
 #    sesses = []
 #    models = []
     modeldir = model_path
-
-    print(videofile, dicomdir)
 
     if view == "a4c":
         g_1 = tf.Graph()
@@ -153,7 +153,6 @@ def segmentChamber(videofile, dicomdir, view, model_path):
     j = 0
     nrow = orig_images[0].shape[0]
     ncol = orig_images[0].shape[1]
-    print(nrow, ncol)
     plt.figure(figsize=(5, 5))
     plt.axis("off")
     plt.imshow(imresize(preds, (nrow, ncol)))
@@ -198,7 +197,6 @@ def segmentChamber(videofile, dicomdir, view, model_path):
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
-    print('DCM PATH : {}'.format(dcm_path))
     
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
@@ -227,8 +225,6 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         ]
 
     for video in viewlist_a4c:
-        print(video)
-        print('for a4c')
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
@@ -354,13 +350,13 @@ def run_segment(dcm_path, model_path):
                 #print(str(fullfilename).split('.')[0])
                 filenames.append(str(fullfilename).split('.')[0])
                 
-    print("Number of files in the directory: {}".format(len(file_path)))
+    logger.info("Number of files in the directory: {}".format(len(file_path)))
     io_class = dbReadWriteClassification()
     predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
 
     file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
-    print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
+    logger.info("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
     
@@ -375,7 +371,7 @@ def run_segment(dcm_path, model_path):
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
-    print(
+    logger.info(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
 
