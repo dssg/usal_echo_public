@@ -84,57 +84,18 @@ def segmentChamber(videofile, dicomdir, view, model_path):
             saver.restore(
                 sess2, os.path.join(modeldir, "a2c_45_20_all_model.ckpt-10600")
             )
-    elif view == "a3c":
-        g_3 = tf.Graph()
-        with g_3.as_default():
-            label_dim = 4
-            sess3 = tf.Session()
-            model3 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess3.run(tf.local_variables_initializer())
-            sess = sess3
-            model = model3
-        with g_3.as_default():
-            saver.restore(
-                sess3, os.path.join(modeldir, "a3c_45_20_all_model.ckpt-10500")
-            )
-    elif view == "psax":
-        g_4 = tf.Graph()
-        with g_4.as_default():
-            label_dim = 4
-            sess4 = tf.Session()
-            model4 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess4.run(tf.local_variables_initializer())
-            sess = sess4
-        model = model4
-        with g_4.as_default():
-            saver = tf.train.Saver()
-            saver.restore(
-                sess4, os.path.join(modeldir, "psax_45_20_all_model.ckpt-9300")
-            )
-    elif view == "plax":
-        g_5 = tf.Graph()
-        with g_5.as_default():
-            label_dim = 7
-            sess5 = tf.Session()
-            model5 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess5.run(tf.local_variables_initializer())
-            sess = sess5
-            model = model5
-        with g_5.as_default():
-            saver = tf.train.Saver()
-            saver.restore(
-                sess5, os.path.join(modeldir, "plax_45_20_all_model.ckpt-9600")
-            )
+
     outpath = "/home/ubuntu/data/04_segmentation/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
+        
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
     np_arrays_x3 = []
     images_uuid_x3 = []
+    
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 4, 1
-        )
+            images, orig_images, model, sess, 2, 4, 1)
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
@@ -337,7 +298,7 @@ def run_segment(dcm_path, model_path):
     
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm' in file:
+            if '.dcm_raw' in file:
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 filenames.append(str(fullfilename).split('.')[0])
@@ -349,6 +310,7 @@ def run_segment(dcm_path, model_path):
 
     file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
     logger.info("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
+    print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
     
