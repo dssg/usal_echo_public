@@ -1,7 +1,6 @@
 # USAL Echocardiogram Analysis
 
-This project automates the analysis of echocardiogram images. 
-
+This project automates the analysis of echocardiogram images to detect normal heart functioning. Echocardiograms are ultrasound images of the heart, that are lower in cost and quicker to perform than other imaging techniques such as MR images and CT scans. They are thus the most frequently used caridovascular imaging technique for preventative screenings and ongoing monitoring of heart conditions. Cardiologists spend a significant amount of time analysing echocardiograms and reporting on the results. Many of these  analytical studies are for people with normal heart functioning that require no further medical intervention. Automating the identification of normal heart function from echocardiogram images can potentially reduce the time that cardiologists spend in front of computers and help them increase the amount of time spent with ill patients that need them most.
 
 ## Table of contents
 
@@ -9,7 +8,7 @@ This project automates the analysis of echocardiogram images.
 2. [Overview](https://github.com/dssg/usal_echo#overview)
 3. [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements)
 4. [Installation and setup](https://github.com/dssg/usal_echo#installation-and-setup)
-5. [Pipeline options](https://github.com/dssg/usal_echo#pipeline-options)
+5. [Run the Pipeline](https://github.com/dssg/usal_echo#run-the-pipeline)
 6. [Code organisation](https://github.com/dssg/usal_echo#code-organisation)
 7. [Contributors](https://github.com/dssg/usal_echo#contributors)
 8. [License](https://github.com/dssg/usal_echo#license)
@@ -18,20 +17,20 @@ This project automates the analysis of echocardiogram images.
 
 ### Data Science for Social Good at Imperial College London 2019
 
-The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with governments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
+The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with goverhttps://ibsal.es/en/research-units/cardiovascular-research-unitnments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
 
 For three months they learn, hone, and apply their data science, analytical, and coding skills, collaborate in a fast-paced atmosphere, and learn from mentors coming from industry and academia.
 
 ### Partners
 
-The project was done in collaboration with the CIBERCV (Biomedical Research Networking Centres - Cardiovascular) research team working at the Hospital Universitario de Salamanca (USAL). USAL has one of the most advanced cardiographic imaging units in Spain and serves an ageing, largely rural population. The team of cardiologists at USAL is investigating new technologies such as artificial intelligence to help improve patient care.
+The project was done in collaboration with the [CIBERCV](https://www.cibercv.es/en) (Biomedical Research Networking Centres - Cardiovascular) research team working at the Hospital Universitario de Salamanca ([USAL](https://ibsal.es/en/research-units/cardiovascular-research-unit)). USAL has one of the most advanced cardiographic imaging units in Spain and serves an ageing, largely rural population. The team of cardiologists at USAL is investigating new technologies such as artificial intelligence to help improve patient care.
 
 ## Overview
 
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
 
-The codebase is an evolution of code developed by [Zhang et al](https://bitbucket.org/rahuldeo/echocv/src/master/).
+This codebase is an evolution of code developed by [Zhang et al](https://bitbucket.org/rahuldeo/echocv/src/master/). The paper describing their research approach is available in the [references](references) directory.
 
 ## Infrastructure requirements
 We retrieve our data from an AWS S3 bucket and use an AWS EC2 server for running all code. Results for each processing layer are stored in an AWS RDS.
@@ -84,7 +83,14 @@ Navigate into your newly cloned `usal_echo` diretctory and run the setup.py scri
 python src/setup.py
 ```
 
-#### 3. Credentials files
+#### 3. Download models
+
+The models used to run this pipeline can be downloaded from s3:  
+* [classification](): original from Zhang et al, adapted to our dataset using transfer learning.
+* [segmentation](): original from Zhang et al without adaptation
+
+
+#### 4. Credentials files
 
 To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
@@ -108,18 +114,7 @@ Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
 }
 ```
 
-#### 4. Download models
-
-The codebase and models build on the work of Zhang et al.
-
-The models used to run this pipeline can be downloaded from s3:  
-* [classification](): original from [Zhang et al](https://www.dropbox.com/sh/0tkcf7e0ljgs0b8/AACBnNiXZ7PetYeCcvb-Z9MSa?dl=0) adapted to our dataset using transfer learning.
-* [segmentation](): 
-
-
-#### 5. Run the pipeline
-
-##### Data paths
+#### 5. Specify data paths
 
 The path parameters for the s3 bucket and for storing dicom files, images and models are stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. The default paths are:
 
@@ -131,10 +126,10 @@ model_dir: "~/models"
 classification_model: "model.ckpt-6460"
 ```
 
-The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_path` is the directory in which models are stored. The classification and segmentation models must be saved at the `model_path`.
+The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved at the `model_dir`.
 
 
-##### Run the pipeline
+## Run the pipeline
 
 The final step is to run the `inquire.py` script. 
 ```
@@ -142,7 +137,7 @@ python src/inquire.py
 ```
 This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail in the following section.
 
-## Pipeline options
+### Pipeline options
 
 Show a new user how to use the package.
 
@@ -169,5 +164,5 @@ The code is organised as follows:
 This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
 
 <p align="center">
-<img src="docs/images/cardiologist_journey_3.jpeg" alt="Cardiologist at work" width="400" align:center/>
+<img src="docs/images/automated_echo_analysis_future.jpeg" alt="Cardiologist at work" width="400" align:center/>
 </p>
