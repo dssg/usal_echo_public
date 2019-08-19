@@ -17,7 +17,7 @@
 
 ### Data Science for Social Good at Imperial College London 2019
 
-The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with goverhttps://ibsal.es/en/research-units/cardiovascular-research-unitnments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
+The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with governments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
 
 For three months they learn, hone, and apply their data science, analytical, and coding skills, collaborate in a fast-paced atmosphere, and learn from mentors coming from industry and academia.
 
