@@ -22,6 +22,7 @@ from d02_intermediate.download_dcm import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from d00_utils.echocv_utils_v0 import *
 #from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
+from d03_classification.evaluate_views import _groundtruth_views
 from d04_segmentation.model_unet import Unet
 
 
@@ -278,7 +279,7 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def run_segment(dcm_path, model_path):
+def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.today()):
     
     #infile = open(
     #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
@@ -298,7 +299,7 @@ def run_segment(dcm_path, model_path):
     
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm_raw' in file:
+            if '.dcm' in file:
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 filenames.append(str(fullfilename).split('.')[0])
@@ -307,6 +308,14 @@ def run_segment(dcm_path, model_path):
     io_class = dbReadWriteClassification()
     predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
+    
+    predict_truth = _groundtruth_views()
+    
+
+    df = predict_truth.loc[
+        (predict_truth["img_dir"] == img_dir)
+        & (predict_truth["model_name"] == model_name)
+        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run),:,]
 
     file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
     logger.info("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
