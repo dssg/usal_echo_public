@@ -15,14 +15,14 @@ from d05_measurement.meas_utils import extract_metadata_for_measurements
 
 logger = setup_logging(__name__, __name__)
 
-def write_masks():
+def generate_masks(dcm_path):
     #io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
     
     #Instances to write masks for
     #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
 
-    masks_df = generate_masks()
+    masks_df = create_masks(dcm_path)
     
     #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
     
@@ -125,7 +125,7 @@ def get_mask(row):
     return img
 
 
-def generate_masks(dcm_path):
+def create_masks(dcm_path):
     """Convert measurement segments to Numpy masks.
     
     :return: updated DataFrame
