@@ -142,11 +142,19 @@ This will launch a questionnaire in your command line that takes you through the
 ### Pipeline options
 
 <p align="left">
-<img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="700" />
+<img src="docs/images/inquire_ingest.png" alt="Run pipeline: ingest." width="450" />
 </p>
 
 <p align="left">
-<img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="450" />
+<img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
+</p>
+
+<p align="left">
+<img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="700" />
+</p>
+
+<p align="left">
+<img src="docs/images/inquire_dir.png" alt="Run pipeline: specify directory." width="450" />
 </p>
 
 
