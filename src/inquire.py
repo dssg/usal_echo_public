@@ -25,13 +25,14 @@ from d05_measurement.retrieve_meas import retrieve_meas
 from d05_measurement.calculate_meas import calculate_meas
 from d05_measurement.evaluate_meas import evaluate_meas
 
-paths = yaml.load(open("../conf/local/path_parameters.yml"), Loader=yaml.FullLoader)["db"]
+with open("./conf/local/path_parameters.yml") as f:
+    paths = yaml.safe_load(f)
 
 bucket = paths["bucket"]
 dcm_dir = os.path.expanduser(paths["dcm_dir"])
 img_dir = os.path.expanduser(paths["img_dir"])
 model_dir = os.path.expanduser(paths["model_dir"])
-classification_model = paths["model"]
+classification_model = paths["classification_model"]
 
 
 def _print_welcome_message():

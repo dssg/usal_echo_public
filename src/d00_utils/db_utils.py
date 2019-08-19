@@ -49,12 +49,12 @@ class dbReadWriteData:
             "psswd": "your_password"
             }
             
-    :param credentials_file (str): path to credentials file, default="../conf/local/postgres_credentials.json"
+    :param credentials_file (str): path to credentials file, default="./conf/local/postgres_credentials.json"
     :param schema (str): database schema 
             
     """
 
-    def __init__(self, schema=None, credentials_file="../conf/local/postgres_credentials.json"):
+    def __init__(self, schema=None, credentials_file="./conf/local/postgres_credentials.json"):
         self.filepath = os.path.expanduser(credentials_file)
         self.schema = schema
         self.credentials = _load_json_credentials(self.filepath)
