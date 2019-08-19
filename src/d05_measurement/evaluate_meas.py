@@ -23,7 +23,7 @@ def evaluate_meas(folder):
     merge_df = ground_truths_df.merge(
         calculations_df, on=cols, suffixes=["_gt", "_calc"]
     )
-    merge_df = merge_df[merge_df['measurement_value_calc'] != '']
+    merge_df = merge_df[merge_df["measurement_value_calc"] != ""]
 
     # Evaluate volumes and ejection fractions with absolute/relative differences.
     numeric_df = merge_df[merge_df["measurement_name"] != "recommendation"].copy()
