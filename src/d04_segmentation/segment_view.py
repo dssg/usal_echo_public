@@ -279,7 +279,7 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.date.today()):
+def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = date.today()):
     
     #infile = open(
     #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
