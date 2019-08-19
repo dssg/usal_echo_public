@@ -19,6 +19,12 @@ print('parents 2: {}'.format(Path(__file__).parents[2]))
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
+    
+    print('parents 0: {}'.format(Path(__file__).parents[0]))
+    print('parents 1: {}'.format(Path(__file__).parents[1]))
+    print('parents 2: {}'.format(Path(__file__).parents[2]))
+
+    
     command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
