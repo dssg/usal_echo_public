@@ -3,12 +3,19 @@ import json
 import numpy as np
 import pandas as pd
 import cv2
+from pathlib import Path
 
 from scipy.misc import imresize
 from subprocess import Popen, PIPE
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
+
+dcm_tags = os.path.join(Path(__file__).parents[1], "dicom_tags.json")
+
+print('parents 0: {}'.format(Path(__file__).parents[0]))
+print('parents 1: {}'.format(Path(__file__).parents[1]))
+print('parents 2: {}'.format(Path(__file__).parents[2]))
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
