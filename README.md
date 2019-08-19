@@ -1,6 +1,6 @@
 # USAL Echocardiogram Analysis
 
-This project classifies echocardiographic DICOM images.
+This project automates the analysis of echocardiogram images. 
 
 
 ## Table of contents
@@ -30,6 +30,8 @@ The project was done in collaboration with the CIBERCV (Biomedical Research Netw
 
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
+
+The codebase is an evolution of code developed by [Zhang et al](https://bitbucket.org/rahuldeo/echocv/src/master/).
 
 ## Infrastructure requirements
 We retrieve our data from an AWS S3 bucket and use an AWS EC2 server for running all code. Results for each processing layer are stored in an AWS RDS.
@@ -96,7 +98,7 @@ aws_secret_access_key=your_secret_key
 The pipeline uses the `default` user credentials.
 
 ##### postgres credentials  
-Located in `~/user/.psql_credentials.json` and formatted as:
+Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
 ```
 {
 "user":"your_user",
@@ -106,7 +108,34 @@ Located in `~/user/.psql_credentials.json` and formatted as:
 }
 ```
 
-#### 4. Run the pipeline
+#### 4. Download models
+
+The codebase and models build on the work of Zhang et al.
+
+The models used to run this pipeline can be downloaded from s3:  
+* [classification](): original from [Zhang et al](https://www.dropbox.com/sh/0tkcf7e0ljgs0b8/AACBnNiXZ7PetYeCcvb-Z9MSa?dl=0) adapted to our dataset using transfer learning.
+* [segmentation](): 
+
+
+#### 5. Run the pipeline
+
+##### Data paths
+
+The path parameters for the s3 bucket and for storing dicom files, images and models are stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. The default paths are:
+
+```
+bucket: "your_s3_bucket"
+dcm_dir: "~/data/01_raw"
+img_dir: "~/data/02_intermediate"
+model_dir: "~/models"
+classification_model: "model.ckpt-6460"
+```
+
+The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_path` is the directory in which models are stored. The classification and segmentation models must be saved at the `model_path`.
+
+
+##### Run the pipeline
+
 The final step is to run the `inquire.py` script. 
 ```
 python src/inquire.py
