@@ -31,9 +31,10 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     nrow, ncol = _extract_xy_from_gdcm_str(lines, dicom_tags) or (None, None)
     # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
     ft = _extract_ft_from_gdcm_str(lines, dicom_tags)
-    if hr < 40:
-        logger.debug(f"problem heart rate: {hr}")
-        hr = 70
+    #if hr < 40:
+    #    logger.debug(f"problem heart rate: {hr}")
+    #    hr = 70
+    hr = 0
     return ft, hr, nrow, ncol, x_scale, y_scale
 
 
@@ -97,7 +98,7 @@ def _extract_ft_from_gdcm_str(lines, dicom_tags):
             is_framerate = True
     if not is_framerate:
         logger.debug("missing framerate")
-        framerate = defaultframerate
+        framerate = default_framerate
         frametime = 1000 / framerate
     ft = float(frametime)
     return ft
