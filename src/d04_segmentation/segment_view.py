@@ -314,12 +314,14 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
     
     predict_truth = _groundtruth_views()
     
+    print('Example file_name: {}'.format(predict_truth['file_name'][0]))
+    
     predictions_df = predict_truth.loc[
         (predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
         & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run),:,]
     
-    print('Example file_name: {}'.format(predictions_df['file_name'][0]))
+    
     
     file_predictions = pd.merge(filename_df, predictions_df, how='inner', left_on=[0], right_on=['file_name'])
 
