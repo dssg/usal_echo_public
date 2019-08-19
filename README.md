@@ -155,7 +155,7 @@ The code is organised as follows:
 
 ## Contributors
 
-**Research fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
+**Fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
 **Technical mentor**: Liliana Millán (Technical Mentor)  
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
