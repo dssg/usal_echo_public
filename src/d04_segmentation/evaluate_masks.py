@@ -48,8 +48,9 @@ def evaluate_masks():
             #retrieve gt numpy array
             print(gt['numpy_array'])
             gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1)#frame = 1, as it wants number of frames in np array, not frame number
-            if gt_numpy_array == None:
-                continue
+            print(gt_numpy_array)
+            #if gt_numpy_array == None:
+            #    continue
             #retrive relevant pred numpy array
             if gt_chamber == 'la':
                 pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['num_frames'][0])            
