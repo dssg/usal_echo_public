@@ -102,7 +102,7 @@ def _extract_ft_from_gdcm_str(lines, dicom_tags):
             is_framerate = True
     if not is_framerate:
         logger.debug("missing framerate")
-        framerate = defaultframerate
+        framerate = default_framerate
         frametime = 1000 / framerate
     ft = float(frametime)
     return ft
