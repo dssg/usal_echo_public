@@ -311,15 +311,13 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
     
     predict_truth = _groundtruth_views()
     
-
     predictions_df = predict_truth.loc[
         (predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
         & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run),:,]
 
-    file_predictions = pd.merge(filename_df, predictions_df, how='inner', left_on =[0], right_on = ['file_name'])
-    logger.info("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
-    print("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
+    logger.info("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
+    print("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
     
