@@ -30,7 +30,7 @@ The echocardiogram analysis process consists of 3 major processing steps.
 2. **Segmentation** of heart chambers in each of these three views.
 3. Calculation of **measurements** (in particular the left ventricular ejection fraction) and assessment of heart condition as "normal", "grey-zone" or "abnormal".
 
-Our pipeline has been designed to run in a modular way. Data ingestion, cleaning and view filtering can be run independently from the classification, segmentation and measurement modules provided that the dicom files are stored in an accessible directory. The name of this directory needs to be specified when running the pipeline (see []()
+Our pipeline has been designed to run in a modular way. Data ingestion, cleaning and view filtering can be run independently from the classification, segmentation and measurement modules provided that the dicom files are stored in an accessible directory. The name of this directory needs to be specified when running the pipeline (see [Section 5](https://github.com/dssg/usal_echo#specification-of-image-directory)).
 
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
