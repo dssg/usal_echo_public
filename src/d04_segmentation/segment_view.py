@@ -207,7 +207,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
             str(video),
             number_frames,
             model_name,
-            str(datetime.now()),
+            str(datetime.datetime.now()),
             np_arrays_x3[0],
             np_arrays_x3[1],
             np_arrays_x3[2],
