@@ -11,6 +11,7 @@ from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
 
+
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
     command = "gdcmdump " + dicomdir + "/" + videofile
@@ -55,7 +56,10 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
             deltay = np.abs(float(deltay))
             if deltay > 0.012:
                 ylist.append(deltay)
-    return np.nan if not len(xlist) else np.min(xlist), np.nan if not len(ylist) else np.min(ylist)
+    return (
+        np.nan if not len(xlist) else np.min(xlist),
+        np.nan if not len(ylist) else np.min(ylist),
+    )
 
 
 def _extract_hr_from_gdcm_str(lines, dicom_tags):
@@ -98,7 +102,7 @@ def _extract_ft_from_gdcm_str(lines, dicom_tags):
             is_framerate = True
     if not is_framerate:
         logger.debug("missing framerate")
-        framerate = defaultframerate
+        framerate = default_framerate
         frametime = 1000 / framerate
     ft = float(frametime)
     return ft
