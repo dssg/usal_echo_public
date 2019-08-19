@@ -148,26 +148,76 @@ python src/inquire.py
 This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail below.
 
 ### Pipeline options
+To navigate through the options in the command line prompt hit `spacebar` to check or uncheck multiple choice options and `Enter` to select an option. Navigate between options with the `up` and `down` arrows. You can abort the process with `Ctrl+C`.
 
 #### Data ingestion
+Select to ingest or not to ingest dicom metadata and the Xcelera database. **NB: ingesting the dicom metadata for 25 000 studies takes ~3 days!**
 
 <p align="left">
 <img src="docs/images/inquire_ingest.png" alt="Run pipeline: ingest." width="450" />
 </p>
 
-#### Dicom image download
+This step includes the following subprocesses: 
 
-This step downloads and decompresses the dicom files based on the test/train split ratio and downsample ratio. The files are saved in a directory name according to the following convention: _test_split[**ratio\ * 100**]\_downsampleby[**inverse ratio**]_. For example, if `Train test ratio = 0.5` and `Downsample ratio = 0.001` the directory name will be _test_split50_downsampleby1000_.
+##### dicom metadata
+```
+d01_data.ingestion_dcm.ingest_dcm(bucket)
+d02_intermediate.clean_dcm.clean_dcm_meta()
+```
+
+##### Xcelera data
+```
+d01_data.ingestion_xtdb.ingest_xtdb(bucket)
+d02_intermediate.clean_xtdb.clean_tables()
+d02_intermediate.filter_instances.filter_all()
+```
+
+#### Dicom image download
+This step downloads and decompresses the dicom files. The files to download are determined based on the test/train split ratio and downsample ratio, both of which must be specified if this option is selected. The files are saved in a directory name according to the following convention: _test_split[**ratio * 100**]\_downsampleby[**inverse ratio**]_. For example, if `Train test ratio = 0.5` and `Downsample ratio = 0.001` the directory name will be _test_split50_downsampleby1000_.
 
 <p align="left">
 <img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
 </p>
 
+
+```
+s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket)
+```
+
 #### Module selection
+Select one or more modules for inference and evaluation. 
 
 <p align="left">
 <img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="700" />
 </p>
+
+The following functions are executed in each module. `dir_name` is the directory specified in the next step. `dcm_dir` and `img_dir` are specified in _path_paramters.yml_:
+
+##### classification
+```
+img_dir_path = os.path.join(img_dir, dir_name)
+dcmdir_to_jpgs_for_classification(dcm_dir, img_dir_path)
+d03_classification.predict_views.run_classify(img_dir_path, os.path.join(model_dir, classification_model))
+d03_classification.predict_views.agg_probabilities()
+d03_classification.predict_views.predict_views()
+d03_classification.evaluate_views.evaluate_views(img_dir_path, classification_model)
+```
+
+##### segmentation
+```
+dcm_dir_path = os.path.join(dcm_dir, dir_name)
+d04_segmentation.segment_view.run_segment(dcm_dir_path, model_dir, img_dir_path, classification_model)
+d02_intermediate.create_seg_view.create_seg_view()
+d04_segmentation.generate_masks.generate_masks(dcm_dir_path)
+d04_segmentation.evaluate_masks.evaluate_masks()
+```
+
+##### measurements
+```
+d05_measurement.retrieve_meas.retrieve_meas()
+d05_measurement.calculate_meas.calculate_meas(dir_name)
+d05_measurement.evaluate_meas.evaluate_meas(dir_name)
+```
 
 #### Specification of image directory
 
