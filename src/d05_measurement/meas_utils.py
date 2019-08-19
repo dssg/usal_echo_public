@@ -6,7 +6,6 @@ import cv2
 
 from scipy.misc import imresize
 from subprocess import Popen, PIPE
-
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
