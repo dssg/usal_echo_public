@@ -40,7 +40,8 @@ def evaluate_masks():
         
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
-        logger.info('got predictions details for instance {}'.format(gt_instance_id))
+        logger.info('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
+        print('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
         
         if len(pred.index) > 0:
             pred_view_name = gt['view_name']

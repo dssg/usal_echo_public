@@ -192,7 +192,7 @@ def process_choices(options):
         img_dir_path = os.path.join(img_dir, dir_name)
         #run_segment(dcm_dir_path, model_dir, img_dir_path, classification_model)
         #create_seg_view()
-        generate_masks(dcm_dir_path)
+        #generate_masks(dcm_dir_path)
         evaluate_masks()
     if "measurements" in options["module"]:
         dir_name = options["dir_name"]
