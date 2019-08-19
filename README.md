@@ -179,10 +179,11 @@ This step downloads and decompresses the dicom files. The files to download are 
 <img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
 </p>
 
-
+The download step executes the following function: 
 ```
-s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket)
+d02_intermediate.download_dcm.s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket)
 ```
+`s3_download_decomp_dcm` executes two processing steps: it downloads files from s3 and then decompresses them. If you already have a directory with dicom files that are not decompressed, you can use `d02_intermediate.download_dcm._decompress_dcm()` to decompress your images. The convention is that decompressed images are stored in a subdirectory of the original directory named `raw` and that filenames are appended with `_dcm` to end in `.dcm_raw`.
 
 #### Module selection
 Select one or more modules for inference and evaluation. 
@@ -197,7 +198,7 @@ The following functions are executed in each module. `dir_name` is the directory
 ```
 img_dir_path = os.path.join(img_dir, dir_name)
 dcmdir_to_jpgs_for_classification(dcm_dir, img_dir_path)
-d03_classification.predict_views.run_classify(img_dir_path, os.path.join(model_dir, classification_model))
+d03_classification.predict_views.run_classify(img_dir_path, classification_model_path)
 d03_classification.predict_views.agg_probabilities()
 d03_classification.predict_views.predict_views()
 d03_classification.evaluate_views.evaluate_views(img_dir_path, classification_model)
@@ -224,7 +225,6 @@ d05_measurement.evaluate_meas.evaluate_meas(dir_name)
 <p align="left">
 <img src="docs/images/inquire_dir.png" alt="Run pipeline: specify directory." width="450" />
 </p>
-
 
 ## Code organisation
 
