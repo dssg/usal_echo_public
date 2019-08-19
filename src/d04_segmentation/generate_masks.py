@@ -167,7 +167,7 @@ def generate_masks(dcm_path):
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm' in file:
+            if '.dcm_raw' in file:
                 file_paths.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 #print(str(fullfilename).split('.')[0])
@@ -179,7 +179,7 @@ def generate_masks(dcm_path):
     logger.info("Number of files in the directory: {}".format(len(file_paths)))
     #print(filenames)
     filename_df = pd.DataFrame({'file_name': filenames})
-    filename_df['file_path'] = path
+    filename_df['file_path'] = os.path.join(dcm_path, 'raw')
 
     group_df = group_df.reset_index()
 
