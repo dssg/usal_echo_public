@@ -299,7 +299,7 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
     
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm' in file:
+            if file.endswith('dcm_raw'):
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 filenames.append(str(fullfilename).split('.')[0])
