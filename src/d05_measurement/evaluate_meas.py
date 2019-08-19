@@ -13,7 +13,7 @@ def evaluate_meas(folder):
     calculations_df = io_measurement.get_table("calculations")
 
     file_names = [
-        fn.split(".")[0] for fn in os.listdir(f"/home/ubuntu/data/01_raw/{folder}")
+        fn.split(".")[0] for fn in os.listdir(f"/home/ubuntu/data/01_raw/{folder}/raw")
     ]
     ground_truths_df = ground_truths_df[ground_truths_df["file_name"].isin(file_names)]
     calculations_df = calculations_df[calculations_df["file_name"].isin(file_names)]
@@ -23,6 +23,7 @@ def evaluate_meas(folder):
     merge_df = ground_truths_df.merge(
         calculations_df, on=cols, suffixes=["_gt", "_calc"]
     )
+    merge_df = merge_df[merge_df['measurement_value_calc'] != '']
 
     # Evaluate volumes and ejection fractions with absolute/relative differences.
     numeric_df = merge_df[merge_df["measurement_name"] != "recommendation"].copy()
@@ -57,7 +58,6 @@ def evaluate_meas(folder):
 
     # Write evaluations to schema.
     evaluations_df = abs_diff_df.append(rel_diff_df).append(acc_df)
-    evaluations_df["calculation_source"] = calculation_source
     # Add serial id.
     old_evaluations_df = io_measurement.get_table("evaluations")
     start = len(old_evaluations_df)

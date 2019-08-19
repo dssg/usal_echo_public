@@ -38,10 +38,8 @@ def calculate_meas(folder):
     # Can only read a small number of segmentation rows at a time due to Numpy arrays.
     folder_measure_dict = {}
     step = 10
-    for i in tqdm(range(0, len(file_names_dcm), step)):
-        small_file_names_dcm = file_names_dcm[i * 10 : (i + 1) * 10]
-        if len(small_file_names_dcm) == 0:
-            continue
+    for start in tqdm(range(0, len(file_names_dcm), step)):
+        small_file_names_dcm = file_names_dcm[start : start + step]
         small_df = io_segmentation.get_segmentation_rows_for_files(
             "predictions", tuple(small_file_names_dcm)
         )
