@@ -116,7 +116,7 @@ Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
 
 #### 5. Specify data paths
 
-The path parameters for the s3 bucket and for storing dicom files, images and models are stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. The default paths are:
+The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. This file must be created before you can run the pipeline. The suggested paths are:
 
 ```
 bucket: "your_s3_bucket"
@@ -126,7 +126,7 @@ model_dir: "~/models"
 classification_model: "model.ckpt-6460"
 ```
 
-The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved at the `model_dir`.
+The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
 
 
 ## Run the pipeline
