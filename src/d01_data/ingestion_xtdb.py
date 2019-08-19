@@ -13,16 +13,16 @@ from d00_utils.s3_utils import get_matching_s3_keys
 from d00_utils.db_utils import dbReadWriteRaw
 
 
-def ingest_xtdb():
+def ingest_xtdb(bucket='cibercv'):
     """Retrieve all Xcelera_tablas csv files from s3 and save to postgres database.
     
     """
     io_raw = dbReadWriteRaw()
     tmp = tempfile.NamedTemporaryFile()
 
-    for file in get_matching_s3_keys("cibercv", "0.DATABASE", ".csv"):
+    for file in get_matching_s3_keys(bucket, "0.DATABASE", ".csv"):
         s3 = boto3.client("s3")
-        s3.download_file("cibercv", file, tmp.name)
+        s3.download_file(bucket, file, tmp.name)
 
         tbl = pd.read_csv(
             tmp.name, encoding="iso-8859-2", na_values="", decimal=",", index_col=False

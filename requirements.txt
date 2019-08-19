@@ -2,9 +2,12 @@ ipython>=7.0.0, <8.0
 jupyter>=1.0.0, <2.0
 nbstripout==0.3.3
 pandas==0.25.0
+scikit-learn==0.21.3
 sqlalchemy
 pyyaml
 pydicom
 black
+flake8
 shapely
+pyinquirer
 tqdm

@@ -96,7 +96,7 @@ def _downsample_train_test(downsample_ratio, train_test_ratio, table_name):
     return df_train_downsampled, df_test_downsampled
 
 
-def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_ratio, train=False):
+def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_name='instances_w_labels', train=False, bucket='cibercv'):
     """Downloads and decompresses test/train dicoms from s3.
     
     :param downsample_ratio (float): percentage by which to downsample dataset
@@ -144,7 +144,7 @@ def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_rat
         # symlink to experiment directory. Could save a lot of downloading time.
         if not os.path.isfile(dcm_filepath):
             download_s3_objects(
-                "cibercv", outfile=dcm_filepath, prefix=p, suffix=".dcm"
+                bucket, outfile=dcm_filepath, prefix=p, suffix=".dcm"
             )
 
         dcm_rawfilepath = os.path.join(raw_datadir, download_dict[p] + "_raw")
@@ -152,12 +152,12 @@ def s3_download_decomp_dcm(dcm_dir, table_name, train_test_ratio, downsample_rat
             _decompress_dcm(dcm_filepath, dcm_rawfilepath)
 
     logger.info(
-        "Successfully downloaded {} [train/test split = {}, downsample ratio = {}]".format(
+        "Downloaded {} [train/test split = {}, downsample ratio = {}]".format(
             table_name, train_test_ratio, downsample_ratio
         )
     )
 
-    return dir_name
+    return 
 
 
 def _read_dcmraw(dcmraw_filepath):
