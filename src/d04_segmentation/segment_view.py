@@ -316,10 +316,9 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
     
     print('Example file_name: {}'.format(predict_truth['file_name'][0]))
     
-    predictions_df = predict_truth.loc[
-        (predict_truth["img_dir"] == img_dir)
+    predictions_df = predict_truth[(predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
-        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run),:,]
+        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run)]
     
     print(predictions_df.head())
     
