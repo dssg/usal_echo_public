@@ -164,5 +164,5 @@ The code is organised as follows:
 This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
 
 <p align="center">
-<img src="docs/images/automated_echo_analysis_future.jpg" alt="Routine heart condition check for everyone." width="400" align:center/>
+<img src="docs/images/automated_echo_analysis_future.jpg" alt="Routine heart condition check for everyone." width="550" align:center/>
 </p>
