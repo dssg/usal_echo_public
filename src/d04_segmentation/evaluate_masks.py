@@ -64,17 +64,19 @@ def evaluate_masks():
             #calculate iou
             reported_iou = iou(gt_numpy_array, pred_numpy_array_frame)
             logger.info('IOU of: {}'.format(reported_iou))
+            
+            #write to db
+            # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
+            d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type',
+                         'score_value', 'gt_view_name', 'pred_view_name']
+            d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
+                 reported_iou, gt_view_name, pred_view_name]
+            #df = pd.DataFrame(data=d, columns=d_columns)
+            io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         else:
             logger.error('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
         
-        #write to db
-        # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 
-                     'score_value', 'gt_view_name', 'pred_view_name']
-        d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
-             reported_iou, gt_view_name, pred_view_name]
-        #df = pd.DataFrame(data=d, columns=d_columns)
-        io_segmentation.save_seg_evaluation_to_db(d, d_columns)
+        
     
 
 def iou(gt, pred):
