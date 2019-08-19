@@ -89,7 +89,7 @@ class Network(object):
             fc_ = lambda x, features, name, relu=True: nn.fc(
                 x, features, self.weight_decay, name, relu=relu
             )
-            VGG_MEAN = [103.939, 116.779, 123.68]
+            # VGG_MEAN = [103.939, 116.779, 123.68]
             # Convert RGB to BGR and subtract mean
             # red, green, blue = tf.split(input, 3, axis=3)
             input = tf.concat([input - 24, input - 24, input - 24], axis=3)

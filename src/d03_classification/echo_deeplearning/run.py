@@ -1,9 +1,8 @@
 #!/usr/bin/env python -W ignore::DeprecationWarning
 
-import numpy as np
 import tensorflow as tf
 
-import sys, os, time, json
+import sys, os, json
 from easydict import EasyDict as edict
 
 from util import *
@@ -77,8 +76,6 @@ def main(argv):
 
     # initialize model
     if ckpt and not FLAGS.retrain:
-        # print(ckpt.model_checkpoint_path)
-        checkpoint_HARDCODE = train_dir + "/model.ckpt-0"
         saver.restore(sess, ckpt.model_checkpoint_path)
     else:
         sess.run(tf.global_variables_initializer())

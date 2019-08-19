@@ -1,14 +1,6 @@
 import numpy as np
-
 import tensorflow as tf
-import scipy
-import scipy.io
-
 import os, subprocess
-import timeit
-
-from collections import deque
-from sklearn.metrics import confusion_matrix
 
 Src = os.path.dirname(os.path.abspath(__file__))  # src directory
 Root = os.path.dirname(Src) + "/"  # root directory
