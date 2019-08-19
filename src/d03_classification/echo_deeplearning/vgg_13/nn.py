@@ -5,6 +5,7 @@ import timeit
 
 from collections import deque
 from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
 
 ############################
 # Neural Network Functions #

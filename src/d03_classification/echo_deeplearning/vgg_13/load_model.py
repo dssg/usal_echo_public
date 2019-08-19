@@ -1,17 +1,16 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib
-
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
+
 import random
 import os, sys
-import nn
 
+import nn
 from util import *
-from scipy.misc import imread, imresize, imsave
-from scipy.ndimage.filters import gaussian_filter
-from skimage import exposure
+from scipy.misc import imresize, imsave
+from load_data import load_data as ld
 
 
 def load_model(config, sess):
@@ -21,8 +20,6 @@ def load_model(config, sess):
 def load_data(config, sess):
     data_dir = os.path.join(Data, config.data)
     sys.path.append(data_dir)
-    from load_data import load_data as ld
-
     return ld(config, sess)
 
 
