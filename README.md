@@ -135,11 +135,18 @@ The final step is to run the `inquire.py` script.
 ```
 python src/inquire.py
 ```
-This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail in the following section.
+This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail below.
 
 ### Pipeline options
 
-Show a new user how to use the package.
+<p align="left">
+<img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="700" />
+</p>
+
+<p align="left">
+<img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="450" />
+</p>
+
 
 ## Code organisation
 
