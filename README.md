@@ -31,6 +31,8 @@ The project was done in collaboration with the CIBERCV (Biomedical Research Netw
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
 
+The pipeline has been designed to run in a modular way. Data ingestion, cleaning and view filtering can be run independently from the classification, segmentation and measurement modules provided that the dicom files are stored in an accessible directory.
+
 The codebase is an evolution of code developed by [Zhang et al](https://bitbucket.org/rahuldeo/echocv/src/master/).
 
 ## Infrastructure requirements
