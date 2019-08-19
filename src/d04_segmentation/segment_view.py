@@ -313,8 +313,10 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
     
     
     predict_truth = _groundtruth_views()
+    print(date_run)
     
-    print('Example file_name: {}'.format(predict_truth['file_name'][0]))
+    print('Example file_name: {} {} {} {}'.format(predict_truth['file_name'][0], predict_truth["img_dir"][0],
+          predict_truth["model_name"][0], predict_truth["date_run"][0]))
     
     predictions_df = predict_truth[(predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
