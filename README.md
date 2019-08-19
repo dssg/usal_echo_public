@@ -27,10 +27,16 @@ The project was done in collaboration with the [CIBERCV](https://www.cibercv.es/
 
 ## Overview
 
+The echocardiogram analysis process consists of 3 major processing steps.
+
+1. View **Classification** into A2C (apical two chamber), A4C (apical four chamber) and Plax (parasternal long axis) views.
+2. **Segmentation** of heart chambers in each of these three views.
+3. Calculation of **measurements** (in particular the left ventricular ejection fraction) and assessment of heart condition as "normal", "grey-zone" or "abnormal".
+
+Our pipeline has been designed to run in a modular way. Data ingestion, cleaning and view filtering can be run independently from the classification, segmentation and measurement modules provided that the dicom files are stored in an accessible directory. The name of this directory needs to be specified when running the pipeline (see []()
+
 The processing pipeline is structured as follows.
 ![USAL Echo Project Overview](docs/images/usal_echo_pipeline_overview.png?raw=true "USAL Echo Project Overview")
-
-The pipeline has been designed to run in a modular way. Data ingestion, cleaning and view filtering can be run independently from the classification, segmentation and measurement modules provided that the dicom files are stored in an accessible directory.
 
 The codebase is an evolution of code developed by [Zhang et al](https://bitbucket.org/rahuldeo/echocv/src/master/).
 
@@ -130,6 +136,8 @@ classification_model: "model.ckpt-6460"
 
 The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
 
+#### 6. Create the database schema
+
 
 ## Run the pipeline
 
@@ -141,12 +149,30 @@ This will launch a questionnaire in your command line that takes you through the
 
 ### Pipeline options
 
-<p align="left">
-<img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="700" />
-</p>
+#### Data ingestion
 
 <p align="left">
-<img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="450" />
+<img src="docs/images/inquire_ingest.png" alt="Run pipeline: ingest." width="450" />
+</p>
+
+#### Dicom image download
+
+This step downloads and decompresses the dicom files based on the test/train split ratio and downsample ratio. The files are saved in a directory name according to the following convention: _test_split[**ratio\ * 100**]\_downsampleby[**inverse ratio**]_. For example, if `Train test ratio = 0.5` and `Downsample ratio = 0.001` the directory name will be _test_split50_downsampleby1000_.
+
+<p align="left">
+<img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
+</p>
+
+#### Module selection
+
+<p align="left">
+<img src="docs/images/inquire_classification.png" alt="Run pipeline: classification." width="700" />
+</p>
+
+#### Specification of image directory
+
+<p align="left">
+<img src="docs/images/inquire_dir.png" alt="Run pipeline: specify directory." width="450" />
 </p>
 
 
