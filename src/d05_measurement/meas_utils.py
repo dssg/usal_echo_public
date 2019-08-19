@@ -13,6 +13,7 @@ logger = setup_logging(__name__, __name__)
 
 dcm_tags = os.path.join(Path(__file__).parents[1], "d02_intermediate", "dicom_tags.json")
 
+
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
     
@@ -59,7 +60,10 @@ def _extract_delta_xy_from_gdcm_str(lines, dicom_tags):
             deltay = np.abs(float(deltay))
             if deltay > 0.012:
                 ylist.append(deltay)
-    return np.nan if not len(xlist) else np.min(xlist), np.nan if not len(ylist) else np.min(ylist)
+    return (
+        np.nan if not len(xlist) else np.min(xlist),
+        np.nan if not len(ylist) else np.min(ylist),
+    )
 
 
 def _extract_hr_from_gdcm_str(lines, dicom_tags):
