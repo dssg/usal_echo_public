@@ -201,14 +201,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
-    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
-    # below cleans the filename field
-    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
-        "instancefilename"
-    ].apply(lambda x: str(x).strip())
-    #Columns names are:prediction_id	study_id	instance_id	file_name	
-        #num_frames	model_name	date_run	output_np_lv	output_np_la	
-        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+    
     column_names = [
             "study_id",
             "instance_id",
@@ -224,6 +217,13 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
             "output_image_overlay",            
         ]
 
+    
+    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    # below cleans the filename field to remove whitespace
+    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
+        "instancefilename"
+    ].apply(lambda x: str(x).strip())
+   
     for video in viewlist_a4c:
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
@@ -318,36 +318,28 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
 
 
 def run_segment(dcm_path, model_path):
-    # To use dicomdir option set in global scope.
-    #global dicomdir
     
-    # In case dicomdir is path with more than one part.
-    # dicomdir_basename = os.path.basename(dicomdir)
-    #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
-    # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
-    
-    infile = open(
-        "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
-    )
-    infile = infile.readlines()
-    infile = [i.rstrip() for i in infile]
+    #infile = open(
+    #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
+    #)
+    #infile = infile.readlines()
+    #infile = [i.rstrip() for i in infile]
 
-    viewdict = {}
+    #viewdict = {}
 
-    for i in range(len(infile)):
-        viewdict[infile[i]] = i + 2
+    #for i in range(len(infile)):
+    #    viewdict[infile[i]] = i + 2
     
     path = dcm_path
 
     file_path = []
     filenames = []
-    # r=root, d=directories, f = files
+    
     for r, d, f in os.walk(path):
         for file in f:
             if '.dcm' in file:
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
-                #print(str(fullfilename).split('.')[0])
                 filenames.append(str(fullfilename).split('.')[0])
                 
     logger.info("Number of files in the directory: {}".format(len(file_path)))
