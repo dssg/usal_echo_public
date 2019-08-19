@@ -4,9 +4,8 @@ import os
 from datetime import datetime
 from tqdm import tqdm
 
-from d00_utils.output_utils import *
 from d05_measurement.meas_utils import *
-from d00_utils.log_utils import *
+from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteSegmentation, dbReadWriteMeasurement
 
 logger = setup_logging(__name__, "analyse_segments")

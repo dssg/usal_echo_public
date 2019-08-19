@@ -1,5 +1,6 @@
 from PyInquirer import prompt
 import os
+import yaml
 
 from d01_data.ingestion_dcm import ingest_dcm
 from d01_data.ingestion_xtdb import ingest_xtdb
@@ -24,11 +25,13 @@ from d05_measurement.retrieve_meas import retrieve_meas
 from d05_measurement.calculate_meas import calculate_meas
 from d05_measurement.evaluate_meas import evaluate_meas
 
-bucket = "cibercv"
-dcm_dir = os.path.expanduser("~/data/01_raw")
-img_dir = os.path.expanduser("~/data/02_intermediate")
-model_path = os.path.expanduser("~/models")
-classification_model = "model.ckpt-6460"
+paths = yaml.load(open("../conf/local/path_parameters.yml"), Loader=yaml.FullLoader)["db"]
+
+bucket = paths["bucket"]
+dcm_dir = os.path.expanduser(paths["dcm_dir"])
+img_dir = os.path.expanduser(paths["img_dir"])
+model_dir = os.path.expanduser(paths["model_dir"])
+classification_model = paths["model"]
 
 
 def _print_welcome_message():
@@ -95,7 +98,7 @@ def download_files():
     return answers
 
 
-def download_files_args():
+def _download_files_args():
     """
     Asks for the arguments required for downloading DICOM files
     :return: selected option
@@ -138,7 +141,7 @@ def modules():
     return answers
 
 
-def pipeline_args():
+def _pipeline_args():
     """
     Asks for parameters required by classification, segmentation and measurement
     :return: arguments defined
@@ -178,14 +181,14 @@ def process_choices(options):
         dir_name = options["dir_name"]
         img_dir_path = os.path.join(img_dir, dir_name)
         dcmdir_to_jpgs_for_classification(dcm_dir, img_dir_path)
-        run_classify(img_dir_path, os.path.join(model_path, classification_model))
+        run_classify(img_dir_path, os.path.join(model_dir, classification_model))
         agg_probabilities()
         predict_views()
         evaluate_views(img_dir_path, classification_model)
     if "segmentation" in options["module"]:
         dir_name = options["dir_name"]
         dcm_dir_path = os.path.join(dcm_dir, dir_name)
-        run_segment(dcm_dir_path, model_path)
+        run_segment(dcm_dir_path, model_dir)
         create_seg_view()
         generate_masks(dcm_dir_path)
         evaluate_masks()
@@ -204,15 +207,15 @@ def cli():
     options.update(download_files())
 
     if _format_answer(options["download_file"]).startswith("download"):
-        options.update(download_files_args())
+        options.update(_download_files_args())
 
     options.update(modules())
     if len(options["module"]) > 0:
-        options.update(pipeline_args())
+        options.update(_pipeline_args())
 
     process_choices(options)
 
 
 if __name__ == "__main__":
     cli()
-    print("Pipeline execution complete. Check log files for errors.")
+    print("Pipeline execution complete. Check log files for potential errors.")
