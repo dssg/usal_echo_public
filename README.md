@@ -16,17 +16,14 @@
 ## Introduction
 
 ### Data Science for Social Good at Imperial College London 2019
-
 The Data Science for Social Good Fellowship is a summer program to train aspiring data scientists to work on data mining, machine learning, big data, and data science projects with social impact. Working closely with governments and nonprofits, fellows take on real-world problems in education, health, energy, public safety, transportation, economic development, international development, and more.
 
 For three months they learn, hone, and apply their data science, analytical, and coding skills, collaborate in a fast-paced atmosphere, and learn from mentors coming from industry and academia.
 
 ### Partners
-
 The project was done in collaboration with the [CIBERCV](https://www.cibercv.es/en) (Biomedical Research Networking Centres - Cardiovascular) research team working at the Hospital Universitario de Salamanca ([USAL](https://ibsal.es/en/research-units/cardiovascular-research-unit)). USAL has one of the most advanced cardiographic imaging units in Spain and serves an ageing, largely rural population. The team of cardiologists at USAL is investigating new technologies such as artificial intelligence to help improve patient care.
 
 ## Overview
-
 The echocardiogram analysis process consists of 3 major processing steps.
 
 1. View **Classification** into A2C (apical two chamber), A4C (apical four chamber) and Plax (parasternal long axis) views.
@@ -92,14 +89,12 @@ python src/setup.py
 ```
 
 #### 3. Download models
-
 The models used to run this pipeline can be downloaded from s3:  
 * [classification](): original from Zhang et al, adapted to our dataset using transfer learning.
 * [segmentation](): original from Zhang et al without adaptation
 
 
 #### 4. Credentials files
-
 To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
 ##### aws credentials   
@@ -123,7 +118,6 @@ Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
 ```
 
 #### 5. Specify data paths
-
 The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. This file must be created before you can run the pipeline. The suggested paths are:
 
 ```
@@ -137,10 +131,9 @@ classification_model: "model.ckpt-6460"
 The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
 
 #### 6. Create the database schema
-
+Create the database schema from `d01_data/infra/models_schema.sql`. 
 
 ## Run the pipeline
-
 The final step is to run the `inquire.py` script. 
 ```
 python src/inquire.py
@@ -221,13 +214,13 @@ d05_measurement.evaluate_meas.evaluate_meas(dir_name)
 ```
 
 #### Specification of image directory
+Finally, specify the name of the directory which contains the dicom files and images (ie the name of the subdirectory in `dcm_dir` and `img_dir` that contains the data you want to access). It is important that these two subdirectories have the same name, as the classification module accesses the `img_dir` while the segmentation module accesses the `dcm_dir`.
 
 <p align="left">
 <img src="docs/images/inquire_dir.png" alt="Run pipeline: specify directory." width="450" />
 </p>
 
 ## Code organisation
-
 The code is organised as follows:
 1. `d00_utils`: Utility functions used throughout the system
 2. `d01_data`: Ingesting dicom metadata and XCelera csv files from s3 into database
@@ -239,13 +232,11 @@ The code is organised as follows:
 8. `d07_visualisation`: Generating plots for reporting
 
 ## Contributors
-
 **Fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
 **Technical mentor**: Liliana Millán (Technical Mentor)  
 **Project manager**: Sara Guerreiro de Sousa (Project Manager)  
 
 ## License
-
 This codebase is made available under a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
 
 <p align="center">
