@@ -12,7 +12,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
-from datetime import datetime
+import datetime
 import hashlib
 
 from d00_utils.log_utils import setup_logging
@@ -279,7 +279,7 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = date.today()):
+def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.date.today()):
     
     #infile = open(
     #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
