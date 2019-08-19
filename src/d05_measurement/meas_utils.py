@@ -2,9 +2,11 @@ import os
 import json
 import numpy as np
 import pandas as pd
+import cv2
 
+from scipy.misc import imresize
 from subprocess import Popen, PIPE
-from d00_utils.log_utils import setup_logging
+from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
 
@@ -112,13 +114,9 @@ def get_window(hr, ft):
 
 
 def compute_la_lv_volume(
-    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, view
+    dicomDir, videofile, hr, ft, window, x_scale, y_scale, nrow, ncol, la_segs, lv_segs
 ):
     """Return measurement dictionary for video."""
-    npydir = f"{os.path.expanduser('~')}/data/04_segmentation/results/{view}"
-    la_segs = np.load(npydir + "/" + videofile + "_la.npy")
-    lv_segs = np.load(npydir + "/" + videofile + "_lv.npy")
-
     la_segs = remove_periphery(la_segs)
     lv_segs = remove_periphery(lv_segs)
 
@@ -131,7 +129,7 @@ def compute_la_lv_volume(
     lavolmin, lavolmax = 10, 300
     lvedvmin, lvedvmax = 20, 600
     lvesvmax = 600
-    efmax, efmin = 0.8, 0.1
+    efmax, efmin = 80, 10
     diastmin, diastmax = 100, 400
 
     lavollist = []
@@ -169,12 +167,15 @@ def compute_la_lv_volume(
                     hr,
                 )
 
+                if la_l == 0 or lveda_l == 0 or lvesa_l == 0:
+                    continue
+
                 lavol = compute_volume_AL(la_a, la_l)
                 # Derived LVEDV and LVESV using the area-length formula.
                 lvedv = compute_volume_AL(lveda_a, lveda_l)
                 lvesv = compute_volume_AL(lvesa_a, lvesa_l)
                 # Used LVEDV and LVESV to compute EF for cycle.
-                ef = (lvedv - lvesv) / lvedv
+                ef = (lvedv - lvesv) / lvedv * 100
 
                 if lavol < lavolmax and lavol > lavolmin:
                     lavollist.append(lavol)
@@ -324,6 +325,8 @@ def extract_area_l_scaled(
 
 def L(x, y, x_la):
     """Get Euclidean distance from points fit by function (adapted from Zhang et al.)"""
+    if x.sum() == 0 or y.sum() == 0 or x_la.sum() == 0:
+        return 0
     fit = np.polyfit(x, y, 1)
     fit_fn = np.poly1d(fit)
     line_points = fit_fn(x_la)
