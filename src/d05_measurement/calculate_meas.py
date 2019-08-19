@@ -40,6 +40,8 @@ def calculate_meas(folder):
     step = 10
     for i in tqdm(range(0, len(file_names_dcm), step)):
         small_file_names_dcm = file_names_dcm[i * 10 : (i + 1) * 10]
+        if len(small_file_names_dcm) == 0:
+            continue
         small_df = io_segmentation.get_segmentation_rows_for_files(
             "predictions", tuple(small_file_names_dcm)
         )
