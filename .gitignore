@@ -154,5 +154,5 @@ venv.bak/
 .spyproject
 
 # dave retrain stuff
-src/d03_classification/echo_deeplearning/models/vgg_13/m1_usal/train/
-src/d03_classification/echo_deeplearning/models/vgg_13/m1_usal/val/
+src/d03_classification/echo_deeplearning/vgg_13/m1_usal/train/
+src/d03_classification/echo_deeplearning/vgg_13/m1_usal/val/

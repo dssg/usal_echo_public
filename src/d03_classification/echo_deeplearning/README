@@ -1,42 +1,26 @@
-Tensorflow and python code to re-train deep learning models.
+Code to re-train deep learning models.
 
 FILEPATHS
 
-```
 echo_deeplearning/
 |   README
 |
 |---data/ 
-|   |   a4c/
-|   |   |   load_data.py  (accessing and preproecssing data)
-|   |   
-|   |   hcm/
+|   |   m1_usal
 |   |   |   load_data.py  (accessing and preproecssing data)
 |   |   
 |   |   ...
 |   |
 |---models/    (code, visualizations, trained models are here)
-|   |---unet_12/    (architecture/model being trained)
-|   |   |   load_model.py    (code necessary for the model)
-|   |   |
-|   |   |---a4c/   (experiment folder)
-|   |   |   config.json    (variables and hyperparameters)
-|   |   |   |---train/    (saved checkpoints are saved here, folder will automatically generate upon running run.py)
-|   |   |   |---val/    (visualization results are outputted here, folder will automatically generate upon running run.py)
-|   |
 |   |---vgg_13/    (architecture/model being trained)
 |   |   |   load_model.py    (code necessary for the model)
 |   |   |
-|   |   |---hcm/   (experiment folder)
 |   |   |   config.json    (variables and hyperparameters)
-|   |   |   |---train/    (saved checkpoints are saved here, folder will automatically generate upon running run.py)
-|   |   |   |---val/    (visualization results are outputted here, folder will automatically generate upon running run.py)
 |   |
 |   |   ...
 |   |
 |---run.py (python file to run models)
 |---util.py (utility functions)
-```
 
 FOLDER DESCRIPTIONS
 

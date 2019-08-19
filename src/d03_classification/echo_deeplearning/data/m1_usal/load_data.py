@@ -1,10 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import os, sys
-import random
+import os
 from scipy.misc import imread
 
-# sys.path.append('/home/ubuntu/dvv/usal_echo/src/')
 from d00_utils.db_utils import dbReadWriteViews
 
 
