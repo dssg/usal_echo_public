@@ -131,7 +131,7 @@ def calculate_meas(folder):
     ]
 
     date_run = datetime.now()
-    calculation_df = pd.DataFrame.from_dict(
+    calculations_df = pd.DataFrame.from_dict(
         {
             "study_id": study_ids,
             "instance_id": instance_ids,
@@ -143,7 +143,14 @@ def calculate_meas(folder):
         }
     )
 
-    return calculation_df
+    # Write calculations to schema.
+    # Add serial id.
+    old_calculations_df = io_measurement.get_table("calculations")
+    start = len(old_calculations_df)
+    calculation_id = pd.Series(start + calculations_df.index)
+    calculations_df.insert(0, "calculation_id", calculation_id)
+    all_calculations_df = old_calculations_df.append(calculations_df)
+    io_measurement.save_to_db(all_calculations_df, "evaluations")
 
 
 if __name__ == "__main__":
