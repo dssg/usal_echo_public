@@ -1,10 +1,13 @@
 import os
 import numpy as np
 import pandas as pd
+import yaml
 
+from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteMeasurement
 from d07_visualisation.confusion_matrix import plot_confusion_matrix
 
+logger = setup_logging(__name__, __name__)
 
 def evaluate_meas(folder):
     # Get ground truth and calculated measurements for files in folder.
@@ -12,12 +15,14 @@ def evaluate_meas(folder):
     ground_truths_df = io_measurement.get_table("ground_truths")
     calculations_df = io_measurement.get_table("calculations")
 
+    with open("./conf/local/path_parameters.yml") as f:
+        paths = yaml.safe_load(f)
+    path = os.path.expanduser(paths['dcm_dir'])
     file_names = [
-        fn.split(".")[0] for fn in os.listdir(f"/home/ubuntu/data/01_raw/{folder}/raw")
+        fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")
     ]
     ground_truths_df = ground_truths_df[ground_truths_df["file_name"].isin(file_names)]
     calculations_df = calculations_df[calculations_df["file_name"].isin(file_names)]
-
     # Combine ground truth and calculated measurements for evaluation.
     cols = ["study_id", "instance_id", "file_name", "measurement_name"]
     merge_df = ground_truths_df.merge(
@@ -77,8 +82,8 @@ def evaluate_meas(folder):
         y_true, y_calc, classes=classes, title="Confusion matrix, without normalization"
     )
 
-    fig.savefig(f"../results/cm_{folder}", bbox_inches="tight")
-    fig.savefig(f"../results/cm_{folder}.pdf", format="pdf", bbox_inches="tight")
+    fig.savefig(f"results/cm_{folder}", bbox_inches="tight")
+    fig.savefig(f"results/cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     fig, ax = plot_confusion_matrix(
         y_true,
@@ -88,8 +93,8 @@ def evaluate_meas(folder):
         title="Normalized confusion matrix",
     )
 
-    fig.savefig(f"../results/norm_cm_{folder}", bbox_inches="tight")
-    fig.savefig(f"../results/norm_cm_{folder}.pdf", format="pdf", bbox_inches="tight")
+    fig.savefig(f"results/norm_cm_{folder}", bbox_inches="tight")
+    fig.savefig(f"results/norm_cm_{folder}.pdf", format="pdf", bbox_inches="tight")
 
     # Produce dataframe like Table 2 in Zhang et al:
     # "Comparison Between Fully Automated and Manual Measurements Derived From 2-Dimensional Echocardiography"
@@ -144,6 +149,6 @@ def evaluate_meas(folder):
             "Median Absolute Deviation (% of Manual)": abs_dev_median_strs,
         }
     )
-    df.to_csv(f"../results/measurement_comparison_{folder}.csv", index=False)
-
+    df.to_csv(f"results/measurement_comparison_{folder}.csv", index=False)
+    logger.info("Successfully evaluated measurements")
     return df

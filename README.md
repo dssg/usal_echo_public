@@ -67,25 +67,33 @@ In addition to the infrastructure mentioned above, the following software is req
 * [Anaconda](https://docs.anaconda.com/anaconda/install/)
 * [git](https://www.atlassian.com/git/tutorials/install-git)  
 
-The instructions below assume that you are working setting up the repository in your terminal.
+All instructions that follow assume that you are working in your terminal.
+
+You need to install and update the following packages on your system before activating any virtual environment.
+```
+sudo apt update
+sudo apt install make gcc jq libpq-dev postgresql-client postgresql-client python3 python3-dev python3-venv
+```
+
+When installing these libraries, it is possible that a message window will pop up while trying to configure the library `libssl1.1:amd64`. This message is normal and tells you that some of the services need a restart. Say yes and enter to continue. The system will take care of restarting the required services.
 
 #### 1. Conda env and pip install
-Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. Then install the required packages with pip.
+Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. 
 ```
 conda create --name usal_echo --clone tensorflow_p36
 conda activate usal_echo
-pip install -r requirements.txt
 ```
 
 #### 2. Clone repository
-After activating your Anaconda environment, clone this repository into your work space:  
+After activating your Anaconda environment, clone this repository into your work space. Then install the required packages with pip.  
 ```
 git clone https://github.com/dssg/usal_echo.git
+pip install -r requirements.txt
 ```
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
 ```
-python src/setup.py
+python setup.py install
 ```
 
 #### 3. Download models
@@ -124,6 +132,7 @@ The path parameters for the s3 bucket and for storing dicom files, images and mo
 bucket: "your_s3_bucket"
 dcm_dir: "~/data/01_raw"
 img_dir: "~/data/02_intermediate"
+segmentation_dir: "~/data/04_segmentation"
 model_dir: "~/models"
 classification_model: "model.ckpt-6460"
 ```
@@ -131,7 +140,9 @@ classification_model: "model.ckpt-6460"
 The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
 
 #### 6. Create the database schema
-Create the database schema from `d01_data/infra/models_schema.sql`. 
+As per the requirements listed in [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements) you require a database indtallation with credentials stored as described above. After the database has been created, you need to run the script that creates the different schema that we require to persist the outputs from the different pipeline processes: classification, segmentation and measurements. The database schema is stored in `d01_data/infra/models_schema.sql` and can be created by downloading the file and running the following command:
+```
+```
 
 ## Run the pipeline
 The final step is to run the `inquire.py` script. 
@@ -176,7 +187,7 @@ The download step executes the following function:
 ```
 d02_intermediate.download_dcm.s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket)
 ```
-`s3_download_decomp_dcm` executes two processing steps: it downloads files from s3 and then decompresses them. If you already have a directory with dicom files that are not decompressed, you can use `d02_intermediate.download_dcm._decompress_dcm()` to decompress your images. The convention is that decompressed images are stored in a subdirectory of the original directory named `raw` and that filenames are appended with `_dcm` to end in `.dcm_raw`.
+`s3_download_decomp_dcm` executes two processing steps: it downloads files from s3 and then decompresses them. If you already have a directory with dicom files that are not decompressed, you can use `d02_intermediate.download_dcm._decompress_dcm()` to decompress your images. The convention is that decompressed images are stored in a subdirectory of the original directory named `raw` and that filenames are appended with `_raw` to end in `.dcm_raw`.
 
 #### Module selection
 Select one or more modules for inference and evaluation. 

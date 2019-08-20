@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import yaml
 
 from datetime import datetime
 from tqdm import tqdm
@@ -8,7 +9,7 @@ from d05_measurement.meas_utils import *
 from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteSegmentation, dbReadWriteMeasurement
 
-logger = setup_logging(__name__, "analyse_segments")
+logger = setup_logging(__name__, __name__)
 
 
 def calculate_meas(folder):
@@ -26,9 +27,11 @@ def calculate_meas(folder):
 
     """
     io_segmentation = dbReadWriteSegmentation()
+    io_measurement = dbReadWriteMeasurement()
 
-    rootdir = os.path.expanduser("~")
-    dicomdir = f"{rootdir}/data/01_raw/{folder}/raw"
+    with open("./conf/local/path_parameters.yml") as f:
+        paths = yaml.safe_load(f)
+    dicomdir = f"{os.path.expanduser(paths['dcm_dir'])}/{folder}/raw"
     # TODO: change to `file_names` when they are written without suffix in segmentation
     file_names_dcm = [
         file_name.replace("_raw", "") for file_name in os.listdir(dicomdir)
@@ -131,7 +134,7 @@ def calculate_meas(folder):
     ]
 
     date_run = datetime.now()
-    calculation_df = pd.DataFrame.from_dict(
+    calculations_df = pd.DataFrame.from_dict(
         {
             "study_id": study_ids,
             "instance_id": instance_ids,
@@ -143,8 +146,15 @@ def calculate_meas(folder):
         }
     )
 
-    return calculation_df
-
+    # Write calculations to schema.
+    # Add serial id.
+    old_calculations_df = io_measurement.get_table("calculations")
+    start = len(old_calculations_df)
+    calculation_id = pd.Series(start + calculations_df.index)
+    calculations_df.insert(0, "calculation_id", calculation_id)
+    all_calculations_df = old_calculations_df.append(calculations_df)
+    io_measurement.save_to_db(all_calculations_df, "calculations")
+    logger.info("Successfully calculated measurements")
 
 if __name__ == "__main__":
     calculate_measurements()
