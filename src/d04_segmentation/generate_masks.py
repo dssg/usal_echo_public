@@ -115,7 +115,7 @@ def get_mask(row):
 
  
     proper_file_name = 'a_' + str(int(row['studyidk'])) + '_' + row['instancefilename'] +'.dcm_raw'
-    _, _, nrow, ncol, _, _ = extract_metadata_for_segmentation(row['file_path'], proper_file_name)
+    nrow, ncol = extract_metadata_for_segmentation(row['file_path'], proper_file_name)
     
     if nrow == 0:
         nrow = 600
