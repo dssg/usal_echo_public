@@ -1,10 +1,13 @@
 import pandas as pd
 
+from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import (
     dbReadWriteClean,
     dbReadWriteViews,
     dbReadWriteMeasurement,
 )
+
+logger = setup_logging(__name__, __name__)
 
 
 def get_recommendation(row):
@@ -166,3 +169,4 @@ def retrieve_meas():
     ground_truth_df.insert(0, "ground_truth_id", ground_truth_id)
     all_ground_truth_df = old_ground_truth_df.append(ground_truth_df)
     io_measurement.save_to_db(all_ground_truth_df, "ground_truths")
+    logger.info("Successfully retrieved measurements")
