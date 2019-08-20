@@ -26,7 +26,7 @@ def _ybr2gray(y, u, v):
     return np.array(gray, dtype="int8")
 
 
-def _decompress_dcm(dcm_filepath, dcmraw_filepath):
+def decompress_dcm(dcm_filepath, dcmraw_filepath):
 
     dcm_dir = os.path.dirname(dcmraw_filepath)
     os.makedirs(dcm_dir, exist_ok=True)
@@ -149,7 +149,7 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
 
         dcm_rawfilepath = os.path.join(raw_datadir, download_dict[p] + "_raw")
         if not os.path.isfile(dcm_rawfilepath):
-            _decompress_dcm(dcm_filepath, dcm_rawfilepath)
+            decompress_dcm(dcm_filepath, dcm_rawfilepath)
 
     logger.info(
         "Downloaded {} [train/test split = {}, downsample ratio = {}]".format(
@@ -294,7 +294,7 @@ def dcmdir_to_jpgs_for_classification(dcm_dir, img_dir):
             dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
             if not os.path.isfile(dcmraw_filepath):
-                _decompress_dcm(dcm_filepath, dcmraw_filepath)
+                decompress_dcm(dcm_filepath, dcmraw_filepath)
             try:
                 dcm_filepath = os.path.join(dcm_dir, filename)
                 _dcmraw_to_10_jpgs(dcm_filepath, img_dir)
@@ -315,7 +315,7 @@ def dcm_to_segmentation_arrays(dcm_dir, filename):
     dcmraw_filepath = os.path.join(dcmraw_dir, filename + "_raw")
 
     if not os.path.isfile(dcmraw_filepath):
-        _decompress_dcm(dcm_filepath, dcmraw_filepath)
+        decompress_dcm(dcm_filepath, dcmraw_filepath)
 
     try:
         framedict = _extract_framedict_from_dcmraw(dcmraw_filepath)

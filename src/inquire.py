@@ -216,6 +216,7 @@ def cli():
         options.update(_pipeline_args())
 
     process_choices(options)
+    print("Pipeline execution complete. Check log files for potential errors.")
 
 
 if __name__ == "__main__":

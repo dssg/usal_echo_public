@@ -15,8 +15,10 @@ setup(
         'click==7.0',
         'PyInquirer==1.0.3',
     ],
+    py_modules = ['src.d01_data.ingestion_dcm', 'src.d01_data.ingestion_xtdb', 
+                    'src.d02_intermediate.clean_dcm', 'src.d02_intermediate.clean_xtdb'],
     entry_points='''
         [console_scripts]
-        usal=inquire:cli
+        usal=src.inquire:cli
     ''',
 )

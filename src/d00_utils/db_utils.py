@@ -49,7 +49,7 @@ class dbReadWriteData:
             "psswd": "your_password"
             }
             
-    :param credentials_file (str): path to credentials file, default="./conf/local/postgres_credentials.json"
+    :param credentials_file (str): path to credentials file, default="usal_echo/conf/local/postgres_credentials.json"
     :param schema (str): database schema 
             
     """
