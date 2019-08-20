@@ -17,12 +17,12 @@ def evaluate_meas(folder):
 
     with open("./conf/local/path_parameters.yml") as f:
         paths = yaml.safe_load(f)
+    path = os.path.expanduser(paths['dcm_dir'])
     file_names = [
-        fn.split(".")[0] for fn in os.listdir(f"{paths['dcm_dir']}/{folder}/raw")
+        fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")
     ]
     ground_truths_df = ground_truths_df[ground_truths_df["file_name"].isin(file_names)]
     calculations_df = calculations_df[calculations_df["file_name"].isin(file_names)]
-
     # Combine ground truth and calculated measurements for evaluation.
     cols = ["study_id", "instance_id", "file_name", "measurement_name"]
     merge_df = ground_truths_df.merge(
