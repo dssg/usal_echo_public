@@ -1,19 +1,26 @@
+
 from time import time
 
 import os
+import json
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 from shapely.geometry import Polygon
 from skimage.draw import polygon
 from scipy.misc import imresize
+from subprocess import Popen, PIPE
 
 from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
-from d05_measurement.meas_utils import extract_metadata_for_measurements
+#from d05_measurement.meas_utils import extract_metadata_for_measurements
 
 
 logger = setup_logging(__name__, __name__)
+
+dcm_tags = os.path.join(Path(__file__).parents[1], "d02_intermediate", "dicom_tags.json")
+
 
 def generate_masks(dcm_path):
     #io_views = dbReadWriteViews()
@@ -108,7 +115,7 @@ def get_mask(row):
 
  
     proper_file_name = 'a_' + str(int(row['studyidk'])) + '_' + row['instancefilename'] +'.dcm_raw'
-    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], proper_file_name)
+    _, _, nrow, ncol, _, _ = extract_metadata_for_segmentation(row['file_path'], proper_file_name)
     
     if nrow == 0:
         nrow = 600
@@ -202,3 +209,43 @@ def create_masks(dcm_path):
     logger.info(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df
+
+def extract_metadata_for_segmentation(dicomdir, videofile):
+    """Get DICOM metadata using GDCM utility."""
+    
+    command = "gdcmdump " + dicomdir + "/" + videofile
+    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
+    text = pipe.communicate()[0]
+    lines = text.split("\n")
+    dicom_tags = json.load(open(dcm_tags))
+    # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
+    dicom_tags = {
+        k: str(tuple(v)).replace("'", "").replace(" ", "")
+        for k, v in dicom_tags.items()
+    }
+    # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
+    #x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines, dicom_tags) or (
+    #    None,
+    #    None,
+    #)
+    #hr = _extract_hr_from_gdcm_str(lines, dicom_tags)
+    nrow, ncol = _extract_xy_from_gdcm_str_seg(lines, dicom_tags) or (None, None)
+    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
+    #ft = _extract_ft_from_gdcm_str(lines, dicom_tags)
+    #if hr < 40:
+    #    logger.debug(f"problem heart rate: {hr}")
+    #    hr = 70
+    return nrow, ncol
+
+def _extract_xy_from_gdcm_str_seg(lines, dicom_tags):
+    """Get rows, columns from gdcmdump output."""
+    rows = 0
+    cols = 0
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["rows"]:
+            rows = line.split(" ")[2]
+        elif tag == dicom_tags["columns"]:
+            cols = line.split(" ")[2]
+    return int(rows), int(cols)
