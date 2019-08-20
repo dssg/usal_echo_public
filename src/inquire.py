@@ -17,7 +17,7 @@ from d03_classification.predict_views import (
     predict_views,
 )
 from d03_classification.evaluate_views import evaluate_views
-from d02_intermediate.create_seg_view import create_seg_view
+from d04_segmentation.create_seg_view import create_seg_view
 from d04_segmentation.segment_view import run_segment
 from d04_segmentation.generate_masks import generate_masks
 from d04_segmentation.evaluate_masks import evaluate_masks
