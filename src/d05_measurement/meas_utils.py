@@ -3,22 +3,25 @@ import json
 import numpy as np
 import pandas as pd
 import cv2
+from pathlib import Path
 
 from scipy.misc import imresize
 from subprocess import Popen, PIPE
-
 from d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
 
+dcm_tags = os.path.join(Path(__file__).parents[1], "d02_intermediate", "dicom_tags.json")
+
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
+    
     command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]
     lines = text.split("\n")
-    dicom_tags = json.load(open("src/d02_intermediate/dicom_tags.json"))
+    dicom_tags = json.load(open(dcm_tags))
     # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
     dicom_tags = {
         k: str(tuple(v)).replace("'", "").replace(" ", "")
@@ -36,6 +39,7 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     if hr < 40:
         logger.debug(f"problem heart rate: {hr}")
         hr = 70
+    hr = 0
     return ft, hr, nrow, ncol, x_scale, y_scale
 
 
