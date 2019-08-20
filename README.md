@@ -132,7 +132,8 @@ The path parameters for the s3 bucket and for storing dicom files, images and mo
 bucket: "your_s3_bucket"
 dcm_dir: "~/data/01_raw"
 img_dir: "~/data/02_intermediate"
-model_dir: "models"
+segmentation_dir: "~/data/04_segmentation"
+model_dir: "~/models"
 classification_model: "model.ckpt-6460"
 ```
 
