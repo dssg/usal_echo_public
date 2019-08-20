@@ -2,9 +2,10 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='cibercv-usal',
-    version='0.1',
-    packages=find_packages(),
+    name='usal_echo',
+    version='0.1',    
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     include_package_data=True,
     install_requires=[
         'pandas==0.25.0',
@@ -15,10 +16,11 @@ setup(
         'click==7.0',
         'PyInquirer==1.0.3',
     ],
-    py_modules = ['src.d01_data.ingestion_dcm', 'src.d01_data.ingestion_xtdb', 
-                    'src.d02_intermediate.clean_dcm', 'src.d02_intermediate.clean_xtdb'],
+    py_modules = ['d01_data', 'd02_intermediate', 
+                  'd03_classification', 'd04_segmentation',
+                  'd05_measurements', 'd06_visualisation'],
     entry_points='''
         [console_scripts]
-        usal=src.inquire:cli
+        usal_echo=src.inquire:cli
     ''',
 )
