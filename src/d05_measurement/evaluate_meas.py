@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from d00_utils.db_utils import dbReadWriteMeasurement
-from d07_visualisation.confusion_matrix import plot_confusion_matrix
+from d06_visualisation.confusion_matrix import plot_confusion_matrix
 
 
 def evaluate_meas(folder):
