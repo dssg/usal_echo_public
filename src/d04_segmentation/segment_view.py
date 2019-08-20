@@ -186,35 +186,35 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         "instancefilename"
     ].apply(lambda x: str(x).strip())
    
-    #for video in viewlist_a4c:
-    #    [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
-    #    instancefilename = video.split("_")[2].split(".")[
-    #        0
-    #    ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
-    #    studyidk = int(video.split("_")[1])
-    #    # below filters to just the record of interest
-    #    df = instances_unique_master_list.loc[
-    #        (instances_unique_master_list["instancefilename"] == instancefilename)
-    #        & (instances_unique_master_list["studyidk"] == studyidk)
-    #    ]
-    #    df = df.reset_index()
-    #    instance_id = df.at[0, "instanceidk"]
-    #    #Columns names are:prediction_id	study_id	instance_id	file_name	
-    #    #num_frames	model_name	date_run	output_np_lv	output_np_la	
-    #    #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
-    #    d = [studyidk,
-    #        instance_id,
-    #        str(video),
-    #        number_frames,
-    #        model_name,
-    #        str(datetime.datetime.now()),
-    #        np_arrays_x3[0],
-    #        np_arrays_x3[1],
-    #        np_arrays_x3[2],
-    #        images_uuid_x3[0],
-    #        images_uuid_x3[1],
-    #        images_uuid_x3[2]]
-    #    io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
+    for video in viewlist_a4c:
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
+        instancefilename = video.split("_")[2].split(".")[
+            0
+        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        studyidk = int(video.split("_")[1])
+        # below filters to just the record of interest
+        df = instances_unique_master_list.loc[
+            (instances_unique_master_list["instancefilename"] == instancefilename)
+            & (instances_unique_master_list["studyidk"] == studyidk)
+        ]
+        df = df.reset_index()
+        instance_id = df.at[0, "instanceidk"]
+        #Columns names are:prediction_id	study_id	instance_id	file_name	
+        #num_frames	model_name	date_run	output_np_lv	output_np_la	
+        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+        d = [studyidk,
+            instance_id,
+            str(video),
+            number_frames,
+            model_name,
+            str(datetime.datetime.now()),
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
+            images_uuid_x3[0],
+            images_uuid_x3[1],
+            images_uuid_x3[2]]
+        io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
 
     for video in viewlist_a2c:
