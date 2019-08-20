@@ -93,7 +93,7 @@ git clone https://github.com/dssg/usal_echo.git
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
 ```
-python src/setup.py
+python setup.py
 ```
 
 #### 3. Download models
