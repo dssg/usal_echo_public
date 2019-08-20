@@ -67,7 +67,15 @@ In addition to the infrastructure mentioned above, the following software is req
 * [Anaconda](https://docs.anaconda.com/anaconda/install/)
 * [git](https://www.atlassian.com/git/tutorials/install-git)  
 
-The instructions below assume that you are working setting up the repository in your terminal.
+All instructions that follow assume that you are working in your terminal.
+
+You need to install and update the following packages on your system before activating any virtual environment.
+```
+sudo apt update
+sudo apt install make gcc jq libpq-dev postgresql-client postgresql-client python3 python3-dev python3-venv
+```
+
+When installing these libraries, it is possible that a message window will pop up while trying to configure the library `libssl1.1:amd64`. This message is normal and tells you that some of the services need a restart. Say yes and enter to continue. The system will take care of restarting the required services.
 
 #### 1. Conda env and pip install
 Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. Then install the required packages with pip.
@@ -131,7 +139,9 @@ classification_model: "model.ckpt-6460"
 The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
 
 #### 6. Create the database schema
-Create the database schema from `d01_data/infra/models_schema.sql`. 
+As per the requirements listed in [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements) you require a database indtallation with credentials stored as described above. After the database has been created, you need to run the script that creates the different schema that we require to persist the outputs from the different pipeline processes: classification, segmentation and measurements. The database schema is stored in `d01_data/infra/models_schema.sql` and can be created by downloading the file and running the following command:
+```
+```
 
 ## Run the pipeline
 The final step is to run the `inquire.py` script. 
