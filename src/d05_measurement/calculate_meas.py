@@ -153,7 +153,7 @@ def calculate_meas(folder):
     calculation_id = pd.Series(start + calculations_df.index)
     calculations_df.insert(0, "calculation_id", calculation_id)
     all_calculations_df = old_calculations_df.append(calculations_df)
-    io_measurement.save_to_db(all_calculations_df, "evaluations")
+    io_measurement.save_to_db(all_calculations_df, "calculations")
     logger.info("Successfully calculated measurements")
 
 if __name__ == "__main__":
