@@ -78,17 +78,17 @@ sudo apt install make gcc jq libpq-dev postgresql-client postgresql-client pytho
 When installing these libraries, it is possible that a message window will pop up while trying to configure the library `libssl1.1:amd64`. This message is normal and tells you that some of the services need a restart. Say yes and enter to continue. The system will take care of restarting the required services.
 
 #### 1. Conda env and pip install
-Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. Then install the required packages with pip.
+Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. 
 ```
 conda create --name usal_echo --clone tensorflow_p36
 conda activate usal_echo
-pip install -r requirements.txt
 ```
 
 #### 2. Clone repository
-After activating your Anaconda environment, clone this repository into your work space:  
+After activating your Anaconda environment, clone this repository into your work space. Then install the required packages with pip.  
 ```
 git clone https://github.com/dssg/usal_echo.git
+pip install -r requirements.txt
 ```
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
