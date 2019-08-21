@@ -85,13 +85,13 @@ conda activate usal_echo
 ```
 
 #### 2. Clone repository
-After activating your Anaconda environment, clone this repository into your work space. Then install the required packages with pip.  
+After activating your Anaconda environment, clone this repository into your work space. Navigate to `usal_echo` and install the required packages with pip.  
 ```
 git clone https://github.com/dssg/usal_echo.git
 pip install -r requirements.txt
 ```
 
-Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
+Navigate into your newly cloned `usal_echo` directory and run the setup.py script.  
 ```
 python setup.py install
 ```
@@ -145,11 +145,12 @@ As per the requirements listed in [Infrastructure requirements](https://github.c
 ```
 
 ## Run the pipeline
-The final step is to run the `inquire.py` script. 
+The final step is to run the `inquire.py` script which can be called from within the `usal_echo` directory using the short cut usal_echo:
 ```
-python src/inquire.py
+usal_echo
 ```
-This will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail below.
+
+Running `usal_echo` will launch a questionnaire in your command line that takes you through the setup options for running the pipeline. The options are discussed in detail below.
 
 ### Pipeline options
 To navigate through the options in the command line prompt hit `spacebar` to check or uncheck multiple choice options and `Enter` to select an option. Navigate between options with the `up` and `down` arrows. You can abort the process with `Ctrl+C`.
