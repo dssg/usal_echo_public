@@ -40,14 +40,17 @@ def evaluate_masks():
         
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
-        logger.info('got predictions details for instance {}'.format(gt_instance_id))
+        logger.info('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
+        print('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
         
         if len(pred.index) > 0:
             pred_view_name = gt['view_name']
             #retrieve gt numpy array
+            #print(gt['numpy_array'])
             gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1)#frame = 1, as it wants number of frames in np array, not frame number
-            if gt_numpy_array == None:
-                continue
+            #print(gt_numpy_array)
+            #if gt_numpy_array == None:
+            #    continue
             #retrive relevant pred numpy array
             if gt_chamber == 'la':
                 pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['num_frames'][0])            
@@ -64,17 +67,19 @@ def evaluate_masks():
             #calculate iou
             reported_iou = iou(gt_numpy_array, pred_numpy_array_frame)
             logger.info('IOU of: {}'.format(reported_iou))
+            
+            #write to db
+            # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
+            d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type',
+                         'score_value', 'gt_view_name', 'pred_view_name']
+            d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
+                 reported_iou, gt_view_name, pred_view_name]
+            #df = pd.DataFrame(data=d, columns=d_columns)
+            io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         else:
             logger.error('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
         
-        #write to db
-        # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type', 
-                     'score_value', 'gt_view_name', 'pred_view_name']
-        d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
-             reported_iou, gt_view_name, pred_view_name]
-        #df = pd.DataFrame(data=d, columns=d_columns)
-        io_segmentation.save_seg_evaluation_to_db(d, d_columns)
+        
     
 
 def iou(gt, pred):
