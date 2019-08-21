@@ -12,7 +12,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from scipy.misc import imresize
-from datetime import datetime
+import datetime
 import hashlib
 
 from d00_utils.log_utils import setup_logging
@@ -22,6 +22,7 @@ from d02_intermediate.download_dcm import dcm_to_segmentation_arrays
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from d00_utils.echocv_utils_v0 import *
 #from d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
+from d03_classification.evaluate_views import _groundtruth_views
 from d04_segmentation.model_unet import Unet
 
 
@@ -84,57 +85,18 @@ def segmentChamber(videofile, dicomdir, view, model_path):
             saver.restore(
                 sess2, os.path.join(modeldir, "a2c_45_20_all_model.ckpt-10600")
             )
-    elif view == "a3c":
-        g_3 = tf.Graph()
-        with g_3.as_default():
-            label_dim = 4
-            sess3 = tf.Session()
-            model3 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess3.run(tf.local_variables_initializer())
-            sess = sess3
-            model = model3
-        with g_3.as_default():
-            saver.restore(
-                sess3, os.path.join(modeldir, "a3c_45_20_all_model.ckpt-10500")
-            )
-    elif view == "psax":
-        g_4 = tf.Graph()
-        with g_4.as_default():
-            label_dim = 4
-            sess4 = tf.Session()
-            model4 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess4.run(tf.local_variables_initializer())
-            sess = sess4
-        model = model4
-        with g_4.as_default():
-            saver = tf.train.Saver()
-            saver.restore(
-                sess4, os.path.join(modeldir, "psax_45_20_all_model.ckpt-9300")
-            )
-    elif view == "plax":
-        g_5 = tf.Graph()
-        with g_5.as_default():
-            label_dim = 7
-            sess5 = tf.Session()
-            model5 = Unet(mean, weight_decay, learning_rate, label_dim, maxout=maxout)
-            sess5.run(tf.local_variables_initializer())
-            sess = sess5
-            model = model5
-        with g_5.as_default():
-            saver = tf.train.Saver()
-            saver.restore(
-                sess5, os.path.join(modeldir, "plax_45_20_all_model.ckpt-9600")
-            )
+
     outpath = "/home/ubuntu/data/04_segmentation/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
+        
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
     np_arrays_x3 = []
     images_uuid_x3 = []
+    
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 4, 1
-        )
+            images, orig_images, model, sess, 2, 4, 1)
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
@@ -201,14 +163,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
-    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
-    # below cleans the filename field
-    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
-        "instancefilename"
-    ].apply(lambda x: str(x).strip())
-    #Columns names are:prediction_id	study_id	instance_id	file_name	
-        #num_frames	model_name	date_run	output_np_lv	output_np_la	
-        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+    
     column_names = [
             "study_id",
             "instance_id",
@@ -224,6 +179,13 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
             "output_image_overlay",            
         ]
 
+    
+    instances_unique_master_list = io_views.get_table("instances_unique_master_list")
+    # below cleans the filename field to remove whitespace
+    instances_unique_master_list["instancefilename"] = instances_unique_master_list[
+        "instancefilename"
+    ].apply(lambda x: str(x).strip())
+   
     for video in viewlist_a4c:
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
@@ -245,7 +207,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
             str(video),
             number_frames,
             model_name,
-            str(datetime.now()),
+            str(datetime.datetime.now()),
             np_arrays_x3[0],
             np_arrays_x3[1],
             np_arrays_x3[2],
@@ -273,7 +235,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
              str(video),
              number_frames,
              model_name,
-             str(datetime.now()),
+             str(datetime.datetime.now()),
              np_arrays_x3[0],
              np_arrays_x3[1],
              np_arrays_x3[2],
@@ -317,56 +279,69 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def run_segment(dcm_path, model_path):
-    # To use dicomdir option set in global scope.
-    #global dicomdir
+def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.date.today()):
     
-    # In case dicomdir is path with more than one part.
-    # dicomdir_basename = os.path.basename(dicomdir)
-    #viewfile = "/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_probabilities_test2019-08-14.txt"
-    # viewfile = '/home/ubuntu/courtney/usal_echo/data/d04_segmentation/view_23_e5_class_11-Mar-2018_dcm_sample_labelled_probabilities.txt'
-    
-    infile = open(
-        "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
-    )
-    infile = infile.readlines()
-    infile = [i.rstrip() for i in infile]
+    #infile = open(
+    #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
+    #)
+    #infile = infile.readlines()
+    #infile = [i.rstrip() for i in infile]
 
-    viewdict = {}
+    #viewdict = {}
 
-    for i in range(len(infile)):
-        viewdict[infile[i]] = i + 2
+    #for i in range(len(infile)):
+    #    viewdict[infile[i]] = i + 2
     
     path = dcm_path
 
     file_path = []
     filenames = []
-    # r=root, d=directories, f = files
+    
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm' in file:
+            if file.endswith('dcm_raw'):
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
-                #print(str(fullfilename).split('.')[0])
                 filenames.append(str(fullfilename).split('.')[0])
                 
     logger.info("Number of files in the directory: {}".format(len(file_path)))
-    io_class = dbReadWriteClassification()
-    predictions = io_class.get_table('predictions')
+    #io_class = dbReadWriteClassification()
+    #predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
+    
+    print('Example filename_df: {}'.format(filename_df[0][0]))
+    
+    
+    predict_truth = _groundtruth_views()
+    print(date_run)
+    
+    print('Example file_name: {} {} {} {}'.format(predict_truth['file_name'][0], predict_truth["img_dir"][0],
+          predict_truth["model_name"][0], predict_truth["date_run"][0]))
+    
+    predictions_df = predict_truth[(predict_truth["img_dir"] == img_dir)
+        & (predict_truth["model_name"] == classification_model_name)
+        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run)]
+    
 
-    file_predictions = pd.merge(filename_df, predictions, how='inner', left_on =[0], right_on = ['file_name'])
-    logger.info("Number of files successfully matched with predictions: {}".format(file_predictions.shape[0]))
+    
+    file_predictions = pd.merge(filename_df, predictions_df, how='inner', left_on=[0], right_on=['file_name'])
+    
+    print(file_predictions)
+
+    logger.info("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
+    print("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
     
     viewlist_a4c = file_predictions[file_predictions['view4_seg'] == 'a4c']['file_name']
     viewlist_a4c = viewlist_a4c.apply(lambda x: x +'.dcm')
     viewlist_a4c = viewlist_a4c.to_list()
+    print('{} a4c files added to the view list'.format(len(viewlist_a4c)))
     
     viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name']
     viewlist_a2c = viewlist_a2c.apply(lambda x: x +'.dcm')
     viewlist_a2c = viewlist_a2c.to_list()
+    print('{} a2c files added to the view list'.format(len(viewlist_a2c)))
     
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()

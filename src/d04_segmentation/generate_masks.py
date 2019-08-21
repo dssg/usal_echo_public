@@ -1,28 +1,35 @@
+
 from time import time
 
 import os
+import json
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 from shapely.geometry import Polygon
 from skimage.draw import polygon
 from scipy.misc import imresize
+from subprocess import Popen, PIPE
 
 from d00_utils.log_utils import setup_logging
 from d00_utils.db_utils import dbReadWriteViews, dbReadWriteSegmentation
-from d05_measurement.meas_utils import extract_metadata_for_measurements
+#from d05_measurement.meas_utils import extract_metadata_for_measurements
 
 
 logger = setup_logging(__name__, __name__)
 
-def write_masks():
+dcm_tags = os.path.join(Path(__file__).parents[1], "d02_intermediate", "dicom_tags.json")
+
+
+def generate_masks(dcm_path):
     #io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
     
     #Instances to write masks for
     #instances_w_labels_test_downsampleby5_df = io_views.get_table('instances_w_labels_test_downsampleby5')  
 
-    masks_df = generate_masks()
+    masks_df = create_masks(dcm_path)
     
     #ground_truth_id	study_id	instance_id	file_name	frame	chamber	view_name	numpy_array
     
@@ -108,7 +115,7 @@ def get_mask(row):
 
  
     proper_file_name = 'a_' + str(int(row['studyidk'])) + '_' + row['instancefilename'] +'.dcm_raw'
-    _, _, nrow, ncol, _, _ = extract_metadata_for_measurements(row['file_path'], proper_file_name)
+    nrow, ncol = extract_metadata_for_segmentation(row['file_path'], proper_file_name)
     
     if nrow == 0:
         nrow = 600
@@ -125,7 +132,7 @@ def get_mask(row):
     return img
 
 
-def generate_masks(dcm_path):
+def create_masks(dcm_path):
     """Convert measurement segments to Numpy masks.
     
     :return: updated DataFrame
@@ -167,7 +174,7 @@ def generate_masks(dcm_path):
     # r=root, d=directories, f = files
     for r, d, f in os.walk(path):
         for file in f:
-            if '.dcm' in file:
+            if '.dcm_raw' in file:
                 file_paths.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
                 #print(str(fullfilename).split('.')[0])
@@ -179,7 +186,7 @@ def generate_masks(dcm_path):
     logger.info("Number of files in the directory: {}".format(len(file_paths)))
     #print(filenames)
     filename_df = pd.DataFrame({'file_name': filenames})
-    filename_df['file_path'] = path
+    filename_df['file_path'] = os.path.join(dcm_path, 'raw')
 
     group_df = group_df.reset_index()
 
@@ -202,3 +209,43 @@ def generate_masks(dcm_path):
     logger.info(f"{int(end-start)} seconds to apply {len(group_df)} rows")
 
     return group_df
+
+def extract_metadata_for_segmentation(dicomdir, videofile):
+    """Get DICOM metadata using GDCM utility."""
+    
+    command = "gdcmdump " + dicomdir + "/" + videofile
+    pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
+    text = pipe.communicate()[0]
+    lines = text.split("\n")
+    dicom_tags = json.load(open(dcm_tags))
+    # Convert ["<tag1>", "<tag2>"] format to "(<tag1>, <tag2>)" GDCM output format.
+    dicom_tags = {
+        k: str(tuple(v)).replace("'", "").replace(" ", "")
+        for k, v in dicom_tags.items()
+    }
+    # Note: *_scale = min([|frame.delta| for frame in frames if |frame.delta| > 0.012])
+    #x_scale, y_scale = _extract_delta_xy_from_gdcm_str(lines, dicom_tags) or (
+    #    None,
+    #    None,
+    #)
+    #hr = _extract_hr_from_gdcm_str(lines, dicom_tags)
+    nrow, ncol = _extract_xy_from_gdcm_str_seg(lines, dicom_tags) or (None, None)
+    # Note: returns frame_time (msec/frame) or 1000/cine_rate (frames/sec)
+    #ft = _extract_ft_from_gdcm_str(lines, dicom_tags)
+    #if hr < 40:
+    #    logger.debug(f"problem heart rate: {hr}")
+    #    hr = 70
+    return nrow, ncol
+
+def _extract_xy_from_gdcm_str_seg(lines, dicom_tags):
+    """Get rows, columns from gdcmdump output."""
+    rows = 0
+    cols = 0
+    for line in lines:
+        line = line.lstrip()
+        tag = line.split(" ")[0]
+        if tag == dicom_tags["rows"]:
+            rows = line.split(" ")[2]
+        elif tag == dicom_tags["columns"]:
+            cols = line.split(" ")[2]
+    return int(rows), int(cols)
