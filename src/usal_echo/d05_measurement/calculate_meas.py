@@ -102,13 +102,6 @@ def calculate_meas(folder):
     # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
 
     # Write to database.
-    file_names = list(folder_measure_dict.keys())
-    study_ids = np.repeat(
-        [folder_measure_dict[file_name]["study_id"] for file_name in file_names], 4
-    )
-    instance_ids = np.repeat(
-        [folder_measure_dict[file_name]["instance_id"] for file_name in file_names], 4
-    )
     all_measurement_names = [
         "VTD(MDD-ps4)",
         "VTS(MDD-ps4)",
@@ -116,6 +109,14 @@ def calculate_meas(folder):
         "recommendation",
     ]
     all_measurement_units = ["mL", "mL", "%", ""]
+    num_meas = len(all_measurement_names)
+    file_names = list(folder_measure_dict.keys())
+    study_ids = np.repeat(
+        [folder_measure_dict[file_name]["study_id"] for file_name in file_names], num_meas
+    )
+    instance_ids = np.repeat(
+        [folder_measure_dict[file_name]["instance_id"] for file_name in file_names], num_meas
+    )
     measurement_names = [all_measurement_names for file_name in file_names]
     measurement_units = [all_measurement_units for file_name in file_names]
     lvedv_values = [folder_measure_dict[file_name]["lvedv"] for file_name in file_names]
@@ -140,7 +141,7 @@ def calculate_meas(folder):
         {
             "study_id": study_ids,
             "instance_id": instance_ids,
-            "file_name": np.repeat(file_names, 4),
+            "file_name": np.repeat(file_names, num_meas),
             "date_run": date_run,
             "measurement_name": pd.Series(measurement_names).explode(),
             "measurement_unit": pd.Series(measurement_units).explode(),
