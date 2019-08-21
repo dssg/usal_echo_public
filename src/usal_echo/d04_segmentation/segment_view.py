@@ -19,30 +19,14 @@ import datetime
 import hashlib
 
 from usal_echo.d00_utils.log_utils import setup_logging
-#from usal_echo.d00_utils.echocv_utils_v0 import *
 from usal_echo.d02_intermediate.download_dcm import dcm_to_segmentation_arrays
-#from usal_echo.d00_utils.dcm_utils import dcm_to_segmentation_arrays
 from usal_echo.d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
 from usal_echo.d00_utils.echocv_utils_v0 import *
-#from usal_echo.d02_intermediate.dcm_utils import dcm_to_segmentation_arrays
 from usal_echo.d03_classification.evaluate_views import _groundtruth_views
 from usal_echo.d04_segmentation.model_unet import Unet
 
 
 logger = setup_logging(__name__, __name__)
-
-## Set environment parameters
-#parser = OptionParser()
-#parser.add_option(
-#    "-d", "--dicomdir", dest="dicomdir", default="dicomsample", help="dicomdir"
-#)
-#parser.add_option("-g", "--gpu", dest="gpu", default="0", help="cuda device to use")
-#parser.add_option("-M", "--modeldir", default="models", dest="modeldir")
-#params, args = parser.parse_args()
-#dicomdir = params.dicomdir
-#modeldir = params.modeldir
-
-#os.environ["CUDA_VISIBLE_DEVICES"] = params.gpu
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
@@ -51,13 +35,10 @@ def segmentChamber(videofile, dicomdir, view, model_path):
     """
     
     """
-    # TODO: Need to put some error handling in here for when the file is not found
     mean = 24
     weight_decay = 1e-12
     learning_rate = 1e-4
     maxout = False
-#    sesses = []
-#    models = []
     modeldir = model_path
 
     if view == "a4c":
@@ -157,7 +138,7 @@ def segmentChamber(videofile, dicomdir, view, model_path):
             (outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()
         ).hexdigest()
     )
-    # return 1
+ 
     return [number_frames, model_name, np_arrays_x3, images_uuid_x3]
 
 
@@ -193,7 +174,7 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
         instancefilename = video.split("_")[2].split(".")[
             0
-        ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
+        ]  # split e.g. 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
         studyidk = int(video.split("_")[1])
         # below filters to just the record of interest
         df = instances_unique_master_list.loc[
@@ -283,18 +264,7 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
 
 
 def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.date.today()):
-    
-    #infile = open(
-    #    "/home/ubuntu/courtney/usal_echo/src/d03_classification/viewclasses_view_23_e5_class_11-Mar-2018.txt"
-    #)
-    #infile = infile.readlines()
-    #infile = [i.rstrip() for i in infile]
-
-    #viewdict = {}
-
-    #for i in range(len(infile)):
-    #    viewdict[infile[i]] = i + 2
-    
+  
     path = dcm_path
 
     file_path = []
@@ -308,18 +278,10 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
                 filenames.append(str(fullfilename).split('.')[0])
                 
     logger.info("Number of files in the directory: {}".format(len(file_path)))
-    #io_class = dbReadWriteClassification()
-    #predictions = io_class.get_table('predictions')
     filename_df = pd.DataFrame(filenames)
-    
-    print('Example filename_df: {}'.format(filename_df[0][0]))
     
     
     predict_truth = _groundtruth_views()
-    print(date_run)
-    
-    print('Example file_name: {} {} {} {}'.format(predict_truth['file_name'][0], predict_truth["img_dir"][0],
-          predict_truth["model_name"][0], predict_truth["date_run"][0]))
     
     predictions_df = predict_truth[(predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
@@ -328,23 +290,20 @@ def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_r
 
     
     file_predictions = pd.merge(filename_df, predictions_df, how='inner', left_on=[0], right_on=['file_name'])
-    
-    print(file_predictions)
 
     logger.info("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
-    print("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
 
     start = time.time()
     
     viewlist_a4c = file_predictions[file_predictions['view4_seg'] == 'a4c']['file_name']
     viewlist_a4c = viewlist_a4c.apply(lambda x: x +'.dcm')
     viewlist_a4c = viewlist_a4c.to_list()
-    print('{} a4c files added to the view list'.format(len(viewlist_a4c)))
+    logger.info('{} a4c files added to the view list'.format(len(viewlist_a4c)))
     
     viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name']
     viewlist_a2c = viewlist_a2c.apply(lambda x: x +'.dcm')
     viewlist_a2c = viewlist_a2c.to_list()
-    print('{} a2c files added to the view list'.format(len(viewlist_a2c)))
+    logger.info('{} a2c files added to the view list'.format(len(viewlist_a2c)))
     
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
