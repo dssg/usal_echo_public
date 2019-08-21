@@ -1,3 +1,19 @@
+--BASIC INFRA REQUIREMENTS
+DROP SCHEMA IF EXISTS raw CASCADE;
+
+CREATE SCHEMA raw;
+
+ --METADATA FROM DICOM IMAGES info
+DROP TABLE IF EXISTS raw.metadata;
+
+CREATE TABLE raw.metadata(
+    dirname varchar,
+    filename varchar,
+    tag1 varchar,
+    tag2 varchar,
+    value varchar
+ );
+
 --CLASSIFICATION SCHEMA
 --tables for persisting the outputs of the measurement process
 DROP SCHEMA IF EXISTS classification CASCADE;
@@ -8,35 +24,15 @@ CREATE SCHEMA classification;
 drop table if exists classification.predictions;
 
 create table classification.predictions(
-    prediction_id serial,
     study_id integer,
-    instance_id integer,
     file_name varchar,
     model_name varchar,
-    date_run timestamp with time zone,
-    output_plax_far float,
-    output_plax_plax float,
-    output_plax_laz float,
-    output_psax_az float,
-    output_psax_mv float,
-    output_psax_pap float,
-    output_a2c_lvocc_s float,
-    output_a2c_laocc float,
-    output_a2c float,
-    output_a3c_lvocc_s float,
-    output_a3c_laocc float,
-    output_a3c float,
-    output_a4c_lvocc_s float,
-    output_a4c_laocc float,
-    output_a4c float,
-    output_a5c float,
-    output_other float,
-    output_rvinf float,
-    output_psax_avz float,
-    output_suprasternal float,
-    output_subcostal float,
-    output_plax_lac float,
-    output_psax_apex float,
+    date_run varchar,
+    img_dir varchar,
+    view23_pred varchar,
+    view4_dev varchar,
+    view4_seg varchar,
+    prediction_id serial,
     primary key(prediction_id)
 );
 
@@ -45,13 +41,16 @@ create table classification.predictions(
 drop table if exists classification.evaluations;
 
 create table classification.evaluations(
-    evaluation_id serial,
-    study_id integer,
-    instance_id integer,
-    file_name varchar,
     model_name varchar,
-    score_type varchar,
-    score_value float,
+    img_dir varchar,
+    date_run varchar,
+    study_filter varchar,
+    view varchar,
+    tn float,
+    fp float,
+    fn float,
+    tp float,
+    evaluation_id serial,
     primary key(evaluation_id)
 );
 
@@ -65,6 +64,77 @@ create table classification.ground_truths(
     file_name varchar,
     view_name varchar,
     primary key(ground_truth_id)
+);
+
+--table probabilities_frames (10 per instance)
+DROP TABLE IF EXISTS classification.probabilities_frames;
+
+CREATE TABLE classification.probabilities_frames (
+    study_id text,
+    file_name text,
+    model_name text,
+    date_run timestamp without time zone,
+    img_dir text,
+    output_plax_far double precision,
+    output_plax_plax double precision,
+    output_plax_laz double precision,
+    output_psax_az double precision,
+    output_psax_mv double precision,
+    output_psax_pap double precision,
+    output_a2c_lvocc_s double precision,
+    output_a2c_laocc double precision,
+    output_a2c double precision,
+    output_a3c_lvocc_s double precision,
+    output_a3c_laocc double precision,
+    output_a3c double precision,
+    output_a4c_lvocc_s double precision,
+    output_a4c_laocc double precision,
+    output_a4c double precision,
+    output_a5c double precision,
+    output_other double precision,
+    output_rvinf double precision,
+    output_psax_avz double precision,
+    output_suprasternal double precision,
+    output_subcostal double precision,
+    output_plax_lac double precision,
+    output_psax_apex double precision,
+    probabilities_frame_id integer NOT NULL
+);
+
+--table probabilities_instances: average the probabilities of the frames
+DROP TABLE IF EXISTS classification.probabilities_instances;
+
+CREATE TABLE classification.probabilities_instances (
+    study_id bigint,
+    file_name text,
+    model_name text,
+    date_run text,
+    img_dir text,
+    output_plax_far double precision,
+    output_plax_plax double precision,
+    output_plax_laz double precision,
+    output_psax_az double precision,
+    output_psax_mv double precision,
+    output_psax_pap double precision,
+    output_a2c_lvocc_s double precision,
+    output_a2c_laocc double precision,
+    output_a2c double precision,
+    output_a3c_lvocc_s double precision,
+    output_a3c_laocc double precision,
+    output_a3c double precision,
+    output_a4c_lvocc_s double precision,
+    output_a4c_laocc double precision,
+    output_a4c double precision,
+    output_a5c double precision,
+    output_other double precision,
+    output_rvinf double precision,
+    output_psax_avz double precision,
+    output_suprasternal double precision,
+    output_subcostal double precision,
+    output_plax_lac double precision,
+    output_psax_apex double precision,
+    frame_count bigint,
+    probabilities_instance_id integer NOT NULL
 );
 
 
@@ -138,44 +208,47 @@ CREATE SCHEMA measurement;
 --table calculations:
 drop table if exists measurement.calculations;
 
-create table measurement.calculations(
-    calculation_id serial,
-    study_id integer,
-    instance_id integer,
-    file_name varchar,
-    date_run timestamp with time zone,
-    measurement_name varchar,
-    measurement_unit varchar,
-    measurement_value float,
-    calculation_source varchar,
-    primary key(calculation_id)
+CREATE TABLE measurement.calculations (
+    calculation_id text,
+    date_run text,
+    file_name text,
+    instance_id bigint,
+    measurement_name text,
+    measurement_unit text,
+    measurement_value text,
+    study_id bigint
 );
+
 
 --table evaluations:
 drop table if exists measurement.evaluations;
 
-create table measurement.evaluations(
-   evaluation_id serial,
-    study_id integer,
-    instance_id integer,
-    file_name varchar,
-    score_type varchar,
-    score_value float,
-    measurement_name varchar,
-    calculation_source varchar,
-    primary key(evaluation_id)
+CREATE TABLE measurement.evaluations (
+    calculation_id text,
+    date_run text,
+    evaluation_id text,
+    file_name text,
+    instance_id bigint,
+    measurement_name text,
+    measurement_unit text,
+    measurement_value text,
+    score_type text,
+    score_value text,
+    study_id bigint
 );
+
+
 
 --table ground_truths:
 drop table if exists measurement.ground_truths;
 
-create table measurement.ground_truths(
-    ground_truth_id serial,
-    study_id integer,
-    instance_id integer,
-    file_name varchar,
-    measurement_name varchar,
-    measurement_unit varchar,
-    measurement_value float,
-    primary key(ground_truth_id)
+CREATE TABLE measurement.ground_truths (
+    ground_truth_id bigint,
+    study_id bigint,
+    instance_id bigint,
+    file_name text,
+    measurement_name text,
+    measurement_unit text,
+    measurement_value text
 );
+
