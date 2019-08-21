@@ -13,7 +13,9 @@ def evaluate_meas(folder):
     # Get ground truth and calculated measurements for files in folder.
     io_measurement = dbReadWriteMeasurement()
     ground_truths_df = io_measurement.get_table("ground_truths")
+    ground_truths_df = ground_truths_df.drop(columns=["ground_truth_id"])
     calculations_df = io_measurement.get_table("calculations")
+    calculations_df = calculations_df.drop(columns=["calculation_id", "date_run"])
 
     with open("./conf/local/path_parameters.yml") as f:
         paths = yaml.safe_load(f)
@@ -29,6 +31,7 @@ def evaluate_meas(folder):
         calculations_df, on=cols, suffixes=["_gt", "_calc"]
     )
     merge_df = merge_df[merge_df["measurement_value_calc"] != ""]
+    merge_df = merge_df.drop_duplicates(keep="last")
 
     # Evaluate volumes and ejection fractions with absolute/relative differences.
     numeric_df = merge_df[merge_df["measurement_name"] != "recommendation"].copy()
@@ -68,8 +71,8 @@ def evaluate_meas(folder):
     start = len(old_evaluations_df)
     evaluation_id = pd.Series(start + evaluations_df.index)
     evaluations_df.insert(0, "evaluation_id", evaluation_id)
-    all_evaluation_df = old_evaluations_df.append(evaluations_df)
-    io_measurement.save_to_db(all_evaluation_df, "evaluations")
+    all_evaluations_df = old_evaluations_df.append(evaluations_df)
+    io_measurement.save_to_db(all_evaluations_df, "evaluations")
 
     # Plot confusion matrix for recommendations, with classes in given order.
     classes = ["normal", "greyzone", "abnormal"]
