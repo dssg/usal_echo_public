@@ -143,13 +143,11 @@ def _clean_instance_filename(df):
     :return: cleaned table as dataframe
     
     """
-    # TODO: Is "seriesdbkey" the same as "studyseriesidk"?
     df.rename(columns={"instancedbkey": "instanceidk"}, inplace=True)
 
     for column in ["instanceidk", "seriesdbkey"]:
         df[column] = pd.to_numeric(df[column], errors="coerce").astype(int)
 
-    # TODO: strip "sopinstanceuid" in all tables
     for column in ["instancefilename"]:
         df[column] = df[column].str.strip()
 
