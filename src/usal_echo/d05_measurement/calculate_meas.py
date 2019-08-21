@@ -31,36 +31,40 @@ def calculate_meas(folder):
     io_segmentation = dbReadWriteSegmentation()
     io_measurement = dbReadWriteMeasurement()
 
+    # Get files in specified folder.
     with open("./conf/local/path_parameters.yml") as f:
         paths = yaml.safe_load(f)
     dicomdir = f"{os.path.expanduser(paths['dcm_dir'])}/{folder}/raw"
-    # TODO: change to `file_names` when they are written without suffix in segmentation
+
     file_names_dcm = [
         file_name.replace("_raw", "") for file_name in os.listdir(dicomdir)
     ]
 
-    # Can only read a small number of segmentation rows at a time due to Numpy arrays.
+    # Initialize mapping of filename to measurement dictionary.
     folder_measure_dict = {}
+    
+    # Can only read a small number of segmentation rows at a time due to Numpy arrays.
     step = 10
     for start in tqdm(range(0, len(file_names_dcm), step)):
+        # Get small number of rows.
         small_file_names_dcm = file_names_dcm[start : start + step]
         small_df = io_segmentation.get_segmentation_rows_for_files(
             "predictions", tuple(small_file_names_dcm)
         )
         for _, row in small_df.iterrows():
+            # Get relevant info.
             study_id = row["study_id"]
             instance_id = row["instance_id"]
-
-            # TODO: change when they are written without suffix in segmentation
             file_name = row["file_name"].split(".")[0]
 
+            # Calculate window.
             videofile = f"{file_name}.dcm_raw"
             ft, hr, nrow, ncol, x_scale, y_scale = extract_metadata_for_measurements(
                 dicomdir, videofile
             )
             window = get_window(hr, ft)
 
-            # Get back buffers, flipped.
+            # Get back buffers.
             output_np_la = row["output_np_la"]
             output_np_lv = row["output_np_lv"]
 
@@ -72,10 +76,11 @@ def calculate_meas(folder):
             output_np_la = np.reshape(output_np_la, (-1, 384, 384))
             output_np_lv = np.reshape(output_np_lv, (-1, 384, 384))
 
-            # TODO: delete when written as flipped in segmentation
+            # Flip segmentations.
             output_np_la = np.flipud(output_np_la)
             output_np_lv = np.flipud(output_np_lv)
 
+            # Get dictionary of measurements.
             la_segs = output_np_la
             lv_segs = output_np_lv
             video_measure_dict = compute_la_lv_volume(
@@ -101,7 +106,8 @@ def calculate_meas(folder):
     # Exclude measurements from videos where LAVOL/LVEDV < 30%, in case occluded
     # Percentiles: 50% for LVEDV, 25% for LVESV, 75% for LVEF, 25% for LAVOL
 
-    # Write to database.
+    # Get measurement names and units for writing to a table.
+    # For a new measurement, you would need to specify the name and unit here.
     all_measurement_names = [
         "VTD(MDD-ps4)",
         "VTS(MDD-ps4)",
@@ -110,15 +116,23 @@ def calculate_meas(folder):
     ]
     all_measurement_units = ["mL", "mL", "%", ""]
     num_meas = len(all_measurement_names)
+    
+    # Get relevant info for filenames that are keys in the dictionary.
     file_names = list(folder_measure_dict.keys())
+    
+    # Repeat the instance information for each measurement.
     study_ids = np.repeat(
         [folder_measure_dict[file_name]["study_id"] for file_name in file_names], num_meas
     )
     instance_ids = np.repeat(
         [folder_measure_dict[file_name]["instance_id"] for file_name in file_names], num_meas
     )
+    
+    # Get list of lists, which will later be flattened.
     measurement_names = [all_measurement_names for file_name in file_names]
     measurement_units = [all_measurement_units for file_name in file_names]
+    
+    # Get list of each measurement for all files.
     lvedv_values = [folder_measure_dict[file_name]["lvedv"] for file_name in file_names]
     lvesv_values = [folder_measure_dict[file_name]["lvesv"] for file_name in file_names]
     ef_values = [folder_measure_dict[file_name]["ef"] for file_name in file_names]
@@ -132,10 +146,13 @@ def calculate_meas(folder):
         else "greyzone"
         for ef in ef_values
     ]
+    
+    # Get one list of all measurements for all files.
     measurement_values = [
         list(l) for l in zip(lvedv_values, lvesv_values, ef_values, rec_values)
     ]
 
+    # Produce final dataframe to write to table, flattening measurement info.
     date_run = datetime.now()
     calculations_df = pd.DataFrame.from_dict(
         {
