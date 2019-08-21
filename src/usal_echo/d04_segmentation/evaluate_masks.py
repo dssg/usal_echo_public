@@ -24,16 +24,12 @@ def evaluate_masks():
     
     io_segmentation = dbReadWriteSegmentation()
     ground_truths = io_segmentation.get_segmentation_table('ground_truths')
-    
-    #instance_id_list = ground_truths.instance_id.unique() 
-    #instance_id_list = instance_id_list.astype(str)
-    #predictions = io_segmentation.get_instances_from_segementation_table('predictions', instance_id_list)
-
+  
     
     #Go through the ground truth table and write IOUS
         
     for index, gt in ground_truths.iterrows():
-        #match the gt to the predictin table
+        #match the gt to the prediction table
         gt_instance_id = gt['instance_id']
         gt_study_id = gt['study_id']
         gt_chamber = gt['chamber']
@@ -43,17 +39,11 @@ def evaluate_masks():
         pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
         pred = pred.reset_index()
         logger.info('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
-        print('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
         
         if len(pred.index) > 0:
             pred_view_name = gt['view_name']
             #retrieve gt numpy array
-            #print(gt['numpy_array'])
             gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1)#frame = 1, as it wants number of frames in np array, not frame number
-            #print(gt_numpy_array)
-            #if gt_numpy_array == None:
-            #    continue
-            #retrive relevant pred numpy array
             if gt_chamber == 'la':
                 pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['num_frames'][0])            
             elif gt_chamber == 'lv':
@@ -76,13 +66,10 @@ def evaluate_masks():
                          'score_value', 'gt_view_name', 'pred_view_name']
             d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
                  reported_iou, gt_view_name, pred_view_name]
-            #df = pd.DataFrame(data=d, columns=d_columns)
             io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         else:
             logger.error('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
-        
-        
-    
+
 
 def iou(gt, pred):
     gt_bool = np.array(gt, dtype=bool)
