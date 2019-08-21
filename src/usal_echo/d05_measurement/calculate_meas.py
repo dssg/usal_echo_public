@@ -158,6 +158,3 @@ def calculate_meas(folder):
     all_calculations_df = old_calculations_df.append(calculations_df)
     io_measurement.save_to_db(all_calculations_df, "calculations")
     logger.info("Successfully calculated measurements")
-
-if __name__ == "__main__":
-    calculate_measurements()
