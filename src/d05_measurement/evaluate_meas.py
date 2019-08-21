@@ -53,7 +53,8 @@ def evaluate_meas(folder):
     rel_diff_df["score_type"] = rel_diff_df["score_type"].str.replace(
         "absolute", "relative"
     )
-    rel_diff_df["score_value"] /= numeric_df["measurement_value_gt"]
+    rel_diff_df["score_value"] /= numeric_df["measurement_value_gt"].astype(float)
+    rel_diff_df["score_value"] *= 100
 
     # Evaluate recommendations with accuracies.
     rec_df = merge_df[merge_df["measurement_name"] == "recommendation"].copy()
