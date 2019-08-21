@@ -1,6 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+import yaml
+from pathlib import Path
+
+usr_dir = os.path.join(str(Path.home()),'usr','usal_echo','conf')
+
+with open(os.path.join(usr_dir, "path_parameters.yml")) as f:
+    paths = yaml.safe_load(f)
+
+bucket = paths["bucket"]
+dcm_dir = os.path.expanduser(paths["dcm_dir"])
+img_dir = os.path.expanduser(paths["img_dir"])
+segmentation_dir = os.path.expanduser(paths["segmentation_dir"])
+model_dir = os.path.expanduser(paths["model_dir"])
+classification_model = paths["classification_model"]
+
+
 from usal_echo.d00_utils.db_utils import *
 from usal_echo.d00_utils.s3_utils import download_s3_objects
 from usal_echo.d00_utils.log_utils import get_logs

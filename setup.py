@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
+import os
+from pathlib import Path
 
+usr_dir = os.path.join(str(Path.home()),'usr','usal_echo','conf')
+os.makedirs(usr_dir, exist_ok=True)
 
 setup(
     name='usal_echo',
@@ -16,6 +20,7 @@ setup(
         'click==7.0',
         'PyInquirer==1.0.3',
     ],
+    data_files=[(usr_dir, [os.path.join('conf','local', f) for f in ['path_parameters.yml','postgres_credentials.json']])],
     entry_points='''
         [console_scripts]
         usal_echo=usal_echo.inquire:cli

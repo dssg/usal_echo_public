@@ -2,6 +2,7 @@ from PyInquirer import prompt
 import os
 import yaml
 
+from usal_echo import bucket, dcm_dir, img_dir, segmentation_dir, model_dir, classification_model
 from usal_echo.d01_data.ingestion_dcm import ingest_dcm
 from usal_echo.d01_data.ingestion_xtdb import ingest_xtdb
 from usal_echo.d02_intermediate.clean_dcm import clean_dcm_meta
@@ -24,15 +25,6 @@ from usal_echo.d04_segmentation.evaluate_masks import evaluate_masks
 from usal_echo.d05_measurement.retrieve_meas import retrieve_meas
 from usal_echo.d05_measurement.calculate_meas import calculate_meas
 from usal_echo.d05_measurement.evaluate_meas import evaluate_meas
-
-with open("./conf/local/path_parameters.yml") as f:
-    paths = yaml.safe_load(f)
-
-bucket = paths["bucket"]
-dcm_dir = os.path.expanduser(paths["dcm_dir"])
-img_dir = os.path.expanduser(paths["img_dir"])
-model_dir = os.path.expanduser(paths["model_dir"])
-classification_model = paths["classification_model"]
 
 
 def _print_welcome_message():

@@ -18,6 +18,7 @@ import tempfile
 import gc
 import psycopg2
 
+from usal_echo import usr_dir
 from usal_echo.d00_utils.log_utils import setup_logging
 
 logger = setup_logging(__name__, __name__)
@@ -54,7 +55,7 @@ class dbReadWriteData:
             
     """
 
-    def __init__(self, schema=None, credentials_file="./conf/local/postgres_credentials.json"):
+    def __init__(self, schema=None, credentials_file=os.path.join(usr_dir, "postgres_credentials.json")):
         self.filepath = os.path.expanduser(credentials_file)
         self.schema = schema
         self.credentials = _load_json_credentials(self.filepath)
