@@ -93,7 +93,7 @@ pip install -r requirements.txt
 
 Navigate into your newly cloned `usal_echo` diretctory and run the setup.py script.  
 ```
-python setup.py install
+python src/setup.py install
 ```
 
 #### 3. Download models
