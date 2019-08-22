@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-from usal_echo.d00_utils.echocv_utils_v0 import *
 
 
 class Unet(object):
