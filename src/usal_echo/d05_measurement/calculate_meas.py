@@ -7,6 +7,7 @@ import yaml
 from datetime import datetime
 from tqdm import tqdm
 
+from usal_echo import usr_dir
 from usal_echo.d05_measurement.meas_utils import *
 from usal_echo.d00_utils.log_utils import setup_logging
 from usal_echo.d00_utils.db_utils import dbReadWriteSegmentation, dbReadWriteMeasurement
@@ -32,7 +33,7 @@ def calculate_meas(folder):
     io_measurement = dbReadWriteMeasurement()
 
     # Get files in specified folder.
-    with open("./conf/local/path_parameters.yml") as f:
+    with open(os.path.join(usr_dir,"conf","path_parameters.yml")) as f:
         paths = yaml.safe_load(f)
     dicomdir = f"{os.path.expanduser(paths['dcm_dir'])}/{folder}/raw"
 
