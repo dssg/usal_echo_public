@@ -1,5 +1,13 @@
 Code to re-train deep learning models.
 
+Steps for re-training the classification model:
+1) In `data/m1_usal/load_data.py`, set the variables `directory_train` and `directory_test` corresponding to your training and validation data.
+2) In `vgg_13/load_model.py`, the attribute `self.opt` is currently set to retrain the entire network. Should you wish to only perform transfer learning on the last three fully-connected layers, follow the corresponding comments directly below the `self.opt` attribute.
+3) Hyperparameters have been tuned for this model, however they can be changed in `config.json`. Descriptions of each parameter are below.
+4) From the `echo_deeplearning/` directory, run the command ```python run.py vgg_13```
+
+You can easily configure and run other models within this same directory structure, as outlined by Zhang's instructions below.
+
 FILEPATHS
 
 echo_deeplearning/
