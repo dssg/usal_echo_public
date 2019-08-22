@@ -35,7 +35,7 @@ Configure and run with new model
         - Create your own data folder (under 'data/[data_folder]/)
         - Make changes to 'data/a4c/load_data.py' or 'data/hcm/load_data.py', follow format, and save under 'data/[data_folder]/load_data.py'
 
-    Models require hyperparameters
+Models require hyperparameters
         - Create your own experiment folder (under 'models/unet_12/[experiment]/')
         - Modify hyperparameters and save under 'models/unet_12/[experiment]/config.json'
             Make sure the 'data' parameter is updated to the [data_folder] you created
