@@ -119,9 +119,9 @@ aws_secret_access_key=your_secret_key
 The pipeline uses the `default` user credentials.
 
 ##### postgres credentials  
-Modify the postgres credentials in `usr/usal_echo/conf/local/postgres_credentials.json`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
+Modify the postgres credentials in `~/usr/usal_echo/conf/local/postgres_credentials.json`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
 ```
-cd usr/usal_echo/conf/
+cd ~/usr/usal_echo/conf/
 nano postgres_credentials.json
 
 # Then modify the postgres credentials below into the file
@@ -135,10 +135,10 @@ nano postgres_credentials.json
 ```
 
 #### 5. Specify data paths
-The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `usr/usal_echo/conf/path_parameters.yml`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
+The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `~/usr/usal_echo/conf/path_parameters.yml`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
 
 ```
-cd usr/usal_echo/conf/
+cd ~/usr/usal_echo/conf/
 nano path_parameters.yml
 
 # Then modify the paths below in the file
@@ -249,7 +249,7 @@ Finally, specify the name of the directory which contains the dicom files and im
 </p>
 
 ### Log files
-The log files are stored in `usr/usal_echo/logs`.
+The log files are stored in `~/usr/usal_echo/logs`.
 
 ### Notebooks
 A set of notebooks exists in the `notebooks` directory of this repository. They contain the functions for each of the pipeline steps, as well as some elementary data analysis and can be used to experiment.
