@@ -196,7 +196,10 @@ d02_intermediate.filter_instances.filter_all()
 ```
 
 #### Dicom image download
-This step downloads and decompresses the dicom files. The files to download are determined based on the test/train split ratio and downsample ratio, both of which must be specified if this option is selected. The files are saved in a directory name according to the following convention: _test_split[**ratio * 100**]\_downsampleby[**inverse ratio**]_. For example, if `Train test ratio = 0.5` and `Downsample ratio = 0.001` the directory name will be _test_split50_downsampleby1000_.
+This step downloads and decompresses the dicom files. The files to download are determined based on the test/train split ratio and downsample ratio, both of which must be specified if this option is selected. 
+
+If `Train test ration = 0`, then all the files are downloaded into the test set.  
+If `Train test ratio = 1`, then no files are downloaded into the test set.
 
 <p align="left">
 <img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
@@ -207,6 +210,8 @@ The download step executes the following function:
 d02_intermediate.download_dcm.s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, bucket=bucket)
 ```
 `s3_download_decomp_dcm` executes two processing steps: it downloads files from s3 and then decompresses them. If you already have a directory with dicom files that are not decompressed, you can use `d02_intermediate.download_dcm._decompress_dcm()` to decompress your images. The convention is that decompressed images are stored in a subdirectory of the original directory named `raw` and that filenames are appended with `_raw` to end in `.dcm_raw`.
+
+The naming convention for downloaded files is the following: _test_split[**ratio * 100**]\_downsampleby[**inverse ratio**]_. For example, if `Train test ratio = 0.5` and `Downsample ratio = 0.001` the directory name will be _test_split50_downsampleby1000_.
 
 #### Module selection
 Select one or more modules for inference and evaluation. 
