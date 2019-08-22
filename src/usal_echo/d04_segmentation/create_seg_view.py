@@ -7,6 +7,8 @@ Created on Fri Jul 12 09:26:54 2019
 @author: court
 """
 from usal_echo.d00_utils.db_utils import dbReadWriteClean, dbReadWriteViews
+from usal_echo.d04_segmentation.segment_utils import *
+
 import pandas as pd
 
 
