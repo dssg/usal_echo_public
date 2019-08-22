@@ -200,6 +200,8 @@ This step downloads and decompresses the dicom files. The files to download are 
 
 If `Train test ration = 0`, then all the files are downloaded into the test set.  
 If `Train test ratio = 1`, then no files are downloaded into the test set.
+If `Downsample ratio = 1`, no downsampling is done.
+If `0 < Downsample ratio < 1`, then are portion of files corresponding to the downsample ratio is downloaded.
 
 <p align="left">
 <img src="docs/images/inquire_download.png" alt="Run pipeline: download." width="450" />
