@@ -55,7 +55,7 @@ class dbReadWriteData:
             
     """
 
-    def __init__(self, schema=None, credentials_file=os.path.join(usr_dir, "postgres_credentials.json")):
+    def __init__(self, schema=None, credentials_file=os.path.join(usr_dir, "conf", "postgres_credentials.json")):
         self.filepath = os.path.expanduser(credentials_file)
         self.schema = schema
         self.credentials = _load_json_credentials(self.filepath)
