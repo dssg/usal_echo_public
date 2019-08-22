@@ -81,6 +81,8 @@ When installing these libraries, it is possible that a message window will pop u
 Clone the TensorFlow Python3 conda environment in your GPU instance set up with AWS Deep Learning AMI and activate it. 
 ```
 conda create --name usal_echo --clone tensorflow_p36
+echo ". /home/ubuntu/anaconda3/etc/profile.d/conda.sh" >> ~/.bashrc
+source ~/.bashrc
 conda activate usal_echo
 ```
 
@@ -88,12 +90,8 @@ conda activate usal_echo
 After activating your Anaconda environment, clone this repository into your work space. Navigate to `usal_echo` and install the required packages with pip.  
 ```
 git clone https://github.com/dssg/usal_echo.git
+cd usal_echo
 pip install -r requirements.txt
-```
-
-Navigate into your newly cloned `usal_echo` directory and run the setup.py script.  
-```
-python setup.py install
 ```
 
 #### 3. Download models
@@ -144,7 +142,14 @@ As per the requirements listed in [Infrastructure requirements](https://github.c
 ```
 ```
 
-## Run the pipeline
+## Run the pipelineent
+
+Now navigate into the `usal_echo` directory and run the setup.py script. This step should only be done after all the credentials and config files have been created and updated. If you make any changes to these files, you need to rerun the setup script.
+
+```
+python setup.py install
+```
+
 The final step is to run the `inquire.py` script which can be called from within the `usal_echo` directory using the short cut usal_echo:
 ```
 usal_echo
