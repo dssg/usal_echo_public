@@ -44,7 +44,6 @@ def extract_metadata_for_measurements(dicomdir, videofile):
     if hr < 40:
         logger.debug(f"problem heart rate: {hr}")
         hr = 70
-    hr = 0
     return ft, hr, nrow, ncol, x_scale, y_scale
 
 
