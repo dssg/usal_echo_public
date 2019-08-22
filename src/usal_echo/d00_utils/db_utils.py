@@ -203,7 +203,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        print("Saved to table {} to schema {} ".format('predictions', self.schema))
+        logger.info("Saved to table {} to schema {} ".format('predictions', self.schema))
         
     def save_ground_truth_numpy_array_to_db(self, binary_data_array, column_names):  
     #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 
@@ -223,7 +223,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        print("Saved to table {} to schema {} ".format('ground truth', self.schema))
+        logger.info("Saved to table {} to schema {} ".format('ground truth', self.schema))
 
     def convert_to_np(self, x, frame):
         if frame == 1:
@@ -274,8 +274,7 @@ class dbReadWriteSegmentation(dbReadWriteData):
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        print(
-            "Saved table {} to schema {} (mode={})".format(
+        logger.info("Saved table {} to schema {} (mode={})".format(
                 'evaluation', self.schema, if_exists
             )
         )
