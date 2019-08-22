@@ -96,13 +96,7 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
-#### 3. Download models
-The models used to run this pipeline can be downloaded from s3:  
-* [classification](): original from Zhang et al, adapted to our dataset using transfer learning.
-* [segmentation](): original from Zhang et al without adaptation
-
-
-#### 4. Credentials files
+#### 3. Credentials files
 To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
 ##### aws credentials   
@@ -135,8 +129,8 @@ nano postgres_credentials.json
 }
 ```
 
-#### 5. Specify data paths
-The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `~/usr/usal_echo/conf/path_parameters.yml`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
+#### 4. Specify data paths
+The parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `~/usr/usal_echo/conf/path_parameters.yml`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
 
 ```
 cd ~/usr/usal_echo/conf/
@@ -144,7 +138,7 @@ nano path_parameters.yml
 
 # Then modify the paths below in the file
 
-bucket: "your_s3_bucket"
+bucket: "your_s3_bucket_name"
 dcm_dir: "~/data/01_raw"
 img_dir: "~/data/02_intermediate"
 segmentation_dir: "~/data/04_segmentation"
@@ -153,6 +147,13 @@ classification_model: "model.ckpt-6460"
 ```
 
 The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`. Use `~/` to refer to the user directory.
+
+#### 5. Download models
+The models used to run this pipeline can be downloaded from s3:  
+* [classification](): original from Zhang et al, adapted to our dataset using transfer learning.
+* [segmentation](): original from Zhang et al without adaptation
+
+They need to be saved in the `model_dir` that you have specified above.
 
 #### 6. Create the database schema
 As per the requirements listed in [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements) you require a database indtallation with credentials stored as described above. After the database has been created, you need to run the script that creates the different schema that we require to persist the outputs from the different pipeline processes: classification, segmentation and measurements. The database schema is stored in `usr/usal_echo/conf/models_schema.sql` and must be set up by running the following command (change psswd, user, database and host to correspond with your setup):
