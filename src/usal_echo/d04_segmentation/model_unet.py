@@ -3,6 +3,8 @@
 
 import tensorflow as tf
 
+from usal_echo.d04_segmentation.segment_utils import *
+
 
 class Unet(object):
     def __init__(self, mean, weight_decay, learning_rate, label_dim, maxout=False):
