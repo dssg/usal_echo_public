@@ -57,7 +57,7 @@ Infrastructure: AWS
     + Instance: db.t2.xlarge
     + vCPU: 2
     + RAM: 4 GB
-    + Storage: 40 GB
+    + Storage: 100 GB
 ```
 
 ## Installation and setup
