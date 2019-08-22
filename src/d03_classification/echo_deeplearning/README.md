@@ -8,35 +8,8 @@ Steps for re-training the classification model:
 
 You can easily configure and run other models within this same directory structure, as outlined by Zhang's instructions below.
 
-FILEPATHS
 
-echo_deeplearning/
-|   README
-|
-|---data/ 
-|   |   m1_usal
-|   |   |   load_data.py  (accessing and preproecssing data)
-|   |   
-|   |   ...
-|   |
-|---models/    (code, visualizations, trained models are here)
-|   |---vgg_13/    (architecture/model being trained)
-|   |   |   load_model.py    (code necessary for the model)
-|   |   |
-|   |   |   config.json    (variables and hyperparameters)
-|   |
-|   |   ...
-|   |
-|---run.py (python file to run models)
-|---util.py (utility functions)
-
-FOLDER DESCRIPTIONS
-
-    'data/' holds data and preprocessing information for each model
-    'models/' holds all models and experiments
-
-HYPERPARAMTERS
-
+Hyperparameters
     All parameters are stored in config.json files
 
     data (string) - data folder name (data preprocessing is located in this folder)
@@ -56,8 +29,7 @@ HYPERPARAMTERS
     loss_smoothing (int) - number of loss values averaged for display
 
 
-TO RUN
-
+Configure and run with new model
     a4c/ and hcm/ folders included as examples. 
     Model requires data to be preprocessed. 
         - Create your own data folder (under 'data/[data_folder]/)
