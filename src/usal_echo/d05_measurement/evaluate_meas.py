@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from usal_echo import usr_dir
 from usal_echo.d00_utils.log_utils import setup_logging
 from usal_echo.d00_utils.db_utils import dbReadWriteMeasurement
 from usal_echo.d06_visualisation.confusion_matrix import plot_confusion_matrix
@@ -21,7 +22,7 @@ def evaluate_meas(folder):
     calculations_df = io_measurement.get_table("calculations")
     calculations_df = calculations_df.drop(columns=["calculation_id", "date_run"])
 
-    with open("./conf/local/path_parameters.yml") as f:
+     with open(os.path.join(usr_dir,"conf","path_parameters.yml")) as f:
         paths = yaml.safe_load(f)
     path = os.path.expanduser(paths["dcm_dir"])
     file_names = [fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")]
