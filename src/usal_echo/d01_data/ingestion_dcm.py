@@ -142,14 +142,15 @@ def ingest_dcm(bucket='cibercv', write_to="postgres", prefix=""):
     :return: (none) dicom metadata from s3/cibercv retrieved and stored
     
     """
+        
     if write_to == "postgres":
-        func = _write_dicom_metadata_postgres(df, "metadata")
+        func = '_write_dicom_metadata_postgres(df, "metadata")'
     elif write_to == "csv":
-        func = _write_dicom_metadata_csv(df)
+        func = '_write_dicom_metadata_csv(df)'
 
     for key in get_matching_s3_keys(bucket, prefix, ".dcm"):
         df = _get_dicom_metadata(bucket, key)
-        func
+        eval(func)
     os.remove("temp.txt")
 
     logger.info("All dicom metadata has been retrieved.")
