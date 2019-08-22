@@ -98,7 +98,7 @@ CREATE TABLE classification.probabilities_frames (
     output_subcostal double precision,
     output_plax_lac double precision,
     output_psax_apex double precision,
-    probabilities_frame_id integer NOT NULL
+    probabilities_frame_id serial NOT NULL
 );
 
 --table probabilities_instances: average the probabilities of the frames
@@ -134,7 +134,7 @@ CREATE TABLE classification.probabilities_instances (
     output_plax_lac double precision,
     output_psax_apex double precision,
     frame_count bigint,
-    probabilities_instance_id integer NOT NULL
+    probabilities_instance_id serial NOT NULL
 );
 
 
