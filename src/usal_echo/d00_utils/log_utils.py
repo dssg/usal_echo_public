@@ -25,7 +25,7 @@ def setup_logging(name, log_file, level=logging.DEBUG):
     
     """
     os.makedirs(log_basedir, exist_ok=True)
-    
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

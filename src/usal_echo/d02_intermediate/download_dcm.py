@@ -47,7 +47,7 @@ def decompress_dcm(dcm_filepath, dcmraw_filepath):
             )
         )
 
-        
+
 def _split_train_test(ratio, table_name):
     """Split views.table_name into train/test. 
     
@@ -97,7 +97,14 @@ def _downsample_train_test(downsample_ratio, train_test_ratio, table_name):
     return df_train_downsampled, df_test_downsampled
 
 
-def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_name='instances_w_labels', train=False, bucket='cibercv'):
+def s3_download_decomp_dcm(
+    train_test_ratio,
+    downsample_ratio,
+    dcm_dir,
+    table_name="instances_w_labels",
+    train=False,
+    bucket="cibercv",
+):
     """Downloads and decompresses test/train dicoms from s3.
     
     :param downsample_ratio (float): percentage by which to downsample dataset
@@ -107,7 +114,7 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
     :param train (bool): download train set instead of test set, default=False
     
     """
-    
+
     df_train, df_test = _downsample_train_test(
         downsample_ratio, train_test_ratio, table_name
     )
@@ -144,9 +151,7 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
         # TODO: consider downloading to a main image directory and only creating a
         # symlink to experiment directory. Could save a lot of downloading time.
         if not os.path.isfile(dcm_filepath):
-            download_s3_objects(
-                bucket, outfile=dcm_filepath, prefix=p, suffix=".dcm"
-            )
+            download_s3_objects(bucket, outfile=dcm_filepath, prefix=p, suffix=".dcm")
 
         dcm_rawfilepath = os.path.join(raw_datadir, download_dict[p] + "_raw")
         if not os.path.isfile(dcm_rawfilepath):
@@ -158,19 +163,21 @@ def s3_download_decomp_dcm(train_test_ratio, downsample_ratio, dcm_dir, table_na
         )
     )
 
-    return 
+    return
 
 
 def _read_dcmraw(dcmraw_filepath):
-    
+
     try:
         ds = pydicom.dcmread(dcmraw_filepath, force=True)
         if ("NumberOfFrames" in dir(ds)) and (ds.NumberOfFrames > 1):
             return ds
         else:
-            logger.debug("{} is a single frame".format(os.path.basename(dcmraw_filepath)))
+            logger.debug(
+                "{} is a single frame".format(os.path.basename(dcmraw_filepath))
+            )
     except IOError:
-        print('file {} not found'.format(dcmraw_filepath))
+        print("file {} not found".format(dcmraw_filepath))
 
 
 def _dcmraw_to_np(dcmraw_obj):

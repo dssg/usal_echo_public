@@ -11,11 +11,14 @@ from json import load
 import os
 from pathlib import Path
 
+from usal_echo import usr_dir
 from usal_echo.d00_utils.db_utils import dbReadWriteRaw, dbReadWriteClean
 from usal_echo.d00_utils.log_utils import setup_logging
+
 logger = setup_logging(__name__, __name__)
 
-dcm_tags = os.path.join(Path(__file__).parents[0], "dicom_tags.json")
+dcm_tags = os.path.join(usr_dir, "conf", "dicom_tags.json")
+
 
 def clean_dcm_meta():
     """Selects a subset of dicom metadata tags and saves them to postgres.

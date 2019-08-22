@@ -55,7 +55,11 @@ class dbReadWriteData:
             
     """
 
-    def __init__(self, schema=None, credentials_file=os.path.join(usr_dir, "conf", "postgres_credentials.json")):
+    def __init__(
+        self,
+        schema=None,
+        credentials_file=os.path.join(usr_dir, "conf", "postgres_credentials.json"),
+    ):
         self.filepath = os.path.expanduser(credentials_file)
         self.schema = schema
         self.credentials = _load_json_credentials(self.filepath)
@@ -168,7 +172,6 @@ class dbReadWriteViews(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
 
-
 class dbReadWriteSegmentation(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'segmentation' schema
@@ -180,12 +183,12 @@ class dbReadWriteSegmentation(dbReadWriteData):
             self.engine.execute(CreateSchema(self.schema))
 
     def save_prediction_numpy_array_to_db(self, binary_data_array, column_names):
-        #Columns names are:prediction_id	study_id	instance_id	file_name	
-        #num_frames	model_name	date_run	output_np_lv	output_np_la	
-        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+        # Columns names are:prediction_id	study_id	instance_id	file_name
+        # num_frames	model_name	date_run	output_np_lv	output_np_la
+        # output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}')".format(
             self.schema,
-            'predictions',
+            "predictions",
             ",".join(column_names),
             binary_data_array[0],
             binary_data_array[1],
@@ -198,19 +201,21 @@ class dbReadWriteSegmentation(dbReadWriteData):
             psycopg2.Binary(binary_data_array[8]),
             binary_data_array[9],
             binary_data_array[10],
-            binary_data_array[11]
+            binary_data_array[11],
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        logger.info("Saved to table {} to schema {} ".format('predictions', self.schema))
-        
-    def save_ground_truth_numpy_array_to_db(self, binary_data_array, column_names):  
-    #column_names = ['ground_truth_id, study_id, instance_id', 'file_name', 
-    #'frame', 'chamber', 'view_name' 'numpy_array'
+        logger.info(
+            "Saved to table {} to schema {} ".format("predictions", self.schema)
+        )
+
+    def save_ground_truth_numpy_array_to_db(self, binary_data_array, column_names):
+        # column_names = ['ground_truth_id, study_id, instance_id', 'file_name',
+        #'frame', 'chamber', 'view_name' 'numpy_array'
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', {})".format(
             self.schema,
-            'ground_truths',
+            "ground_truths",
             ",".join(column_names),
             binary_data_array[0],
             binary_data_array[1],
@@ -218,49 +223,52 @@ class dbReadWriteSegmentation(dbReadWriteData):
             binary_data_array[3],
             binary_data_array[4],
             binary_data_array[5],
-            psycopg2.Binary(binary_data_array[6])
+            psycopg2.Binary(binary_data_array[6]),
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        logger.info("Saved to table {} to schema {} ".format('ground truth', self.schema))
+        logger.info(
+            "Saved to table {} to schema {} ".format("ground truth", self.schema)
+        )
 
     def convert_to_np(self, x, frame):
         if frame == 1:
-            np_array = np.reshape(np.frombuffer(x, dtype='uint8'), (384,384))
+            np_array = np.reshape(np.frombuffer(x, dtype="uint8"), (384, 384))
         else:
-            np_array = np.reshape(np.frombuffer(x, dtype='Int8'), (frame,384,384))
-            
+            np_array = np.reshape(np.frombuffer(x, dtype="Int8"), (frame, 384, 384))
+
         return np_array
-    
-    
+
     def get_segmentation_table(self, db_table):
         """Read table in database as dataframe.
         
         :param db_table (str): name of database table to read
         
         """
-        
+
         q = "SELECT * FROM {}.{}".format(self.schema, db_table)
         df = pd.read_sql(q, self.engine)
 
         return df
-    
+
     def get_instance_from_segementation_table(self, db_table, instance):
-        
-        q = "SELECT * FROM {}.{} WHERE instance_id={}".format(self.schema, db_table, instance)
+
+        q = "SELECT * FROM {}.{} WHERE instance_id={}".format(
+            self.schema, db_table, instance
+        )
         df = pd.read_sql(q, self.engine)
 
         return df
-    
+
     def save_seg_evaluation_to_db(self, df, column_names, if_exists="append"):
         # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-        
+
         # Create new database table from empty dataframe
-        #df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
+        # df.to_sql('evaluation', self.engine, self.schema, if_exists, index=False)
         sql = "insert into {}.{} ({}) values ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(
             self.schema,
-            'evaluations',
+            "evaluations",
             ",".join(column_names),
             df[0],
             df[1],
@@ -269,31 +277,35 @@ class dbReadWriteSegmentation(dbReadWriteData):
             df[4],
             df[5],
             df[6],
-            df[7]
+            df[7],
         )
         self.cursor.execute(sql)
         self.raw_conn.commit()
 
-        logger.info("Saved table {} to schema {} (mode={})".format(
-                'evaluation', self.schema, if_exists
+        logger.info(
+            "Saved table {} to schema {} (mode={})".format(
+                "evaluation", self.schema, if_exists
             )
         )
-        
+
     def get_segmentation_rows_for_file(self, db_table, file_name):
 
-        q = "SELECT * FROM {}.{} WHERE file_name='{}'".format(self.schema, db_table, file_name)
+        q = "SELECT * FROM {}.{} WHERE file_name='{}'".format(
+            self.schema, db_table, file_name
+        )
         df = pd.read_sql(q, self.engine)
 
         return df
-    
+
     def get_segmentation_rows_for_files(self, db_table, file_names):
 
-        q = "SELECT * FROM {}.{} WHERE file_name IN {}".format(self.schema, db_table, file_names)
+        q = "SELECT * FROM {}.{} WHERE file_name IN {}".format(
+            self.schema, db_table, file_names
+        )
         df = pd.read_sql(q, self.engine)
 
         return df
 
-        
 
 class dbReadWriteClassification(dbReadWriteData):
     """
@@ -323,8 +335,8 @@ class dbReadWriteClassification(dbReadWriteData):
                 db_table, self.schema, if_exists
             )
         )
-        
-        
+
+
 class dbReadWriteMeasurement(dbReadWriteData):
     """
     Instantiates class for postgres I/O to 'measurement' schema

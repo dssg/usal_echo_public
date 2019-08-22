@@ -10,16 +10,18 @@ from pathlib import Path
 
 from scipy.misc import imresize
 from subprocess import Popen, PIPE
+
+from usal_echo import usr_dir
 from usal_echo.d00_utils.log_utils import *
 
 logger = setup_logging(__name__, __name__)
 
-dcm_tags = os.path.join(Path(__file__).parents[1], "d02_intermediate", "dicom_tags.json")
+dcm_tags = os.path.join(usr_dir, "conf", "dicom_tags.json")
 
 
 def extract_metadata_for_measurements(dicomdir, videofile):
     """Get DICOM metadata using GDCM utility."""
-    
+
     command = "gdcmdump " + dicomdir + "/" + videofile
     pipe = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
     text = pipe.communicate()[0]

@@ -42,7 +42,7 @@ def calculate_meas(folder):
 
     # Initialize mapping of filename to measurement dictionary.
     folder_measure_dict = {}
-    
+
     # Can only read a small number of segmentation rows at a time due to Numpy arrays.
     step = 10
     for start in tqdm(range(0, len(file_names_dcm), step)):
@@ -116,22 +116,24 @@ def calculate_meas(folder):
     ]
     all_measurement_units = ["mL", "mL", "%", ""]
     num_meas = len(all_measurement_names)
-    
+
     # Get relevant info for filenames that are keys in the dictionary.
     file_names = list(folder_measure_dict.keys())
-    
+
     # Repeat the instance information for each measurement.
     study_ids = np.repeat(
-        [folder_measure_dict[file_name]["study_id"] for file_name in file_names], num_meas
+        [folder_measure_dict[file_name]["study_id"] for file_name in file_names],
+        num_meas,
     )
     instance_ids = np.repeat(
-        [folder_measure_dict[file_name]["instance_id"] for file_name in file_names], num_meas
+        [folder_measure_dict[file_name]["instance_id"] for file_name in file_names],
+        num_meas,
     )
-    
+
     # Get list of lists, which will later be flattened.
     measurement_names = [all_measurement_names for file_name in file_names]
     measurement_units = [all_measurement_units for file_name in file_names]
-    
+
     # Get list of each measurement for all files.
     lvedv_values = [folder_measure_dict[file_name]["lvedv"] for file_name in file_names]
     lvesv_values = [folder_measure_dict[file_name]["lvesv"] for file_name in file_names]
@@ -146,7 +148,7 @@ def calculate_meas(folder):
         else "greyzone"
         for ef in ef_values
     ]
-    
+
     # Get one list of all measurements for all files.
     measurement_values = [
         list(l) for l in zip(lvedv_values, lvesv_values, ef_values, rec_values)

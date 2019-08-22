@@ -28,7 +28,8 @@ def downsample_train_test(ratio=0.1):
     df_test_downsampled = downsample_df(df_test, ratio)
 
     io_views.save_to_db(
-        df_train_downsampled, "instances_w_labels_train_downsampleby{0}".format(inv_ratio)
+        df_train_downsampled,
+        "instances_w_labels_train_downsampleby{0}".format(inv_ratio),
     )
     io_views.save_to_db(
         df_test_downsampled, "instances_w_labels_test_downsampleby{0}".format(inv_ratio)

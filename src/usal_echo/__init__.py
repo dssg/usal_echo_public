@@ -5,7 +5,7 @@ import os
 import yaml
 from pathlib import Path
 
-usr_dir = os.path.join(str(Path.home()),"usr","usal_echo")
+usr_dir = os.path.join(str(Path.home()), "usr", "usal_echo")
 
 with open(os.path.join(usr_dir, "conf", "path_parameters.yml")) as f:
     paths = yaml.safe_load(f)
@@ -26,8 +26,16 @@ from usal_echo.d01_data.ingestion_xtdb import ingest_xtdb
 from usal_echo.d02_intermediate.clean_dcm import clean_dcm_meta
 from usal_echo.d02_intermediate.clean_xtdb import clean_tables
 from usal_echo.d02_intermediate.filter_instances import filter_all
-from usal_echo.d02_intermediate.download_dcm import decompress_dcm, s3_download_decomp_dcm, dcmdir_to_jpgs_for_classification
-from usal_echo.d03_classification.predict_views import run_classify, agg_probabilities, predict_views
+from usal_echo.d02_intermediate.download_dcm import (
+    decompress_dcm,
+    s3_download_decomp_dcm,
+    dcmdir_to_jpgs_for_classification,
+)
+from usal_echo.d03_classification.predict_views import (
+    run_classify,
+    agg_probabilities,
+    predict_views,
+)
 from usal_echo.d03_classification.evaluate_views import evaluate_views
 from usal_echo.d04_segmentation.create_seg_view import create_seg_view
 from usal_echo.d04_segmentation.segment_view import run_segment

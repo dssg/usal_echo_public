@@ -13,7 +13,7 @@ from usal_echo.d00_utils.s3_utils import get_matching_s3_keys
 from usal_echo.d00_utils.db_utils import dbReadWriteRaw
 
 
-def ingest_xtdb(bucket='cibercv'):
+def ingest_xtdb(bucket="cibercv"):
     """Retrieve all Xcelera_tablas csv files from s3 and save to postgres database.
     
     """

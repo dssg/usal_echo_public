@@ -12,6 +12,7 @@ from usal_echo.d06_visualisation.confusion_matrix import plot_confusion_matrix
 
 logger = setup_logging(__name__, __name__)
 
+
 def evaluate_meas(folder):
     # Get ground truth and calculated measurements for files in folder.
     io_measurement = dbReadWriteMeasurement()
@@ -22,10 +23,8 @@ def evaluate_meas(folder):
 
     with open("./conf/local/path_parameters.yml") as f:
         paths = yaml.safe_load(f)
-    path = os.path.expanduser(paths['dcm_dir'])
-    file_names = [
-        fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")
-    ]
+    path = os.path.expanduser(paths["dcm_dir"])
+    file_names = [fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")]
     ground_truths_df = ground_truths_df[ground_truths_df["file_name"].isin(file_names)]
     calculations_df = calculations_df[calculations_df["file_name"].isin(file_names)]
     # Combine ground truth and calculated measurements for evaluation.

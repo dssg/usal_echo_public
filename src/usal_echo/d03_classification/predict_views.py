@@ -106,9 +106,7 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
 
     saver = tf.train.Saver()
 
-    saver.restore(
-        sess, model_path
-    )
+    saver.restore(sess, model_path)
 
     # Classify views
     probabilities = {}
@@ -122,7 +120,7 @@ def _classify(img_dir, feature_dim, label_dim, model_path):
     return probabilities
 
 
-def run_classify(img_dir, model_path, if_exists='append', feature_dim=1):
+def run_classify(img_dir, model_path, if_exists="append", feature_dim=1):
     """Writes classification probabilities of frames to database.
     :param img_dir: directory with jpg echo images for classification
     :param model_path: path to trained model for inferring probabilities
@@ -158,7 +156,7 @@ def run_classify(img_dir, model_path, if_exists='append', feature_dim=1):
     )
 
 
-def agg_probabilities(if_exists='replace'):
+def agg_probabilities(if_exists="replace"):
     """Aggregates probabilities by study and instance.
     
     Fetches probabilities from classification.probabilities_frames and 
@@ -194,7 +192,7 @@ def agg_probabilities(if_exists='replace'):
     )
 
 
-def predict_views(if_exists='replace'):
+def predict_views(if_exists="replace"):
 
     """Predicts and maps views based on maximum probability.
      

@@ -2,7 +2,14 @@ from PyInquirer import prompt
 import os
 import yaml
 
-from usal_echo import bucket, dcm_dir, img_dir, segmentation_dir, model_dir, classification_model
+from usal_echo import (
+    bucket,
+    dcm_dir,
+    img_dir,
+    segmentation_dir,
+    model_dir,
+    classification_model,
+)
 from usal_echo.d01_data.ingestion_dcm import ingest_dcm
 from usal_echo.d01_data.ingestion_xtdb import ingest_xtdb
 from usal_echo.d02_intermediate.clean_dcm import clean_dcm_meta
@@ -140,10 +147,7 @@ def _pipeline_args():
     :return: arguments defined
     """
     questions = [
-        {
-            "type": "input", 
-            "name": "dir_name", 
-            "message": "Directory with echo images:"}
+        {"type": "input", "name": "dir_name", "message": "Directory with echo images:"}
     ]
     answers = prompt(questions)
 

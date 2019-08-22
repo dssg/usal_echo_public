@@ -81,7 +81,11 @@ def evaluate_view_map(img_dir, model_name, date_run, view_mapping, study_filter=
 
 
 def evaluate_views(
-    img_dir, model_name, date_run=datetime.date.today(), study_filter=None, if_exists="append"
+    img_dir,
+    model_name,
+    date_run=datetime.date.today(),
+    study_filter=None,
+    if_exists="append",
 ):
     """Filters and then evaluates classification.predictions table
     

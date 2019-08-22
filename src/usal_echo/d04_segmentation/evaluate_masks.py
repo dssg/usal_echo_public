@@ -13,62 +13,96 @@ from usal_echo.d00_utils.log_utils import setup_logging
 
 logger = setup_logging(__name__, __name__)
 
+
 def evaluate_masks():
-    #Go through the ground truth table and write IOUS
-    
+    # Go through the ground truth table and write IOUS
+
     # Prediction Table: "instance_id","study_id", "view_name", "frame", "output_np_lv", "output_np_la",
     #        "output_np_lvo","output_image_seg", "output_image_orig", "output_image_overlay", "date_run",
     #        "file_name"
     # Ground truth table: ground_truth_id, instance_id, frame, chamber, study_id, view_name, numpy_array
     # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-    
+
     io_segmentation = dbReadWriteSegmentation()
-    ground_truths = io_segmentation.get_segmentation_table('ground_truths')
-  
-    
-    #Go through the ground truth table and write IOUS
-        
+    ground_truths = io_segmentation.get_segmentation_table("ground_truths")
+
+    # Go through the ground truth table and write IOUS
+
     for index, gt in ground_truths.iterrows():
-        #match the gt to the prediction table
-        gt_instance_id = gt['instance_id']
-        gt_study_id = gt['study_id']
-        gt_chamber = gt['chamber']
-        gt_view_name = gt['view_name']
-        gt_frame_no = gt['frame']
-        
-        pred = io_segmentation.get_instance_from_segementation_table('predictions', gt_instance_id)
+        # match the gt to the prediction table
+        gt_instance_id = gt["instance_id"]
+        gt_study_id = gt["study_id"]
+        gt_chamber = gt["chamber"]
+        gt_view_name = gt["view_name"]
+        gt_frame_no = gt["frame"]
+
+        pred = io_segmentation.get_instance_from_segementation_table(
+            "predictions", gt_instance_id
+        )
         pred = pred.reset_index()
-        logger.info('got {} predictions details for instance {}'.format(len(pred), gt_instance_id))
-        
+        logger.info(
+            "got {} predictions details for instance {}".format(
+                len(pred), gt_instance_id
+            )
+        )
+
         if len(pred.index) > 0:
-            pred_view_name = gt['view_name']
-            #retrieve gt numpy array
-            gt_numpy_array = io_segmentation.convert_to_np(gt['numpy_array'], 1)#frame = 1, as it wants number of frames in np array, not frame number
-            if gt_chamber == 'la':
-                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_la'][0], pred['num_frames'][0])            
-            elif gt_chamber == 'lv':
-                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lv'][0], pred['num_frames'][0])
-            elif gt_chamber == 'lvo':
-                pred_numpy_array = io_segmentation.convert_to_np(pred['output_np_lvo'][0], pred['num_frames'][0])
+            pred_view_name = gt["view_name"]
+            # retrieve gt numpy array
+            gt_numpy_array = io_segmentation.convert_to_np(
+                gt["numpy_array"], 1
+            )  # frame = 1, as it wants number of frames in np array, not frame number
+            if gt_chamber == "la":
+                pred_numpy_array = io_segmentation.convert_to_np(
+                    pred["output_np_la"][0], pred["num_frames"][0]
+                )
+            elif gt_chamber == "lv":
+                pred_numpy_array = io_segmentation.convert_to_np(
+                    pred["output_np_lv"][0], pred["num_frames"][0]
+                )
+            elif gt_chamber == "lvo":
+                pred_numpy_array = io_segmentation.convert_to_np(
+                    pred["output_np_lvo"][0], pred["num_frames"][0]
+                )
             else:
-                logger.error('invalid chamber') 
-            
-            #get the frame of the prediction, that corresponds to the frame of the ground thruth
+                logger.error("invalid chamber")
+
+            # get the frame of the prediction, that corresponds to the frame of the ground thruth
             pred_numpy_array_frame = pred_numpy_array[gt_frame_no, :, :]
-            
-            #calculate iou
+
+            # calculate iou
             reported_iou = iou(gt_numpy_array, pred_numpy_array_frame)
-            logger.info('IOU of: {}'.format(reported_iou))
-            
-            #write to db
+            logger.info("IOU of: {}".format(reported_iou))
+
+            # write to db
             # Evaluation Table: evaluation_id, instance_id, frame, chamber, study_id, score_type, score_value
-            d_columns = ['instance_id', 'frame', 'chamber', 'study_id', 'score_type',
-                         'score_value', 'gt_view_name', 'pred_view_name']
-            d = [gt_instance_id, gt['frame'], gt_chamber, gt_study_id, 'iou', 
-                 reported_iou, gt_view_name, pred_view_name]
+            d_columns = [
+                "instance_id",
+                "frame",
+                "chamber",
+                "study_id",
+                "score_type",
+                "score_value",
+                "gt_view_name",
+                "pred_view_name",
+            ]
+            d = [
+                gt_instance_id,
+                gt["frame"],
+                gt_chamber,
+                gt_study_id,
+                "iou",
+                reported_iou,
+                gt_view_name,
+                pred_view_name,
+            ]
             io_segmentation.save_seg_evaluation_to_db(d, d_columns)
         else:
-            logger.error('No record exists for study id {} & instance id {}'.format(gt_study_id, gt_instance_id))
+            logger.error(
+                "No record exists for study id {} & instance id {}".format(
+                    gt_study_id, gt_instance_id
+                )
+            )
 
 
 def iou(gt, pred):

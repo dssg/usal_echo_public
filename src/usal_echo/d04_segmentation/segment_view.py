@@ -20,14 +20,18 @@ import hashlib
 
 from usal_echo.d00_utils.log_utils import setup_logging
 from usal_echo.d02_intermediate.download_dcm import dcm_to_segmentation_arrays
-from usal_echo.d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
+from usal_echo.d00_utils.db_utils import (
+    dbReadWriteViews,
+    dbReadWriteClassification,
+    dbReadWriteSegmentation,
+)
 from usal_echo.d03_classification.evaluate_views import _groundtruth_views
 from usal_echo.d04_segmentation.model_unet import Unet
 
 
 logger = setup_logging(__name__, __name__)
 
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def segmentChamber(videofile, dicomdir, view, model_path):
@@ -72,14 +76,15 @@ def segmentChamber(videofile, dicomdir, view, model_path):
     outpath = "/home/ubuntu/data/04_segmentation/" + view + "/"
     if not os.path.exists(outpath):
         os.makedirs(outpath)
-        
+
     images, orig_images = dcm_to_segmentation_arrays(dicomdir, videofile)
     np_arrays_x3 = []
     images_uuid_x3 = []
-    
+
     if view == "a4c":
         a4c_lv_segs, a4c_la_segs, a4c_lvo_segs, preds = extract_segs(
-            images, orig_images, model, sess, 2, 4, 1)
+            images, orig_images, model, sess, 2, 4, 1
+        )
         np_arrays_x3.append(np.array(a4c_lv_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_la_segs).astype("uint8"))
         np_arrays_x3.append(np.array(a4c_lvo_segs).astype("uint8"))
@@ -137,40 +142,41 @@ def segmentChamber(videofile, dicomdir, view, model_path):
             (outpath + "/" + videofile + "_" + str(j) + "_" + "overlay.png").encode()
         ).hexdigest()
     )
- 
+
     return [number_frames, model_name, np_arrays_x3, images_uuid_x3]
 
 
 def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
-    
+
     # set up for writing to segmentation schema
     io_views = dbReadWriteViews()
     io_segmentation = dbReadWriteSegmentation()
-    
-    column_names = [
-            "study_id",
-            "instance_id",
-            "file_name",
-            "num_frames",
-            "model_name",
-            "date_run",
-            "output_np_lv",
-            "output_np_la",
-            "output_np_lvo",
-            "output_image_seg",
-            "output_image_orig",
-            "output_image_overlay",            
-        ]
 
-    
+    column_names = [
+        "study_id",
+        "instance_id",
+        "file_name",
+        "num_frames",
+        "model_name",
+        "date_run",
+        "output_np_lv",
+        "output_np_la",
+        "output_np_lvo",
+        "output_image_seg",
+        "output_image_orig",
+        "output_image_overlay",
+    ]
+
     instances_unique_master_list = io_views.get_table("instances_unique_master_list")
     # below cleans the filename field to remove whitespace
     instances_unique_master_list["instancefilename"] = instances_unique_master_list[
         "instancefilename"
     ].apply(lambda x: str(x).strip())
-   
+
     for video in viewlist_a4c:
-        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a4c", model_path)
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(
+            video, dcm_path, "a4c", model_path
+        )
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split e.g. 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -182,10 +188,11 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        #Columns names are:prediction_id	study_id	instance_id	file_name	
-        #num_frames	model_name	date_run	output_np_lv	output_np_la	
-        #output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
-        d = [studyidk,
+        # Columns names are:prediction_id	study_id	instance_id	file_name
+        # num_frames	model_name	date_run	output_np_lv	output_np_la
+        # output_np_lvo	output_image_seg	output_image_orig	output_image_overlay
+        d = [
+            studyidk,
             instance_id,
             str(video),
             number_frames,
@@ -196,12 +203,14 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
             np_arrays_x3[2],
             images_uuid_x3[0],
             images_uuid_x3[1],
-            images_uuid_x3[2]]
+            images_uuid_x3[2],
+        ]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
-
     for video in viewlist_a2c:
-        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(video, dcm_path, "a2c", model_path)
+        [number_frames, model_name, np_arrays_x3, images_uuid_x3] = segmentChamber(
+            video, dcm_path, "a2c", model_path
+        )
         instancefilename = video.split("_")[2].split(".")[
             0
         ]  # split from 'a_63712_45TXWHPP.dcm' to '45TXWHPP'
@@ -213,18 +222,20 @@ def segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path):
         ]
         df = df.reset_index()
         instance_id = df.at[0, "instanceidk"]
-        d = [studyidk,
-             instance_id,
-             str(video),
-             number_frames,
-             model_name,
-             str(datetime.datetime.now()),
-             np_arrays_x3[0],
-             np_arrays_x3[1],
-             np_arrays_x3[2],
-             images_uuid_x3[0],
-             images_uuid_x3[1],
-             images_uuid_x3[2]]
+        d = [
+            studyidk,
+            instance_id,
+            str(video),
+            number_frames,
+            model_name,
+            str(datetime.datetime.now()),
+            np_arrays_x3[0],
+            np_arrays_x3[1],
+            np_arrays_x3[2],
+            images_uuid_x3[0],
+            images_uuid_x3[1],
+            images_uuid_x3[2],
+        ]
         io_segmentation.save_prediction_numpy_array_to_db(d, column_names)
 
     return 1
@@ -262,52 +273,62 @@ def extract_segs(images, orig_images, model, sess, lv_label, la_label, lvo_label
     return lv_segs, la_segs, lvo_segs, preds
 
 
-def run_segment(dcm_path, model_path, img_dir, classification_model_name, date_run = datetime.date.today()):
-  
+def run_segment(
+    dcm_path,
+    model_path,
+    img_dir,
+    classification_model_name,
+    date_run=datetime.date.today(),
+):
+
     path = dcm_path
 
     file_path = []
     filenames = []
-    
+
     for r, d, f in os.walk(path):
         for file in f:
-            if file.endswith('dcm_raw'):
+            if file.endswith("dcm_raw"):
                 file_path.append(os.path.join(r, file))
                 fullfilename = os.path.basename(os.path.join(r, file))
-                filenames.append(str(fullfilename).split('.')[0])
-                
+                filenames.append(str(fullfilename).split(".")[0])
+
     logger.info("Number of files in the directory: {}".format(len(file_path)))
     filename_df = pd.DataFrame(filenames)
-    
-    
+
     predict_truth = _groundtruth_views()
-    
-    predictions_df = predict_truth[(predict_truth["img_dir"] == img_dir)
+
+    predictions_df = predict_truth[
+        (predict_truth["img_dir"] == img_dir)
         & (predict_truth["model_name"] == classification_model_name)
-        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run)]
-    
+        & (pd.to_datetime(predict_truth["date_run"]).dt.date == date_run)
+    ]
 
-    
-    file_predictions = pd.merge(filename_df, predictions_df, how='inner', left_on=[0], right_on=['file_name'])
+    file_predictions = pd.merge(
+        filename_df, predictions_df, how="inner", left_on=[0], right_on=["file_name"]
+    )
 
-    logger.info("Number of files successfully matched with classification predictions: {}".format(file_predictions.shape[0]))
+    logger.info(
+        "Number of files successfully matched with classification predictions: {}".format(
+            file_predictions.shape[0]
+        )
+    )
 
     start = time.time()
-    
-    viewlist_a4c = file_predictions[file_predictions['view4_seg'] == 'a4c']['file_name']
-    viewlist_a4c = viewlist_a4c.apply(lambda x: x +'.dcm')
+
+    viewlist_a4c = file_predictions[file_predictions["view4_seg"] == "a4c"]["file_name"]
+    viewlist_a4c = viewlist_a4c.apply(lambda x: x + ".dcm")
     viewlist_a4c = viewlist_a4c.to_list()
-    logger.info('{} a4c files added to the view list'.format(len(viewlist_a4c)))
-    
-    viewlist_a2c = file_predictions[file_predictions['view4_seg'] == 'a2c']['file_name']
-    viewlist_a2c = viewlist_a2c.apply(lambda x: x +'.dcm')
+    logger.info("{} a4c files added to the view list".format(len(viewlist_a4c)))
+
+    viewlist_a2c = file_predictions[file_predictions["view4_seg"] == "a2c"]["file_name"]
+    viewlist_a2c = viewlist_a2c.apply(lambda x: x + ".dcm")
     viewlist_a2c = viewlist_a2c.to_list()
-    logger.info('{} a2c files added to the view list'.format(len(viewlist_a2c)))
-    
+    logger.info("{} a2c files added to the view list".format(len(viewlist_a2c)))
+
     segmentstudy(viewlist_a2c, viewlist_a4c, dcm_path, model_path)
     end = time.time()
     viewlist = viewlist_a2c + viewlist_a4c
     logger.info(
         "time:  " + str(end - start) + " seconds for " + str(len(viewlist)) + " videos"
     )
-

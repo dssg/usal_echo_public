@@ -14,6 +14,7 @@ import tempfile
 from usal_echo.d00_utils.db_utils import dbReadWriteRaw
 from usal_echo.d00_utils.s3_utils import get_matching_s3_keys
 from usal_echo.d00_utils.log_utils import setup_logging
+
 logger = setup_logging(__name__, __name__)
 
 
@@ -111,9 +112,7 @@ def _write_dicom_metadata_csv(df, metadata_file_suffix=None):
         df.to_csv(dicom_meta_path, mode="a", index=False, header=False)
 
     logger.info(
-        "study {}, instance {} - metadata saved".format(
-            df.iloc[0, 0], df.iloc[0, 1]
-        )
+        "study {}, instance {} - metadata saved".format(df.iloc[0, 0], df.iloc[0, 1])
     )
 
 
@@ -128,10 +127,12 @@ def _write_dicom_metadata_postgres(df, db_table):
     io_raw = dbReadWriteRaw()
     io_raw.save_to_db(df, db_table, "append")
 
-    logger.info("study: {}, instance: {} - metadata saved".format(df.iloc[0, 0], df.iloc[0, 1]))
+    logger.info(
+        "study: {}, instance: {} - metadata saved".format(df.iloc[0, 0], df.iloc[0, 1])
+    )
 
 
-def ingest_dcm(bucket='cibercv', write_to="postgres", prefix=""):
+def ingest_dcm(bucket="cibercv", write_to="postgres", prefix=""):
     """
     Retrieve all dicom metadata from s3 and save to dicom_metadata.csv file.
     
@@ -142,11 +143,11 @@ def ingest_dcm(bucket='cibercv', write_to="postgres", prefix=""):
     :return: (none) dicom metadata from s3/cibercv retrieved and stored
     
     """
-        
+
     if write_to == "postgres":
         func = '_write_dicom_metadata_postgres(df, "metadata")'
     elif write_to == "csv":
-        func = '_write_dicom_metadata_csv(df)'
+        func = "_write_dicom_metadata_csv(df)"
 
     for key in get_matching_s3_keys(bucket, prefix, ".dcm"):
         df = _get_dicom_metadata(bucket, key)
