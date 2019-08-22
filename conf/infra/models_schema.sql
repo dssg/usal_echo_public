@@ -28,6 +28,7 @@ create table classification.predictions(
     file_name varchar,
     model_name varchar,
     date_run varchar,
+    view_mapping varchar,
     img_dir varchar,
     view23_pred varchar,
     view4_dev varchar,
