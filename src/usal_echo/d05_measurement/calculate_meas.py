@@ -49,9 +49,14 @@ def calculate_meas(folder):
     for start in tqdm(range(0, len(file_names_dcm), step)):
         # Get small number of rows.
         small_file_names_dcm = file_names_dcm[start : start + step]
-        small_df = io_segmentation.get_segmentation_rows_for_files(
-            "predictions", tuple(small_file_names_dcm)
-        )
+        if len(small_file_names_dcm) == 1:
+            small_df = io_segmentation.get_segmentation_rows_for_file(
+                "predictions", small_file_names_dcm[0]
+            )
+        else:
+            small_df = io_segmentation.get_segmentation_rows_for_files(
+                "predictions", tuple(small_file_names_dcm)
+            )
         for _, row in small_df.iterrows():
             # Get relevant info.
             study_id = row["study_id"]
