@@ -73,6 +73,7 @@ You need to install and update the following packages on your system before acti
 ```
 sudo apt update
 sudo apt install make gcc jq libpq-dev postgresql-client postgresql-client python3 python3-dev python3-venv
+sudo apt-get install libgdcm-tools
 ```
 
 When installing these libraries, it is possible that a message window will pop up while trying to configure the library `libssl1.1:amd64`. This message is normal and tells you that some of the services need a restart. Say yes and enter to continue. The system will take care of restarting the required services.
