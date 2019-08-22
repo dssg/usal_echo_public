@@ -40,14 +40,14 @@ Configure and run with new model
         - Modify hyperparameters and save under 'models/unet_12/[experiment]/config.json'
             Make sure the 'data' parameter is updated to the [data_folder] you created
 
-    Run src/run.py from the echo_deeplearning/ folder 
+Run src/run.py from the echo_deeplearning/ folder 
         - Read src/run.py for arguments options (only required arugment is the model and experiment)
         - Format is 'python src/run.py models/[model]/[experiment]'
             ex: 'python src/run.py models/unet_12/a4c'
             ex 2: 'python src/run.py models/unet_12/a4c --train True --gpu 0 --val_split 0 --debug False --retrain False' 
 	- Note if terminal begins to overflow with progress text, stretch the terminal window so all information fits on one line
 
-    Visualize progress, loss, training accuracy, and validation accuracy
+Visualize progress, loss, training accuracy, and validation accuracy
         - Tensorboard variables will be stored under 'models/[model]/[experiment]/train/[val_split]'
         - Run 'tensorboard --logdir models/[model]/[experiment]/train/'
         - View at 'http://0.0.0.0:6006'
