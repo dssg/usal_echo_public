@@ -22,7 +22,7 @@ def evaluate_meas(folder):
     calculations_df = io_measurement.get_table("calculations")
     calculations_df = calculations_df.drop(columns=["calculation_id", "date_run"])
 
-     with open(os.path.join(usr_dir,"conf","path_parameters.yml")) as f:
+    with open(os.path.join(usr_dir,"conf","path_parameters.yml")) as f:
         paths = yaml.safe_load(f)
     path = os.path.expanduser(paths["dcm_dir"])
     file_names = [fn.split(".")[0] for fn in os.listdir(f"{path}/{folder}/raw")]
