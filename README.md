@@ -86,12 +86,13 @@ source ~/.bashrc
 conda activate usal_echo
 ```
 
-#### 2. Clone repository
-After activating your Anaconda environment, clone this repository into your work space. Navigate to `usal_echo` and install the required packages with pip.  
+#### 2. Clone and setup repository
+After activating your Anaconda environment, clone this repository into your work space. Navigate to `usal_echo` and install the required packages with pip. Then run the setup.py script.
 ```
 git clone https://github.com/dssg/usal_echo.git
 cd usal_echo
 pip install -r requirements.txt
+python setup.py install
 ```
 
 #### 3. Download models
@@ -104,8 +105,13 @@ The models used to run this pipeline can be downloaded from s3:
 To run the pipeline, you need to specify the credentials for your aws and postgres infrastructure. The pipeline looks for credentials files in specific locations. You should create these now if they do not already exist.
 
 ##### aws credentials   
-Located in `~/user/.aws/credentials` and formatted as:
+Located in `~/.aws/credentials` and formatted as:
 ```
+mkdir ~/.aws
+nano ~/.aws/credentials
+
+# Then paste the access id and key below into the file
+
 [default]
 aws_access_key_id=your_key_id
 aws_secret_access_key=your_secret_key
@@ -113,8 +119,13 @@ aws_secret_access_key=your_secret_key
 The pipeline uses the `default` user credentials.
 
 ##### postgres credentials  
-Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
+Modify the postgres credentials in `usr/usal_echo/conf/local/postgres_credentials.json`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
 ```
+cd usr/usal_echo/conf/
+nano postgres_credentials.json
+
+# Then modify the postgres credentials below into the file
+
 {
 "user":"your_user",
 "host": "your_server.rds.amazonaws.com",
@@ -124,9 +135,14 @@ Located in `usal_echo/conf/local/postgres_credentials.json` and formatted as:
 ```
 
 #### 5. Specify data paths
-The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `usal_echo/conf/local/path_parameters.yml`. This file must be created before you can run the pipeline. The suggested paths are:
+The path parameters for the s3 bucket and for storing dicom files, images and models must be stored as a yaml file in `usr/usal_echo/conf/path_parameters.yml`. This file must exist to run the pipeline. An example is created during setup and you must modify it for your configuration.
 
 ```
+cd usr/usal_echo/conf/
+nano path_parameters.yml
+
+# Then modify the paths below in the file
+
 bucket: "your_s3_bucket"
 dcm_dir: "~/data/01_raw"
 img_dir: "~/data/02_intermediate"
@@ -135,20 +151,15 @@ model_dir: "~/models"
 classification_model: "model.ckpt-6460"
 ```
 
-The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`.
+The `dcm_dir` is the directory to which dicom files will be downloaded. The `img_dir` is the directory to which jpg images are saved. The `model_dir` is the directory in which models are stored. The classification and segmentation models must be saved in the `model_dir`. Use `~/` to refer to the root directory.
 
 #### 6. Create the database schema
-As per the requirements listed in [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements) you require a database indtallation with credentials stored as described above. After the database has been created, you need to run the script that creates the different schema that we require to persist the outputs from the different pipeline processes: classification, segmentation and measurements. The database schema is stored in `d01_data/infra/models_schema.sql` and can be created by downloading the file and running the following command:
+As per the requirements listed in [Infrastructure requirements](https://github.com/dssg/usal_echo#infrastructure-requirements) you require a database indtallation with credentials stored as described above. After the database has been created, you need to run the script that creates the different schema that we require to persist the outputs from the different pipeline processes: classification, segmentation and measurements. The database schema is stored in `usr/usal_echo/conf/models_schema.sql` and must be set up by running the following command (change psswd, user, database and host to correspond with your setup):
 ```
+PGPASSWORD=psswd -U user -d database_name -h host -f 'usr/usal_echo/conf/models_schema.sql'
 ```
 
 ## Run the pipelineent
-
-Now navigate into the `usal_echo` directory and run the setup.py script. This step should only be done after all the credentials and config files have been created and updated. If you make any changes to these files, you need to rerun the setup script.
-
-```
-python setup.py install
-```
 
 The final step is to run the `inquire.py` script which can be called from within the `usal_echo` directory using the short cut usal_echo:
 ```
@@ -237,6 +248,12 @@ Finally, specify the name of the directory which contains the dicom files and im
 <img src="docs/images/inquire_dir.png" alt="Run pipeline: specify directory." width="450" />
 </p>
 
+### Log files
+The log files are stored in `usr/usal_echo/logs`.
+
+### Notebooks
+A set of notebooks exists in the `notebooks` directory of this repository. They contain the functions for each of the pipeline steps, as well as some elementary data analysis and can be used to experiment.
+
 ## Code organisation
 The code is organised as follows:
 1. `d00_utils`: Utility functions used throughout the system
@@ -245,8 +262,7 @@ The code is organised as follows:
 4. `d03_classification`: Classification of dicom images in image directory
 5. `d04_segmentation`: Segmentation of heart chambers
 6. `d05_measurements`: Calculation of measurements from segmentations
-7. `d06_reporting`: Results analysis against machine type and BMI 
-8. `d07_visualisation`: Generating plots for reporting
+7. `d07_visualisation`: Generating plots for reporting
 
 ## Contributors
 **Fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  

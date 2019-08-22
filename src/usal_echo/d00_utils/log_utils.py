@@ -10,9 +10,10 @@ import logging
 import os
 from pathlib import Path
 import pandas as pd
+from usal_echo import usr_dir
 
 
-log_basedir = os.path.join(Path(__file__).parents[2], "log")
+log_basedir = os.path.join(usr_dir, "logs")
 
 
 def setup_logging(name, log_file, level=logging.DEBUG):
