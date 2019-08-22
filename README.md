@@ -271,7 +271,7 @@ The code is organised as follows:
 4. `d03_classification`: Classification of dicom images in image directory
 5. `d04_segmentation`: Segmentation of heart chambers
 6. `d05_measurements`: Calculation of measurements from segmentations
-7. `d07_visualisation`: Generating plots for reporting
+7. `d06_visualisation`: Generating plots for reporting
 
 ## Contributors
 **Fellows**: Courtney Irwin, Dave Van Veen, Wiebke Toussaint, Yoni Nachmany  
