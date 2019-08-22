@@ -163,17 +163,17 @@ def clean_tables():
     io_clean = dbReadWriteClean()
 
     tables_to_clean = {
-        "measurement_abstract_rpt": _clean_measurement_abstract_rpt(tbl),
-        "a_measgraphref": _clean_measgraphref(tbl),
-        "a_measgraphic": _clean_measgraphic(tbl),
-        "dm_spain_view_study_summary": _clean_study_summary(tbl),
-        "a_modvolume": _clean_modvolume(tbl),
-        "instance_filename": _clean_instance_filename(tbl),
+        "measurement_abstract_rpt": "_clean_measurement_abstract_rpt(tbl)",
+        "a_measgraphref": "_clean_measgraphref(tbl)",
+        "a_measgraphic": "_clean_measgraphic(tbl)",
+        "dm_spain_view_study_summary": "_clean_study_summary(tbl)",
+        "a_modvolume": "_clean_modvolume(tbl)",
+        "instance_filename": "_clean_instance_filename(tbl)",
     }
 
     for key, val in tables_to_clean.items():
         tbl = io_raw.get_table(key)
-        clean_tbl = val
+        clean_tbl = eval(val)
 
         io_clean.save_to_db(clean_tbl, key)
         logger.info("Created table `{}` in schema {}".format(key, io_clean.schema))
