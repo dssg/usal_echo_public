@@ -176,8 +176,9 @@ def process_choices(options):
     if "classification" in options["module"]:
         print("Starting classification.")
         dir_name = options["dir_name"]
+        dcm_dir_path = os.path.join(dcm_dir, dir_name)
         img_dir_path = os.path.join(img_dir, dir_name)
-        dcmdir_to_jpgs_for_classification(dcm_dir, img_dir_path)
+        dcmdir_to_jpgs_for_classification(dcm_dir_path, img_dir_path)
         run_classify(img_dir_path, os.path.join(model_dir, classification_model))
         agg_probabilities()
         predict_views()
