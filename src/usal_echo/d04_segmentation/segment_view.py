@@ -21,7 +21,6 @@ import hashlib
 from usal_echo.d00_utils.log_utils import setup_logging
 from usal_echo.d02_intermediate.download_dcm import dcm_to_segmentation_arrays
 from usal_echo.d00_utils.db_utils import dbReadWriteViews, dbReadWriteClassification, dbReadWriteSegmentation
-from usal_echo.d00_utils.echocv_utils_v0 import *
 from usal_echo.d03_classification.evaluate_views import _groundtruth_views
 from usal_echo.d04_segmentation.model_unet import Unet
 
