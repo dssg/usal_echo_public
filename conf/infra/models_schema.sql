@@ -45,6 +45,7 @@ create table classification.evaluations(
     model_name varchar,
     img_dir varchar,
     date_run varchar,
+    view_mapping varchar,
     study_filter varchar,
     view varchar,
     tn float,
