@@ -12,7 +12,7 @@ setup(
     packages=find_packages(where='src'),
     include_package_data=True,
     data_files=[(conf_dir, [os.path.join('conf','examples', f) for f in ['path_parameters.yml','postgres_credentials.json']]+[os.path.join('conf','infra','models_schema.sql')]),
-(os.path.join('d02_intermediate','dicom_tags.json'), os.path.join('src','usal_echo','d02_intermediate','dicom_tags.json'))],
+(os.path.join('usal_echo','d02_intermediate','dicom_tags.json'), os.path.join('src','usal_echo','d02_intermediate','dicom_tags.json'))],
     entry_points='''
         [console_scripts]
         usal_echo=usal_echo.inquire:cli
