@@ -6,6 +6,7 @@ conf/local/**
 
 # ignore potentially sensitive credentials files
 conf/**/*credentials*
+!conf/examples/**
 
 # ignore everything in the following folders
 data/**
@@ -152,3 +153,7 @@ venv.bak/
 
 
 .spyproject
+
+# dave retrain stuff
+src/d03_classification/echo_deeplearning/vgg_13/m1_usal/train/
+src/d03_classification/echo_deeplearning/vgg_13/m1_usal/val/

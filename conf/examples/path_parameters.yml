@@ -1,0 +1,6 @@
+bucket: "your_s3_bucket"
+dcm_dir: "~/data/01_raw"
+img_dir: "~/data/02_intermediate"
+segmentation_dir: "~/data/04_segmentation"
+model_dir: "~/models"
+classification_model: "model.ckpt-6460"
